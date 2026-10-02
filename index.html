@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tool name</title>
+  <style>
+    :root { --bg: #ffffff; --text: #1f2328; --muted: #59636e; --accent: #0969da; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #0d1117; --text: #e6edf3; --muted: #9198a1; --accent: #4493f8; }
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main { max-width: 720px; margin: 0 auto; padding: 32px 16px; }
+    a { color: var(--accent); }
+    .back { color: var(--muted); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="https://clamk-tools.github.io/">← All tools</a>
+    <h1>Tool name</h1>
+    <p>What it does in one line.</p>
+  </main>
+</body>
+</html>

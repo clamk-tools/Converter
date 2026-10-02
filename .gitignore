@@ -1,0 +1,26 @@
+# Secrets and local configuration
+.env
+.env.*
+*.pem
+*.key
+
+# Local tool settings and notes (they name local paths)
+.claude/settings.local.json
+PLAN.md
+local-history/
+
+# Reference material copied from private projects
+from-*/
+
+# Editor and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build and dependencies
+node_modules/
+dist/
+*.log
+__pycache__/
+*.pyc
