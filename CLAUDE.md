@@ -25,3 +25,9 @@ Private terms (user name, machine name, private project names) go in `~/.git-pri
 `.git/privacy-terms`, one per line, never in the repo.
 Before a first push: `sh .githooks/check-privacy.sh --tree` and `sh .githooks/check-privacy.sh HEAD`.
 If something is already in pushed history, tell the user instead of rewriting it.
+
+## The tool
+
+Molarity Calculator: React + TypeScript + Vite, tests with Vitest and Playwright. Before a change read
+`doc/ARCHITECTURE.md` (structure, how to change it) and `doc/CALCULATIONS.md` (the science); visual changes follow
+`doc/LLM feed for visual/LLMfeed_VISUAL-IDENTITY.md`. Checks: `npm test`, `npm run lint`, `npm run build`, `npm run e2e`.
