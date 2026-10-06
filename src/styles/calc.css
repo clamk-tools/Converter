@@ -1,0 +1,393 @@
+/* The calculator: tabs, the solve-for switch, the quantity cards and their unit boxes, the result bar.
+   Flat construction from the brief: surface + 1px border + 7px controls / 9px cards, mono for numbers and units. */
+
+/* ---------- tabs: 600 0.875rem muted, the active one in text with a 2px accent underline ---------- */
+
+.tabs {
+  display: flex;
+  gap: 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+
+.tabs button {
+  height: 40px;
+  padding: 0 2px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--muted);
+  margin-bottom: -1px;
+}
+
+.tabs button:hover:not(:disabled) {
+  border-color: transparent;
+  color: var(--text);
+}
+
+.tabs button:active:not(:disabled) {
+  background: none;
+}
+
+.tabs button[aria-selected="true"] {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+}
+
+.tabs button:focus-visible {
+  border-radius: 4px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel .section-label + * {
+  margin-top: 0;
+}
+
+.panel .section-label:not(:first-child) {
+  margin-top: 14px; /* with the gap: 26px between groups */
+}
+
+.section-label button {
+  margin: -8px 0;
+}
+
+/* ---------- segmented control: surface track, the active segment accent-tint with accent text ---------- */
+
+.segmented {
+  display: inline-flex;
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+
+.segmented label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 5px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.segmented label:hover {
+  color: var(--text);
+}
+
+.segmented label.on {
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.segmented input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.segmented label:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- quantity cards ---------- */
+
+.qgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+  gap: 10px;
+}
+
+.qcard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px 14px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  transition: border-color 120ms ease;
+}
+
+/* the answer: the selected look of the brief (accent-tint and an accent border) */
+.qcard.result {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.qhead {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.qhead h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.qsym {
+  font: 600 0.75rem/1 var(--font-mono);
+  color: var(--muted);
+}
+
+.qcard.result .qsym {
+  color: var(--muted-on-tint);
+}
+
+.badge {
+  margin-left: auto;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--accent);
+  font: 600 0.65rem/1.4 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.qmain {
+  display: flex;
+  gap: 6px;
+}
+
+.qmain .qvalue {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.qmain select {
+  flex: none;
+  height: 36px;
+  min-width: 92px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* read-only boxes (an answer): no hover change, a text cursor for selecting and copying */
+input[readonly] {
+  cursor: text;
+}
+
+input[readonly]:hover {
+  border-color: var(--border) !important;
+}
+
+.qcard.result input[readonly] {
+  border-color: transparent;
+}
+
+.qcard.result input[readonly]:hover {
+  border-color: transparent !important;
+}
+
+.qcard.has-issue input:not([readonly]) {
+  border-color: var(--coral-ink);
+}
+
+.qissue,
+.qhint {
+  margin: -2px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.qissue {
+  color: var(--coral-text);
+  font-weight: 600;
+}
+
+.qhint {
+  color: var(--muted);
+}
+
+/* the same quantity in every unit: small labelled boxes, all editable, all in step */
+.equiv {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.qcard.result .equiv {
+  border-top-color: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.equiv-name {
+  margin: 0 0 4px;
+  font: 600 0.62rem/1 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.qcard.result .equiv-name {
+  color: var(--muted-on-tint);
+}
+
+.equiv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px 10px;
+}
+
+.eq {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.eq-unit {
+  flex: none;
+  width: 44px;
+  font: 600 0.75rem/1 var(--font-mono);
+  color: var(--muted);
+  text-align: right;
+}
+
+.qcard.result .eq-unit {
+  color: var(--muted-on-tint);
+}
+
+.eq.current .eq-unit {
+  color: var(--accent);
+}
+
+.eq-value {
+  flex: 1;
+  min-width: 0;
+  height: 28px !important;
+  padding: 0 8px !important;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.qcard.result .eq-value {
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+
+/* ---------- the result bar ---------- */
+
+.resultbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  /* stays in view at the bottom of the screen while the cards above are edited, then settles in its place */
+  position: sticky;
+  bottom: 10px;
+  z-index: 1;
+  box-shadow: var(--shadow-float);
+}
+
+.resultbar-text p {
+  margin: 0;
+}
+
+.resultbar-sentence {
+  font-size: 1rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.resultbar-wait {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.resultbar-note {
+  margin-top: 4px !important;
+  font-size: 0.85rem;
+  color: var(--blue-text);
+}
+
+.resultbar .formula {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.resultbar .formula code {
+  font-weight: 500;
+}
+
+button.copy {
+  max-width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+button.copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .resultbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .resultbar button.copy {
+    justify-self: start;
+  }
+
+  .segmented {
+    align-self: stretch;
+  }
+
+  .segmented label {
+    flex: 1;
+    justify-content: center;
+    padding: 0 8px;
+  }
+}
+
+@media (pointer: coarse) {
+  .eq-value {
+    font-size: 16px !important;
+    height: 36px !important;
+  }
+
+  .segmented label {
+    height: 40px;
+  }
+}
+
+/* a box that gets focus scrolls clear of the sticky result bar, not under it */
+html {
+  scroll-padding-bottom: 170px;
+}

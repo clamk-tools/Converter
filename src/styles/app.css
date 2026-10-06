@@ -1,0 +1,122 @@
+/* The family's frame (rail, header, footer), as in the other Clamk tools. Colours are the theme's tokens only. */
+
+/* ---------- frame ---------- */
+
+.frame {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.rail {
+  flex: none;
+  height: var(--rail-height);
+  background: linear-gradient(180deg, var(--rail), var(--border));
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--container);
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-block: 18px;
+}
+
+.brand {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+.brand a {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--text);
+}
+
+.brand a:hover {
+  text-decoration: none;
+}
+
+.brand a::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* the family's switch: a pill track, a knob that slides, the sun or the moon in it */
+.theme-switch {
+  flex: none;
+  width: 50px;
+  height: 27px;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  background: var(--switch-track);
+}
+
+.theme-switch:active:not(:disabled) {
+  background: var(--switch-track);
+}
+
+.theme-switch::after {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
+}
+
+.theme-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 21px;
+  height: 21px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--accent);
+  transition: transform 180ms ease;
+}
+
+.theme-switch[aria-checked="true"] .theme-knob {
+  transform: translateX(23px);
+}
+
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 44px;
+}
+
+.foot p {
+  margin: 0;
+  padding: 18px 0 28px;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+

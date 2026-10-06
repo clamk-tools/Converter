@@ -1,0 +1,111 @@
+# Architecture
+
+How Molarity Calculator is made, for whoever changes it next (a person or an LLM). `README.md` says what the tool
+does for its user; `doc/CALCULATIONS.md` holds the science; `doc/CHANGELOG.md` says what changed.
+
+## 1. In one paragraph
+
+A static page (React + TypeScript, built by Vite, served by GitHub Pages), no backend. The state holds each
+physical quantity **once**, in a canonical unit (concentration = 0.0001 M). Every box on the page is computed from
+that state; typing in a box replaces the quantity it belongs to. The calculators are pure functions of the state, so
+dependent quantities recalculate on every keystroke with no update loops.
+
+## 2. The layers
+
+```
+ units/units.ts        unit definitions, canonical units, conversion (powers of ten)
+ numbers/parse.ts      text → number | partial | invalid | empty
+ numbers/format.ts     number → text (display precision, notation)
+ engine/equations.ts   the bare formulas, canonical units
+ engine/solve.ts       the two calculators: validation, then equations
+ state/model.ts        the scientific state, the reducer (user actions), derive() and boxText()
+ ui/summary.ts         the result as a sentence, and the text Copy puts on the clipboard
+ ui/*.tsx              components: QuantityCard, SolutionPanel, DilutionPanel, ResultBar, CopyButton, ThemeSwitch
+ App.tsx               the frame (rail, header, tabs, footer)
+ styles/               theme.css: tokens and controls (shared with the other tools); app.css: frame; calc.css: the calculator
+```
+
+A layer imports only from the layers above it. No formula lives in a component; no component state holds a value.
+
+## 3. The flow of one keystroke
+
+```
+ user types "100" in the µM box of Concentration
+   → dispatch { type: "type", field: "concentration", unit: "uM", text: "100" }
+   → reducer: parseNumber → 100 → toCanonical(100, µM) = 0.0001
+              entries.concentration = { amount: { dimension: "molar", value: 0.0001 } }
+              editing = { field, unit, text }          (only for the box being typed in)
+   → derive(state): solveSolution(...) → mass, moles; solveDilution(...) → V1, V2 − V1; issues per field
+   → every box: boxText(state, derived, quantity, unit)
+        the box being typed in → its raw text ("1e-" stays "1e-")
+        any other box          → formatNumber(valueIn(quantity, unit), precision)
+```
+
+Two kinds of relationship, kept apart:
+
+- **Unit equivalence** (the M, mM, µM boxes of one quantity): not stored at all. Each box is `fromCanonical` of the
+  one stored value, so they cannot disagree.
+- **Scientific dependency** (mass ← concentration, volume, MW): computed in `derive()` by the engine. The answer is
+  never written back into the state while it is the answer, so nothing loops.
+
+### State (`state/model.ts`)
+
+| Field | Holds |
+|---|---|
+| `entries` | the typed quantities: `molarMass`, `concentration`, `volume`, `mass`, `stock`, `target`, `finalVolume`. Each is empty, a canonical value, or invalid (with the reason) |
+| `units` | the unit each quantity's main box shows. Changing it changes nothing else |
+| `solveFor` | which of mass, concentration, volume is the answer |
+| `tab` | which calculator is shown. Both share one state |
+| `editing` | the box being typed in and its raw text |
+
+Rules the reducer follows:
+
+- A partial number (`1e-`, `.`) leaves the quantity at its last value; leaving the box with it marks it invalid.
+- Typing in an answer box does nothing (the box is also read-only).
+- Switching what to solve for turns the answer shown into an input, rounded as it was shown, so the screen stays
+  consistent (solve for mass, then for concentration: the concentration typed comes back).
+- A concentration remembers whether it was typed as molar or as mass per volume. Converting between the two needs the
+  molecular weight; when MW changes, the typed form stays and the other follows.
+- Clear empties one tab's fields; clearing the dilution keeps the shared molecular weight.
+
+### Precision (`numbers/format.ts`)
+
+Calculations use full doubles. Units are powers of ten applied by exact division or multiplication, so a unit change
+adds no error. Display rounds: 12 significant digits for a typed value in any of its units (keeps what was typed,
+hides float noise), 6 for a calculated value. Plain notation from 1e-5 to 1e10, `e` notation outside.
+
+## 4. Tests
+
+| Where | What |
+|---|---|
+| `src/units/units.test.ts` | every unit relation of the brief (1 g = 1000 mg…), no float noise through the canonical unit |
+| `src/numbers/numbers.test.ts` | parsing (decimals, `e`, comma, partial, invalid, overflow), formatting (noise, notation, round trip) |
+| `src/engine/solve.test.ts` | each equation, both sanity checks, every validation rule, tiny and huge values, overflow |
+| `src/state/model.test.ts` | synchronisation (100 µM, 0.25 mM, 2 mL, 5 mg), unit changes, the dependency chain, solve-for switching, typing states, dilution |
+| `src/ui/summary.test.ts` | the result sentences and Copy text |
+| `e2e/calculator.spec.ts` | the built page used through the keyboard and mouse, in four browser set-ups; also fails on any request to another host |
+
+## 5. Making a change
+
+1. **Find the layer** in section 2. A new unit is one line in `units/units.ts`. A new formula goes in
+   `engine/equations.ts`, its checks in `engine/solve.ts`, and its wiring in `derive()`.
+2. **Write the test first** in the matching `*.test.ts`, with the numbers worked out by hand in
+   `doc/CALCULATIONS.md`.
+3. **Run the checks:** `npm test`, `npm run lint`, `npm run build`, then `npm run e2e`.
+4. **Look at it** with `npm run dev`, in light and dark, at desktop and phone width.
+5. **Update the docs**: `README.md` for what the user sees, `doc/CALCULATIONS.md` for any science,
+   this file for structure, and an entry in `doc/CHANGELOG.md`.
+6. **Stop before publishing.** A push to `main` deploys the site; that is the owner's decision.
+
+Visual changes follow `doc/LLM feed for visual/LLMfeed_VISUAL-IDENTITY.md` and use the tokens in
+`src/styles/theme.css` only.
+
+## 6. Decisions that stand
+
+- **Same stack as Metadata-Miner** (React, Vite, plain CSS with tokens, Vitest, Playwright, ESLint), the closest
+  sibling tool, so the family stays maintainable by the same hands. No state library: one `useReducer` is enough.
+- **No Calculate button.** Answers follow every keystroke, as the inputs are cheap to compute.
+- **Text boxes, not `type="number"`**: number boxes reject `1e-` while it is typed and differ between browsers. The
+  phone shows the full keyboard so that `e` can be typed.
+- **A decimal comma is accepted**, but `1,500` is refused: it could mean either.
+- **Fonts and code served by the site**, under a Content-Security-Policy: no third party sees who uses the tool.
