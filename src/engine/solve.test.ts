@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { concentrationFrom, massConcentrationOf, massFrom, molarConcentrationOf, moles, stockVolumeFrom, volumeFrom } from "./equations";
+import { concentrationFrom, massFrom, moles, stockVolumeFrom, volumeFrom } from "./equations";
 import { HIGHER_THAN_STOCK, solveDilution, solveSolution } from "./solve";
 
 // Glucose: MW 180.16 g/mol. 100 mM in 10 mL needs 180.16 mg (doc/CALCULATIONS.md, worked example).
@@ -21,10 +21,6 @@ describe("equations", () => {
   });
   it("V1 = C2 × V2 / C1", () => {
     expect(stockVolumeFrom(1, 0.01, 0.1)).toBeCloseTo(0.001, 15);
-  });
-  it("mass concentration = C × MW, and back", () => {
-    expect(massConcentrationOf(0.1, MW)).toBeCloseTo(18.016, 12);
-    expect(molarConcentrationOf(18.016, MW)).toBeCloseTo(0.1, 15);
   });
 });
 

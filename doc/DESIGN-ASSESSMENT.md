@@ -22,12 +22,12 @@ tokens, theme switch and build set-up were reused as they are.
 | Radius | 7px controls, 9px cards, 5px badges, pill for the switch |
 | Spacing | Compact: 10px between cards, 12px from label to content, 26px between groups, 20px gutters |
 | Inputs | `surface`, 1px border, 7px radius, 32–36px tall, mono numbers; hover `rail`, focus accent + ring; 16px text on touch screens |
-| Selects | Same as inputs, mono unit symbols |
-| Buttons | Secondary (surface, border, accent on hover) for Copy; quiet for Clear |
-| Cards | Flat, no shadow: one per calculator. Its answer area turns accent-tint with an accent hairline once there is an answer |
-| Icons | 2px line icons in `currentColor` (copy, check, sun, moon) |
-| Navigation | Header: rail, blue dot and tool name, a quiet "← All tools" link, the theme switch. Four calculators stacked in GraphPad's order (layout requested 2026-10-08), no tabs |
-| Responsive | Label · box · unit rows; below 640px the label goes above its box |
+| Selects | Same as inputs; unit names in words, as on GraphPad (millimolar) |
+| Buttons | None in the calculators: GraphPad's orange "Mass =" button is an accent label, since answers follow typing |
+| Cards | Flat, no shadow: one panel per calculator. Its answer label fills with the accent and its answer box turns accent-tint once there is an answer |
+| Icons | 2px line icons in `currentColor` (sun, moon) |
+| Navigation | Header: rail, blue dot and tool name, a quiet "← All tools" link, the theme switch. GraphPad's four calculators, rows and labels as on its page (requested 2026-10-08), no tabs |
+| Responsive | "Label: [box] [unit]" rows as on GraphPad; below 560px the label goes above its box |
 | Dark / light | System setting until the switch is used; the choice is stored under `clamk-tools:theme`, shared with the hub |
 | Animation | 120ms colour changes, 180ms switch knob; none with reduced motion |
 | Density | Dense, as the brief asks; type sizes raised to 14–16px where people read and type numbers |
