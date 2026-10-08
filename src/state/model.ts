@@ -8,7 +8,7 @@
 // quantity, so the others follow. Choosing another unit only changes how a quantity is shown, never its value, and
 // the choice holds wherever that quantity appears, answers included.
 //
-// The page has GraphPad's four calculators. The first three share the concentration, formula weight, volume and mass;
+// The page has GraphPad's four calculators. The first three share the concentration, molecular weight, volume and mass;
 // each solves for the one it does not take, so the answers are never stored and nothing loops. The dilution has its
 // own three values.
 //
@@ -30,7 +30,7 @@ export type FieldId = "concentration" | "molarMass" | "volume" | "mass" | "stock
 export type OutputId = "massResult" | "volumeResult" | "concentrationResult" | "stockVolume";
 export type QuantityId = FieldId | OutputId;
 
-/** The unit choices. An answer shares its quantity's choice; the formula weight is always g/mol. */
+/** The unit choices. An answer shares its quantity's choice; the molecular weight is always g/mol. */
 export type UnitSlot = "concentration" | "volume" | "mass" | "stock" | "target" | "finalVolume";
 export const SLOT: Record<QuantityId, UnitSlot | null> = {
   concentration: "concentration",

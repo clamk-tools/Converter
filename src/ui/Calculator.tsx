@@ -16,7 +16,7 @@ interface Props {
   onAdd: () => void;
 }
 
-// One calculator, laid out as on GraphPad: a row per input (label, box, unit menu; the formula weight has no menu),
+// One calculator, laid out as on GraphPad: a row per input (label, box, unit menu; the molecular weight has no menu),
 // then "Answer =" and the answer with its unit. A box here and the box of the same quantity in another calculator
 // show one stored value: typing in either changes both (state/model.ts). The answer follows every keystroke.
 export function Calculator({ spec, state, derived, dispatch, onAdd }: Props) {

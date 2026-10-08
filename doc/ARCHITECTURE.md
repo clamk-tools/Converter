@@ -54,7 +54,7 @@ Two kinds of relationship, kept apart:
 | Field | Holds |
 |---|---|
 | `entries` | the typed quantities: `molarMass`, `concentration`, `volume`, `mass`, `stock`, `target`, `finalVolume`. Each is empty, a canonical value, or invalid (with the reason) |
-| `units` | the unit each quantity is shown in, everywhere it appears. An answer shares its quantity's unit (`SLOT`: `massResult` → `mass`; the required volume → the desired volume). The formula weight has none: always g/mol. Changing a unit changes nothing else |
+| `units` | the unit each quantity is shown in, everywhere it appears. An answer shares its quantity's unit (`SLOT`: `massResult` → `mass`; the required volume → the desired volume). The molecular weight has none: always g/mol. Changing a unit changes nothing else |
 | `editing` | the box being typed in (quantity, unit and calculator) and its raw text |
 
 Rules the reducer follows:

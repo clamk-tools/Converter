@@ -44,7 +44,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* the formula weight has no unit menu: its box takes the menu's place too */
+/* the molecular weight has no unit menu: its box takes the menu's place too */
 .row.fixed-unit .row-value {
   grid-column: 2 / -1;
 }

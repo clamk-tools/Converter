@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
 // The built page, used as a person would: typing in boxes, choosing units, reading the four calculators.
-// Each calculator is a section marked data-calculator; a box is named "<label> in <unit name>" ("Formula weight (g/mol)"
+// Each calculator is a section marked data-calculator; a box is named "<label> in <unit name>" ("Molecular weight (g/mol or Da)"
 // has no unit menu); an answer is an <output> named after its label.
 
 type Id = "mass" | "volume" | "concentration" | "dilution";
@@ -31,7 +31,7 @@ test.afterEach(async ({ page }) => {
 
 const glucose = async (page: Page) => {
   await box(page, "mass", "Concentration in millimolar").fill("100");
-  await box(page, "mass", "Formula weight (g/mol)").fill("180.16");
+  await box(page, "mass", "Molecular weight (g/mol or Da)").fill("180.16");
   await box(page, "mass", "Volume in milliliter").fill("10");
 };
 
@@ -42,9 +42,9 @@ test("GraphPad's four calculators, with their rows in GraphPad's order", async (
     "3. Molarity from mass & volume",
     "4. Dilute a stock solution",
   ]);
-  await expect(calc(page, "mass").locator(".row-label")).toHaveText(["Concentration:", "Formula weight (g/mol):", "Volume:"]);
-  await expect(calc(page, "volume").locator(".row-label")).toHaveText(["Mass:", "Formula weight (g/mol):", "Concentration:"]);
-  await expect(calc(page, "concentration").locator(".row-label")).toHaveText(["Mass:", "Formula weight (g/mol):", "Volume:"]);
+  await expect(calc(page, "mass").locator(".row-label")).toHaveText(["Concentration:", "Molecular weight (g/mol or Da):", "Volume:"]);
+  await expect(calc(page, "volume").locator(".row-label")).toHaveText(["Mass:", "Molecular weight (g/mol or Da):", "Concentration:"]);
+  await expect(calc(page, "concentration").locator(".row-label")).toHaveText(["Mass:", "Molecular weight (g/mol or Da):", "Volume:"]);
   await expect(calc(page, "dilution").locator(".row-label")).toHaveText(["Stock concentration:", "Desired concentration:", "Desired volume:"]);
   await expect(page.locator(".result-label")).toHaveText(["Mass =", "Volume =", "Molarity =", "Required volume ="]);
 });
@@ -58,8 +58,8 @@ test("the sanity check: 100 mM, 180.16 g/mol, 10 mL give 180.16 mg, and follow e
 
 test("boxes of the same kind are linked across calculators", async ({ page }) => {
   await glucose(page);
-  await expect(box(page, "volume", "Formula weight (g/mol)")).toHaveValue("180.16");
-  await expect(box(page, "concentration", "Formula weight (g/mol)")).toHaveValue("180.16");
+  await expect(box(page, "volume", "Molecular weight (g/mol or Da)")).toHaveValue("180.16");
+  await expect(box(page, "concentration", "Molecular weight (g/mol or Da)")).toHaveValue("180.16");
   await expect(box(page, "volume", "Concentration in millimolar")).toHaveValue("100");
   await expect(box(page, "concentration", "Volume in milliliter")).toHaveValue("10");
 
@@ -116,9 +116,9 @@ test("scientific notation and a decimal comma are read", async ({ page }) => {
 });
 
 test("invalid values are explained at the box, in each calculator", async ({ page }) => {
-  await box(page, "mass", "Formula weight (g/mol)").fill("-5");
-  await expect(calc(page, "mass").getByText("Formula weight cannot be negative.")).toBeVisible();
-  await expect(calc(page, "concentration").getByText("Formula weight cannot be negative.")).toBeVisible();
+  await box(page, "mass", "Molecular weight (g/mol or Da)").fill("-5");
+  await expect(calc(page, "mass").getByText("Molecular weight cannot be negative.")).toBeVisible();
+  await expect(calc(page, "concentration").getByText("Molecular weight cannot be negative.")).toBeVisible();
   await box(page, "mass", "Volume in milliliter").fill("abc");
   await expect(box(page, "mass", "Volume in milliliter")).toHaveAttribute("aria-invalid", "true");
 });

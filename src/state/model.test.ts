@@ -85,7 +85,7 @@ describe("changing unit keeps the quantity, and applies wherever the quantity ap
     expect(resultText(s, derive(s), "massResult")).toBe("0.18016 g");
   });
 
-  it("the formula weight has no unit to change", () => {
+  it("the molecular weight has no unit to change", () => {
     expect(reducer(initialState, unitTo("molarMass", "g_mol"))).toBe(initialState);
   });
 });
@@ -127,7 +127,7 @@ describe("validation", () => {
   it("says what is wrong, and gives no answer", () => {
     const s = run([...glucose, ...typed("molarMass", "g_mol", "0")]);
     const d = derive(s);
-    expect(issueAt(s, d, "mass", "molarMass")).toBe("Formula weight must be greater than zero.");
+    expect(issueAt(s, d, "mass", "molarMass")).toBe("Molecular weight must be greater than zero.");
     expect(resultText(s, d, "massResult")).toBe("");
   });
 
