@@ -5,6 +5,16 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-08 · A report, and "molecular weight"
+
+- **Seen:** each answer has an icon to add it to a report. A second tab, *Report*, lists what was added as one
+  condensed numbered line each (`Mass  C 100 mM · MW 180.16 g/mol · V 10 mL → m 180.16 mg`), with the values as they were
+  when added; a line can be removed and the report cleared. The report is kept in the browser. The row is now
+  "Molecular weight (g/mol or Da)" (was "Formula weight"), and the messages say the same.
+- **Inside:** new `state/report.ts` (entries as snapshots, browser storage guarded) and `ui/Report.tsx`; the page gets
+  two tabs. 65 unit tests, 12 end-to-end tests.
+- **Decided:** the label says "g/mol or Da" and the unit stays g/mol, as 1 Da = 1 g/mol.
+
 ### 2026-10-08 · Less text
 
 - **Seen:** the paragraph above the calculators and "Runs in your browser, nothing is sent." in the footer are gone.
@@ -15,10 +25,10 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 ### 2026-10-08 · GraphPad's calculators, exactly
 
 - **Seen:** the calculators are now the ones on GraphPad's page, from screenshots of it: the same four, numbered, with
-  the same rows in the same order ("Concentration:", "Molecular weight (g/mol):", "Volume:" → "Mass ="), unit menus
+  the same rows in the same order ("Concentration:", "Formula weight (g/mol):", "Volume:" → "Mass ="), unit menus
   in words (millimolar, milliliter, milligrams) and the answer in one box with its unit ("180.16 mg"). Removed, as
   GraphPad has none of them: kDa, mass concentrations (mg/mL…), the amount and diluent rows, the every-unit lines,
-  the result sentences, the Copy buttons and Clear all. The links stay: concentration, molecular weight, volume and
+  the result sentences, the Copy buttons and Clear all. The links stay: concentration, formula weight, volume and
   mass are one value each across the first three calculators, and a unit chosen for one shows everywhere, answers
   included. The dilution keeps its own values.
 - **Inside:** the unit system has names and loses the mass-concentration, amount and kDa units; the state stores one
@@ -31,7 +41,7 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 - **Seen:** the two tabs are replaced by four calculators stacked on one page, in the order of GraphPad's molarity
   calculator: mass, volume, molarity, dilution. Each input is one box with a unit menu; each answer is listed in every
   other unit under its box. The calculators share their values and units: a molecular weight typed once is in all
-  three, and a unit picked for a quantity shows everywhere. "Molecular weight" is now "Molecular weight", as on GraphPad.
+  three, and a unit picked for a quantity shows everywhere. "Molecular weight" is now "Formula weight", as on GraphPad.
 - **Inside:** `state/model.ts` drops `solveFor` and the tabs; each calculator solves for its own answer from the shared
   values, and answers have their own ids so they are never stored. New `ui/sections.ts` and `ui/Calculator.tsx`
   replace the cards, panels and sticky result bar. Tests rewritten for the new page (67 unit, 12 end-to-end).

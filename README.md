@@ -31,6 +31,12 @@ the required volume in the unit of the desired volume.
 Units, named as on GraphPad: molar to picomolar, liter to nanoliter, grams to nanograms. The molecular weight is in
 grams/mole (= daltons).
 
+### Report
+
+The icon beside each answer adds the calculation to the **Report** tab: one condensed line with its values, as they
+were when added, e.g. `Mass  C 100 mM · MW 180.16 g/mol · V 10 mL → m 180.16 mg`. A line can be removed, and the report
+cleared. It is kept in your browser, so it survives a reload; it is not sent anywhere.
+
 ### Typing numbers
 
 `0.25`, `0,25` (decimal comma), `1e-6`, `2.5E8` and a leading minus are read. A number being typed (`1e-`, `0.`)
