@@ -5,6 +5,13 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-08 · Less text
+
+- **Seen:** the paragraph above the calculators and "Runs in your browser, nothing is sent." in the footer are gone.
+  The footer keeps the links to the hub and the source.
+
+## Released
+
 ### 2026-10-08 · GraphPad's calculators, exactly
 
 - **Seen:** the calculators are now the ones on GraphPad's page, from screenshots of it: the same four, numbered, with
@@ -18,8 +25,6 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
   number per quantity. `ui/summary.ts`, `CopyButton.tsx` and `clipboard.ts` are deleted. 61 unit tests, 11
   end-to-end tests.
 - **Decided:** GraphPad's orange "Mass =" button is a Clamk accent label, not a button, since answers follow typing.
-
-## Released
 
 ### 2026-10-08 · GraphPad's layout
 

@@ -28,10 +28,6 @@ export function App() {
       </header>
 
       <main className="wrap page">
-        <p className="intro">
-          Four calculators, as on GraphPad's molarity page. Boxes of the same kind are linked: a concentration, formula weight, volume or mass typed in one
-          calculator appears in the others, and so does a unit you choose. Answers follow as you type.
-        </p>
         {CALCULATORS.map((spec) => (
           <Calculator key={spec.id} spec={spec} state={state} derived={derived} dispatch={dispatch} />
         ))}
@@ -46,8 +42,7 @@ export function App() {
           ·{" "}
           <a className="quiet" href="https://github.com/clamk-tools/Converter">
             Source
-          </a>{" "}
-          · Runs in your browser, nothing is sent.
+          </a>
         </p>
       </footer>
     </div>

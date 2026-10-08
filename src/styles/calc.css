@@ -2,13 +2,6 @@
    "Label: [box] [unit]" rows ending with "Answer = [answer]". Clamk construction: surface + 1px border, 7px controls,
    9px panels, mono for numbers, blue for the answer. */
 
-.intro {
-  margin: 0 0 4px;
-  max-width: 70ch;
-  font-size: 0.875rem;
-  color: var(--muted);
-}
-
 .calc {
   display: flex;
   flex-direction: column;
