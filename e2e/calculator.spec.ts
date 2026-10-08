@@ -5,7 +5,7 @@ import type { Page } from "@playwright/test";
 // Each calculator is a section marked data-calculator; a box is named "<label> in <unit name>" ("Molecular weight (g/mol or Da)"
 // has no unit menu); an answer is an <output> named after its label.
 
-type Id = "mass" | "volume" | "concentration" | "dilution";
+type Id = "mass" | "volume" | "concentration" | "dilution" | "conversion";
 const calc = (page: Page, id: Id) => page.locator(`[data-calculator="${id}"]`);
 const box = (page: Page, id: Id, name: string) => calc(page, id).getByLabel(name, { exact: true });
 const answer = (page: Page, id: Id) => calc(page, id).locator("output");
@@ -41,6 +41,7 @@ test("GraphPad's four calculators, with their rows in GraphPad's order", async (
     "2. Volume from mass & concentration",
     "3. Molarity from mass & volume",
     "4. Dilute a stock solution",
+    "5. Convert between mass & molar concentration",
   ]);
   await expect(calc(page, "mass").locator(".row-label")).toHaveText(["Concentration:", "Molecular weight (g/mol or Da):", "Volume:"]);
   await expect(calc(page, "volume").locator(".row-label")).toHaveText(["Mass:", "Molecular weight (g/mol or Da):", "Concentration:"]);
@@ -218,4 +219,47 @@ test("Collapse all folds every calculation, then Expand all opens them", async (
   await expect(page.locator(".sheet-summary")).toHaveCount(2);
   await page.getByRole("button", { name: "Expand all" }).click();
   await expect(page.locator(".steps")).toHaveCount(2);
+});
+
+test("5. a concentration typed in any unit fills every unit, molar and mass per volume", async ({ page }) => {
+  await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("180.16");
+  await box(page, "conversion", "Concentration in millimolar").fill("100");
+  await expect(box(page, "conversion", "Concentration in molar")).toHaveValue("0.1");
+  await expect(box(page, "conversion", "Concentration in micromolar")).toHaveValue("100000");
+  await expect(box(page, "conversion", "Concentration in grams/liter")).toHaveValue("18.016");
+  await expect(box(page, "conversion", "Concentration in milligrams/milliliter")).toHaveValue("18.016");
+  await expect(box(page, "conversion", "Concentration in percent weight/volume")).toHaveValue("1.8016");
+  await expect(box(page, "conversion", "Concentration in micrograms/milliliter")).toHaveValue("18016");
+  await expect(box(page, "conversion", "Concentration in ppm (mg/L)")).toHaveValue("18016");
+
+  await box(page, "conversion", "Concentration in percent weight/volume").fill("1");
+  await expect(box(page, "conversion", "Concentration in grams/liter")).toHaveValue("10");
+  await expect(box(page, "conversion", "Concentration in millimolar")).toHaveValue("55.5062");
+});
+
+test("5. it asks for a molecular weight to cross between the two kinds, and shares the one of the other calculators", async ({ page }) => {
+  await box(page, "conversion", "Concentration in millimolar").fill("100");
+  await expect(box(page, "conversion", "Concentration in micromolar")).toHaveValue("100000"); // no weight needed
+  await expect(box(page, "conversion", "Concentration in grams/liter")).toHaveValue("");
+  await expect(box(page, "conversion", "Concentration in grams/liter")).toHaveAttribute("placeholder", "needs MW");
+
+  await box(page, "mass", "Molecular weight (g/mol or Da)").fill("180.16"); // typed in calculator 1
+  await expect(box(page, "conversion", "Molecular weight (g/mol or Da)")).toHaveValue("180.16");
+  await expect(box(page, "conversion", "Concentration in grams/liter")).toHaveValue("18.016");
+});
+
+test("5. it is its own value: it does not change the concentration in calculators 1 to 3", async ({ page }) => {
+  await glucose(page);
+  await box(page, "conversion", "Concentration in millimolar").fill("5");
+  await expect(box(page, "mass", "Concentration in millimolar")).toHaveValue("100");
+  await expect(answer(page, "mass")).toHaveText("180.16 mg");
+});
+
+test("5. a negative concentration and a molecular weight of zero are explained", async ({ page }) => {
+  await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("180.16");
+  await box(page, "conversion", "Concentration in millimolar").fill("-5");
+  await expect(calc(page, "conversion").getByText("Concentration cannot be negative.")).toBeVisible();
+  await box(page, "conversion", "Concentration in millimolar").fill("5");
+  await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("0");
+  await expect(calc(page, "conversion").getByText("Molecular weight must be greater than zero.")).toBeVisible();
 });

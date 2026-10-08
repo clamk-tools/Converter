@@ -5,6 +5,18 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-09 · Calculator 5: mass and molar concentration
+
+- **Seen:** a fifth calculator under the four: one concentration shown in every unit at once, molar (M to pM) and mass
+  per volume (g/L, mg/mL, % w/v, µg/mL, ppm, ng/mL), all linked, with the molecular weight of the other calculators.
+  100 mM at 180.16 g/mol shows 18.016 g/L, 1.8016 % w/v, 18016 ppm. "Needs MW" shows in the boxes that cannot be filled
+  without a molecular weight; a negative concentration and a molecular weight of zero are explained.
+- **Inside:** units `g/L`, `mg/mL`, `% w/v`, `µg/mL`, `ppm`, `ng/mL` (exact powers of ten); `ρ = C × MW` and its inverse in
+  `engine/equations.ts`; `checkConversion` in `engine/solve.ts`; `Entry` now records its dimension; new
+  `ui/ConcentrationConverter.tsx`. 83 unit tests, 19 end-to-end tests.
+- **Decided:** its concentration is its own value (not the concentration of calculators 1 to 3); it shares only the
+  molecular weight. No report entry for it yet.
+
 ### 2026-10-09 · The report is a calculation report, with names and folding
 
 - **Seen:** each entry of the Report tab is now a worked calculation: given, conversions to base units (with the

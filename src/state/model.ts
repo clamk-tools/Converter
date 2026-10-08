@@ -15,8 +15,9 @@
 // Only the box being typed in shows the raw text (State.editing), so "1e-" or "0." is never reformatted under the
 // user's fingers. Every other box, and that box once left, shows the formatted value.
 
-import { solveDilution, solveSolution } from "../engine/solve";
-import type { DilutionResult, SolutionResult, SolveFor } from "../engine/solve";
+import { massConcentrationOf, molarConcentrationOf } from "../engine/equations";
+import { checkConversion, solveDilution, solveSolution } from "../engine/solve";
+import type { ConversionResult, DilutionResult, SolutionResult, SolveFor } from "../engine/solve";
 import { COMPUTED, ENTERED, formatNumber } from "../numbers/format";
 import { parseNumber } from "../numbers/parse";
 import { fromCanonical, toCanonical, unit } from "../units/units";
@@ -26,6 +27,8 @@ export type { SolveFor };
 
 /** The quantities the user can type. */
 export type FieldId = "concentration" | "molarMass" | "volume" | "mass" | "stock" | "target" | "finalVolume";
+/** Every box that can be typed in: the quantities above, and the concentration of the converter (calculator 5). */
+export type InputId = FieldId | "converter";
 /** Each calculator's answer: only ever calculated. */
 export type OutputId = "massResult" | "volumeResult" | "concentrationResult" | "stockVolume";
 export type QuantityId = FieldId | OutputId;
@@ -63,20 +66,23 @@ export const DIMENSION: Record<QuantityId, Dimension> = {
 /** Each calculator's answer. */
 export const RESULT_OF: Record<SolveFor, OutputId> = { mass: "massResult", volume: "volumeResult", concentration: "concentrationResult" };
 
-/** A typed value, in the canonical unit of its quantity (M, g/mol, L, g). */
-export type Entry = { kind: "empty" } | { kind: "value"; value: number } | { kind: "invalid"; reason: string };
+/**
+ * A typed value, in the canonical unit of its dimension (M, g/L, g/mol, L, g). The dimension is kept because the
+ * converter's concentration can be typed as molar or as mass per volume, and the other kind is worked out from it.
+ */
+export type Entry = { kind: "empty" } | { kind: "value"; value: number; dimension: Dimension } | { kind: "invalid"; reason: string };
 
 export interface State {
-  entries: Record<FieldId, Entry>;
+  entries: Record<InputId, Entry>;
   /** the unit each quantity is shown in */
   units: Record<UnitSlot, UnitId>;
   /** the box being typed in (one quantity can have a box in several calculators), and its raw text */
-  editing: { field: FieldId; unit: UnitId; box: string; text: string } | null;
+  editing: { field: InputId; unit: UnitId; box: string; text: string } | null;
 }
 
 export type Action =
-  | { type: "type"; field: FieldId; unit: UnitId; text: string; box?: string }
-  | { type: "leave"; field: FieldId }
+  | { type: "type"; field: InputId; unit: UnitId; text: string; box?: string }
+  | { type: "leave"; field: InputId }
   | { type: "unit"; quantity: QuantityId; unit: UnitId }
   | { type: "clear" };
 
@@ -84,7 +90,7 @@ const empty: Entry = { kind: "empty" };
 
 // GraphPad's defaults: millimolar, milliliter, milligrams.
 export const initialState: State = {
-  entries: { concentration: empty, molarMass: empty, volume: empty, mass: empty, stock: empty, target: empty, finalVolume: empty },
+  entries: { concentration: empty, molarMass: empty, volume: empty, mass: empty, stock: empty, target: empty, finalVolume: empty, converter: empty },
   units: { concentration: "mM", volume: "mL", mass: "mg", stock: "mM", target: "mM", finalVolume: "mL" },
   editing: null,
 };
@@ -95,7 +101,7 @@ export function reducer(state: State, action: Action): State {
       const parsed = parseNumber(action.text);
       const editing = { field: action.field, unit: action.unit, box: action.box ?? "", text: action.text };
       let entry = state.entries[action.field];
-      if (parsed.kind === "number") entry = { kind: "value", value: toCanonical(parsed.value, action.unit) };
+      if (parsed.kind === "number") entry = { kind: "value", value: toCanonical(parsed.value, action.unit), dimension: unit(action.unit).dimension };
       if (parsed.kind === "empty") entry = empty;
       if (parsed.kind === "invalid") entry = { kind: "invalid", reason: parsed.reason };
       // partial ("1e-"): the quantity keeps its last value until the number is complete
@@ -127,6 +133,8 @@ export interface Derived {
   /** each calculator's result; its issues are about its own inputs (a zero mass is fine for one, not another) */
   solutions: Record<SolveFor, SolutionResult>;
   dilution: DilutionResult;
+  /** the converter (calculator 5): its concentration as typed, and the molecular weight it can cross with */
+  conversion: ConversionResult & { amount: { dimension: Dimension; value: number } | null; molarMass: number | null };
 }
 
 const valueOf = (entry: Entry): number | null => (entry.kind === "value" ? entry.value : null);
@@ -150,14 +158,23 @@ export function derive(state: State): Derived {
     concentrationResult: solutions.concentration.value,
     stockVolume: dilution.stockVolume,
   };
-  return { values, solutions, dilution };
+
+  // the converter: a value with issues (a negative concentration) is not converted
+  const typed = e.converter.kind === "value" ? e.converter : null;
+  const molarMass = inputs.molarMass !== null && inputs.molarMass > 0 ? inputs.molarMass : null;
+  const checked = checkConversion(typed ? typed.value : null, inputs.molarMass);
+  const usable = typed && !checked.issues.some((i) => i.input === "converter");
+  const conversion = { ...checked, amount: usable ? { dimension: typed.dimension, value: typed.value } : null, molarMass };
+
+  return { values, solutions, dilution, conversion };
 }
 
 /** The problem to show at a box in one calculator: text that is not a number, else that calculator's rule. */
-export function issueAt(state: State, derived: Derived, section: Section, field: FieldId): string | null {
+export function issueAt(state: State, derived: Derived, section: Section | "conversion", field: InputId): string | null {
   const entry = state.entries[field];
   if (entry.kind === "invalid") return entry.reason;
-  const issues: { input: string; message: string }[] = section === "dilution" ? derived.dilution.issues : derived.solutions[section].issues;
+  const issues: { input: string; message: string }[] =
+    section === "dilution" ? derived.dilution.issues : section === "conversion" ? derived.conversion.issues : derived.solutions[section].issues;
   return issues.find((i) => i.input === field)?.message ?? null;
 }
 
@@ -190,3 +207,32 @@ export function resultText(state: State, derived: Derived, quantity: OutputId): 
   const value = valueIn(derived, quantity, unitId);
   return value === null ? "" : `${formatNumber(value, COMPUTED)} ${unit(unitId).symbol}`;
 }
+
+// ---------- the converter (calculator 5) ----------
+
+/**
+ * The converter's concentration in one unit. Within its own kind (molar, or mass per volume) this is only a change
+ * of unit; across kinds it goes through the molecular weight (ρ = C × MW, C = ρ / MW) and is null without one.
+ */
+export function converterValueIn(derived: Derived, unitId: UnitId): number | null {
+  const { amount, molarMass } = derived.conversion;
+  if (!amount) return null;
+  const target = unit(unitId).dimension;
+  if (amount.dimension === target) return fromCanonical(amount.value, unitId);
+  if (molarMass === null) return null;
+  if (amount.dimension === "molar") return fromCanonical(massConcentrationOf(amount.value, molarMass), unitId);
+  return fromCanonical(molarConcentrationOf(amount.value, molarMass), unitId);
+}
+
+/** What a box of the converter shows: the raw text while typed in, else the value; the typed kind keeps 12 digits. */
+export function converterText(state: State, derived: Derived, unitId: UnitId): string {
+  const editing = state.editing;
+  if (editing && editing.field === "converter" && editing.unit === unitId) return editing.text;
+  const value = converterValueIn(derived, unitId);
+  if (value === null) return "";
+  return formatNumber(value, derived.conversion.amount?.dimension === unit(unitId).dimension ? ENTERED : COMPUTED);
+}
+
+/** True when a box of the converter cannot be filled for want of a molecular weight. */
+export const converterNeedsMolarMass = (derived: Derived, unitId: UnitId): boolean =>
+  derived.conversion.amount !== null && derived.conversion.amount.dimension !== unit(unitId).dimension && derived.conversion.molarMass === null;

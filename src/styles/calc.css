@@ -410,3 +410,50 @@ button.add-report.added {
     height: 44px;
   }
 }
+
+/* ---------- calculator 5: one concentration in every unit, as linked boxes ---------- */
+
+.conv-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.conv-name {
+  margin: 0;
+  font: 600 0.65rem/1 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.conv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 6px 10px;
+  max-width: 40rem;
+}
+
+.conv-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.conv-unit {
+  flex: none;
+  width: 3.6rem;
+  font: 600 0.75rem/1 var(--font-mono);
+  color: var(--muted);
+  text-align: right;
+}
+
+.conv-box .row-value {
+  flex: 1;
+  height: 34px !important;
+}
+
+.conv-issue {
+  grid-column: auto;
+}

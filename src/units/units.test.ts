@@ -22,6 +22,16 @@ describe("unit conversion", () => {
     expect(convert(1, "nM", "pM")).toBe(1000);
   });
 
+  it("mass concentration: 1 g/L = 1 mg/mL, 1 % w/v = 10 g/L, 1 mg/mL = 1000 µg/mL, 1 ppm = 1 mg/L", () => {
+    expect(convert(1, "g_L", "mg_mL")).toBe(1);
+    expect(convert(1, "pct_wv", "g_L")).toBe(10);
+    expect(convert(1, "mg_mL", "ug_mL")).toBe(1000);
+    expect(convert(1, "ug_mL", "ng_mL")).toBe(1000);
+    expect(convert(1, "ppm", "g_L")).toBe(0.001);
+    expect(convert(1, "ppm", "ug_mL")).toBe(1);
+    expect(unitsOf("massConc").map((u) => u.symbol)).toEqual(["g/L", "mg/mL", "% w/v", "µg/mL", "ppm", "ng/mL"]);
+  });
+
   it("names the units as GraphPad does", () => {
     expect(unitsOf("molar").map((u) => u.name)).toEqual(["molar", "millimolar", "micromolar", "nanomolar", "picomolar"]);
     expect(unitsOf("volume").map((u) => u.name)).toEqual(["liter", "milliliter", "microliter", "nanoliter"]);
