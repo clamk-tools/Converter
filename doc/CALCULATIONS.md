@@ -14,7 +14,7 @@ Every value is stored in one canonical unit per kind of quantity. All other unit
 | Volume | L | L, mL, µL, nL |
 | Mass | g | g, mg, µg, ng |
 | Amount of substance | mol | mol, mmol, µmol, nmol, pmol |
-| Molecular weight | g/mol | g/mol, kDa (= kg/mol = 10³ g/mol) |
+| Formula weight (molecular weight) | g/mol (= Da) | g/mol, kDa (= kg/mol = 10³ g/mol) |
 
 ## Formulas
 
@@ -36,7 +36,7 @@ converted to molar through MW; without MW they cannot be compared and no result 
 
 | Input | Allowed | Why |
 |---|---|---|
-| Molecular weight | > 0 | divides every formula |
+| Formula weight | > 0 | divides every formula |
 | Volume, final volume | > 0 | a volume of 0 holds nothing; divides C |
 | Concentration (solving for mass) | ≥ 0 | 0 M needs 0 g |
 | Mass (solving for concentration) | ≥ 0 | 0 g gives 0 M |

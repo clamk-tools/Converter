@@ -3,9 +3,13 @@
 //
 //   keystroke ─► parse ─► canonical value ─► State.entries ─► derive() ─► solve (engine) ─► boxText() per unit
 //
-// The boxes are never the source of truth. A quantity is stored once (concentration = 0.0001 M); its M, mM, µM, nM
-// and pM boxes are all computed from that one value. Typing in any box replaces the quantity, so every other box
-// follows. Choosing another unit only changes how a quantity is shown, never its value.
+// The boxes are never the source of truth. A quantity is stored once (concentration = 0.0001 M), and every box that
+// shows it, in any section and any unit, is computed from that one value. Typing in any of them replaces the
+// quantity, so the others follow. Choosing another unit only changes how a quantity is shown, never its value, and
+// the choice holds wherever that quantity appears.
+//
+// The page has four calculators (GraphPad's layout). Three share the typed formula weight, concentration, volume and
+// mass; each solves for the one it does not take, so the answers are never stored and nothing loops.
 //
 // Only the box being typed in shows the raw text (State.editing), so "1e-" or "0." is never reformatted under the
 // user's fingers. Every other box, and that box once left, shows the formatted value.
@@ -22,11 +26,30 @@ export type { SolveFor };
 
 /** The quantities the user can type. */
 export type FieldId = "molarMass" | "concentration" | "volume" | "mass" | "stock" | "target" | "finalVolume";
-/** The quantities that are only ever calculated. */
-export type OutputId = "moles" | "stockVolume" | "diluentVolume";
+/** The quantities that are only ever calculated: each calculator's answer. */
+export type OutputId = "massResult" | "volumeResult" | "concentrationResult" | "moles" | "stockVolume" | "diluentVolume";
 export type QuantityId = FieldId | OutputId;
 
-export type Tab = "solution" | "dilution";
+/** The unit choices. An answer shares its quantity's choice: picking mg for a mass shows mg everywhere. */
+export type UnitSlot = Exclude<QuantityId, "massResult" | "volumeResult" | "concentrationResult">;
+export const SLOT: Record<QuantityId, UnitSlot> = {
+  molarMass: "molarMass",
+  concentration: "concentration",
+  volume: "volume",
+  mass: "mass",
+  stock: "stock",
+  target: "target",
+  finalVolume: "finalVolume",
+  massResult: "mass",
+  volumeResult: "volume",
+  concentrationResult: "concentration",
+  moles: "moles",
+  stockVolume: "stockVolume",
+  diluentVolume: "diluentVolume",
+};
+
+/** Each calculator's answer. */
+export const RESULT_OF: Record<SolveFor, OutputId> = { mass: "massResult", volume: "volumeResult", concentration: "concentrationResult" };
 
 /** A value in the canonical unit of `dimension`. A concentration is molar (M) or a mass concentration (g/L). */
 export interface Amount {
@@ -37,22 +60,18 @@ export interface Amount {
 export type Entry = { kind: "empty" } | { kind: "value"; amount: Amount } | { kind: "invalid"; reason: string };
 
 export interface State {
-  tab: Tab;
-  solveFor: SolveFor;
   entries: Record<FieldId, Entry>;
-  /** the unit each quantity's main box is shown in */
-  units: Record<QuantityId, UnitId>;
-  /** the box being typed in, and its raw text */
-  editing: { field: FieldId; unit: UnitId; text: string } | null;
+  /** the unit each quantity is shown in */
+  units: Record<UnitSlot, UnitId>;
+  /** the box being typed in (one quantity can have a box in several calculators), and its raw text */
+  editing: { field: FieldId; unit: UnitId; box: string; text: string } | null;
 }
 
 export type Action =
-  | { type: "type"; field: FieldId; unit: UnitId; text: string }
+  | { type: "type"; field: FieldId; unit: UnitId; text: string; box?: string }
   | { type: "leave"; field: FieldId }
   | { type: "unit"; quantity: QuantityId; unit: UnitId }
-  | { type: "solveFor"; target: SolveFor }
-  | { type: "tab"; tab: Tab }
-  | { type: "clear"; tab: Tab };
+  | { type: "clear" };
 
 /** The dimensions a quantity can be shown in. A concentration has two: molar, and mass concentration (via MW). */
 export const DIMENSIONS: Record<QuantityId, Dimension[]> = {
@@ -60,22 +79,23 @@ export const DIMENSIONS: Record<QuantityId, Dimension[]> = {
   concentration: ["molar", "massConc"],
   volume: ["volume"],
   mass: ["mass"],
-  moles: ["amount"],
   stock: ["molar", "massConc"],
   target: ["molar", "massConc"],
   finalVolume: ["volume"],
+  massResult: ["mass"],
+  volumeResult: ["volume"],
+  concentrationResult: ["molar", "massConc"],
+  moles: ["amount"],
   stockVolume: ["volume"],
   diluentVolume: ["volume"],
 };
 
-export const SOLUTION_FIELDS: FieldId[] = ["molarMass", "concentration", "volume", "mass"];
-export const DILUTION_FIELDS: FieldId[] = ["stock", "target", "finalVolume"];
+const FIELDS: FieldId[] = ["molarMass", "concentration", "volume", "mass", "stock", "target", "finalVolume"];
+const OUTPUTS: OutputId[] = ["massResult", "volumeResult", "concentrationResult", "moles", "stockVolume", "diluentVolume"];
 
 const empty: Entry = { kind: "empty" };
 
 export const initialState: State = {
-  tab: "solution",
-  solveFor: "mass",
   entries: { molarMass: empty, concentration: empty, volume: empty, mass: empty, stock: empty, target: empty, finalVolume: empty },
   units: {
     molarMass: "g_mol",
@@ -92,17 +112,13 @@ export const initialState: State = {
   editing: null,
 };
 
-/** True when the field is the calculator's answer at the moment, so it cannot be typed in. */
-export function isOutput(state: State, field: QuantityId): boolean {
-  return field === "moles" || field === "stockVolume" || field === "diluentVolume" || field === state.solveFor;
-}
+export const isOutput = (quantity: QuantityId): quantity is OutputId => (OUTPUTS as string[]).includes(quantity);
 
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "type": {
-      if (isOutput(state, action.field)) return state;
       const parsed = parseNumber(action.text);
-      const editing = { field: action.field, unit: action.unit, text: action.text };
+      const editing = { field: action.field, unit: action.unit, box: action.box ?? "", text: action.text };
       let entry = state.entries[action.field];
       if (parsed.kind === "number") entry = { kind: "value", amount: { dimension: unit(action.unit).dimension, value: toCanonical(parsed.value, action.unit) } };
       if (parsed.kind === "empty") entry = empty;
@@ -118,29 +134,9 @@ export function reducer(state: State, action: Action): State {
       return { ...state, editing: null, entries };
     }
     case "unit":
-      return { ...state, units: { ...state.units, [action.quantity]: action.unit } };
-    case "solveFor": {
-      if (action.target === state.solveFor) return state;
-      // The answer shown so far becomes an input, as shown (rounded to its display precision), so the numbers on the
-      // screen stay consistent: solving for mass, then for concentration, gives back the concentration typed.
-      const solved = derive(state).solution.value;
-      const entries = { ...state.entries };
-      if (solved !== null) {
-        const dimension = DIMENSIONS[state.solveFor][0];
-        entries[state.solveFor] = { kind: "value", amount: { dimension, value: Number(solved.toPrecision(COMPUTED)) } };
-      }
-      return { ...state, solveFor: action.target, entries, editing: null };
-    }
-    case "tab":
-      return { ...state, tab: action.tab, editing: null };
-    case "clear": {
-      const fields = action.tab === "solution" ? SOLUTION_FIELDS : DILUTION_FIELDS;
-      const entries = { ...state.entries };
-      for (const field of fields) entries[field] = empty;
-      // the molecular weight is shared by both tabs: clearing the dilution keeps it
-      if (action.tab === "dilution") entries.molarMass = state.entries.molarMass;
-      return { ...state, entries, editing: null };
-    }
+      return { ...state, units: { ...state.units, [SLOT[action.quantity]]: action.unit } };
+    case "clear":
+      return { ...state, entries: initialState.entries, editing: null };
   }
 }
 
@@ -150,20 +146,20 @@ export interface QuantityView {
   amount: Amount | null;
   /** true when calculated, false when typed */
   output: boolean;
-  /** a problem to show at this quantity */
-  issue: string | null;
 }
+
+export type Section = SolveFor | "dilution";
 
 export interface Derived {
   quantities: Record<QuantityId, QuantityView>;
-  /** the molecular weight in g/mol, when it is a usable value */
+  /** the formula weight in g/mol, when it is a usable value */
   molarMass: number | null;
-  solution: SolutionResult;
+  /** each calculator's result; its issues are about its own inputs (a zero mass is fine for one, not another) */
+  solutions: Record<SolveFor, SolutionResult>;
   dilution: DilutionResult;
 }
 
 const amountOf = (entry: Entry): Amount | null => (entry.kind === "value" ? entry.amount : null);
-const issueOf = (entry: Entry): string | null => (entry.kind === "invalid" ? entry.reason : null);
 
 /** An amount in another dimension of the same quantity: only between molar and mass concentration, through MW. */
 export function inDimension(amount: Amount, dimension: Dimension, molarMass: number | null): number | null {
@@ -179,35 +175,32 @@ export function derive(state: State): Derived {
   const mw = amountOf(entries.molarMass);
   const molarMass = mw && mw.value > 0 ? mw.value : null;
 
-  // The molecular weight is checked whether or not a calculation needs it: the dilution tab uses it to convert.
   const quantities = {} as Record<QuantityId, QuantityView>;
-  for (const field of [...SOLUTION_FIELDS, ...DILUTION_FIELDS]) {
-    quantities[field] = { amount: amountOf(entries[field]), output: false, issue: issueOf(entries[field]) };
-  }
+  for (const field of FIELDS) quantities[field] = { amount: amountOf(entries[field]), output: false };
 
-  // ---- make a solution ----
-  const molar = (entry: Entry): number | null => {
-    const amount = amountOf(entry);
-    return amount ? inDimension(amount, "molar", molarMass) : null;
-  };
+  // ---- the three molarity calculators, on the same typed values ----
+  const conc = amountOf(entries.concentration);
   const mass = amountOf(entries.mass);
   const volume = amountOf(entries.volume);
-  const solution = solveSolution(state.solveFor, {
+  const inputs = {
     molarMass: mw ? mw.value : null,
-    concentration: molar(entries.concentration),
+    concentration: conc ? inDimension(conc, "molar", molarMass) : null,
     volume: volume ? volume.value : null,
     mass: mass ? mass.value : null,
-  });
-  // a concentration in mg/mL waits for the molecular weight to become molar: it is there, MW is what is missing
-  if (entries.concentration.kind === "value") solution.missing = solution.missing.filter((m) => m !== "concentration");
-  for (const { input, message } of solution.issues) quantities[input].issue ??= message;
-  const target = state.solveFor;
-  quantities[target] = {
-    amount: solution.value === null ? null : { dimension: DIMENSIONS[target][0], value: solution.value },
-    output: true,
-    issue: null,
   };
-  quantities.moles = { amount: solution.moles === null ? null : { dimension: "amount", value: solution.moles }, output: true, issue: null };
+  const solutions = {} as Record<SolveFor, SolutionResult>;
+  for (const target of ["mass", "volume", "concentration"] as SolveFor[]) {
+    const result = solveSolution(target, inputs);
+    // a concentration in mg/mL waits for the formula weight to become molar: it is there, MW is what is missing
+    if (conc) result.missing = result.missing.filter((m) => m !== "concentration");
+    solutions[target] = result;
+    quantities[RESULT_OF[target]] = {
+      amount: result.value === null ? null : { dimension: DIMENSIONS[target][0], value: result.value },
+      output: true,
+    };
+  }
+  const moles = solutions.mass.moles;
+  quantities.moles = { amount: moles === null ? null : { dimension: "amount", value: moles }, output: true };
 
   // ---- dilute a stock ----
   // C1 and C2 must be in the same unit family. Mixed (mg/mL against mM) they are compared as molar, through MW.
@@ -220,7 +213,7 @@ export function derive(state: State): Derived {
     const dimension = stock.dimension === goal.dimension ? stock.dimension : "molar";
     c1 = inDimension(stock, dimension, molarMass);
     c2 = inDimension(goal, dimension, molarMass);
-    if (c1 === null || c2 === null) mixIssue = "One concentration is molar and the other a mass concentration: enter the molecular weight to compare them.";
+    if (c1 === null || c2 === null) mixIssue = "One concentration is molar and the other a mass concentration: enter the formula weight above to compare them.";
   } else {
     c1 = stock ? stock.value : null;
     c2 = goal ? goal.value : null;
@@ -231,23 +224,33 @@ export function derive(state: State): Derived {
     dilution.issues.push({ input: "target", message: mixIssue });
     dilution.missing = dilution.missing.filter((m) => m !== "stock" && m !== "target");
   }
-  for (const { input, message } of dilution.issues) quantities[input].issue ??= message;
   const volumeAmount = (value: number | null): Amount | null => (value === null ? null : { dimension: "volume", value });
-  quantities.stockVolume = { amount: volumeAmount(dilution.stockVolume), output: true, issue: null };
-  quantities.diluentVolume = { amount: volumeAmount(dilution.diluentVolume), output: true, issue: null };
+  quantities.stockVolume = { amount: volumeAmount(dilution.stockVolume), output: true };
+  quantities.diluentVolume = { amount: volumeAmount(dilution.diluentVolume), output: true };
 
-  return { quantities, molarMass, solution, dilution };
+  return { quantities, molarMass, solutions, dilution };
 }
 
-/** The first problem among these fields, in page order, for the result bar. Typed fields only: an answer has none. */
-export function firstProblem(derived: Derived, fields: FieldId[]): string | null {
-  for (const field of fields) if (!derived.quantities[field].output && derived.quantities[field].issue) return derived.quantities[field].issue;
+/** The problem to show at a box in one section: text that is not a number, else that section's rule for the value. */
+export function issueAt(state: State, derived: Derived, section: Section, field: FieldId): string | null {
+  const entry = state.entries[field];
+  if (entry.kind === "invalid") return entry.reason;
+  const issues: { input: string; message: string }[] = section === "dilution" ? derived.dilution.issues : derived.solutions[section].issues;
+  return issues.find((i) => i.input === field)?.message ?? null;
+}
+
+/** The first problem among a section's boxes, in page order, for its result line. */
+export function firstIssue(state: State, derived: Derived, section: Section, fields: FieldId[]): string | null {
+  for (const field of fields) {
+    const issue = issueAt(state, derived, section, field);
+    if (issue) return issue;
+  }
   return null;
 }
 
 // ---------- display ----------
 
-/** A quantity in one unit, as a number, or null when it is not known (or needs a molecular weight). */
+/** A quantity in one unit, as a number, or null when it is not known (or needs a formula weight). */
 export function valueIn(derived: Derived, quantity: QuantityId, unitId: UnitId): number | null {
   const amount = derived.quantities[quantity].amount;
   if (!amount) return null;
@@ -255,19 +258,26 @@ export function valueIn(derived: Derived, quantity: QuantityId, unitId: UnitId):
   return canonical === null ? null : fromCanonical(canonical, unitId);
 }
 
-/** What a box shows: the raw text while it is typed in, otherwise the value formatted for display. */
-export function boxText(state: State, derived: Derived, quantity: QuantityId, unitId: UnitId): string {
+/** What a box shows: the raw text while it is typed in, otherwise the value formatted for display. Other boxes of
+ *  the same quantity show the formatted value meanwhile. */
+export function boxText(state: State, derived: Derived, quantity: QuantityId, unitId: UnitId, box = ""): string {
   const editing = state.editing;
-  if (editing && editing.field === quantity && editing.unit === unitId) return editing.text;
+  if (editing && editing.field === quantity && editing.unit === unitId && editing.box === box) return editing.text;
   const value = valueIn(derived, quantity, unitId);
   if (value === null) return "";
-  const view = derived.quantities[quantity];
-  // a typed value, in any of its units, keeps the digits typed; a calculated one is rounded (numbers/format.ts)
-  const typedHere = !view.output && view.amount?.dimension === unit(unitId).dimension;
-  return formatNumber(value, typedHere ? ENTERED : COMPUTED);
+  return formatNumber(value, digitsFor(derived, quantity, unitId));
 }
 
-/** The units a quantity's boxes are shown in, grouped by dimension. */
+/** A typed value, in any of its units, keeps the digits typed; a calculated one is rounded (numbers/format.ts). */
+export function digitsFor(derived: Derived, quantity: QuantityId, unitId: UnitId): number {
+  const view = derived.quantities[quantity];
+  return !view.output && view.amount?.dimension === unit(unitId).dimension ? ENTERED : COMPUTED;
+}
+
+/** The unit a quantity is shown in. */
+export const unitOf = (state: State, quantity: QuantityId): UnitId => state.units[SLOT[quantity]];
+
+/** The units a quantity can be shown in, grouped by dimension. */
 export function unitGroups(quantity: QuantityId): { dimension: Dimension; units: UnitId[] }[] {
   return DIMENSIONS[quantity].map((dimension) => ({ dimension, units: unitsOf(dimension).map((u) => u.id) }));
 }
