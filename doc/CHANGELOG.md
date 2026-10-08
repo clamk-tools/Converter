@@ -5,6 +5,18 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-09 · The report is a calculation report, with names and folding
+
+- **Seen:** each entry of the Report tab is now a worked calculation: given, conversions to base units (with the
+  factor, e.g. `10 mL × 10⁻³ = 0.01 L`), formula, substitution, result in base units and in the unit chosen, and a
+  check by working backwards from the result, marked ✓ when it gives back the input. *Copy as text* puts the whole
+  report in the clipboard for a document. Each calculation can be renamed (pencil; Enter saves, Escape cancels, an
+  empty name gives the title back) and collapsed (chevron) to its heading and result; *Collapse all* / *Expand all*
+  does the whole report. A name and the folded state are kept with the entry.
+- **Inside:** `state/report.ts` builds entries from the same stored values and equations as the calculators; the
+  check calls `engine/equations.ts`, so it is a real recalculation. The storage key is now `…:report-v2` (earlier
+  one-line entries are not read). `ui/clipboard.ts` is back for Copy as text. 72 unit tests, 15 end-to-end tests.
+
 ### 2026-10-08 · A report, and "molecular weight"
 
 - **Seen:** each answer has an icon to add it to a report. A second tab, *Report*, lists what was added as one

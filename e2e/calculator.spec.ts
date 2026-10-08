@@ -151,14 +151,71 @@ test("the theme switch is shared with the hub through its storage key", async ({
   await expect(page.locator("html")).toHaveAttribute("data-theme", theme!);
 });
 
-test("an answer can be added to the report, which lists it in one line", async ({ page }) => {
+test("an answer can be added to the report, which writes the calculation out step by step", async ({ page }) => {
   const add = calc(page, "mass").getByRole("button", { name: "Add mass to report" });
   await expect(add).toBeDisabled();
   await glucose(page);
   await add.click();
-  await expect(page.getByRole("tab", { name: "Report (1)" })).toBeVisible();
   await page.getByRole("tab", { name: "Report (1)" }).click();
-  await expect(page.locator(".report-row")).toHaveText(/Mass\s*C 100 mM\s*MW 180.16 g\/mol\s*V 10 mL\s*→\s*m 180.16 mg/);
-  await page.getByRole("button", { name: "Remove line 1" }).click();
+
+  const sheet = page.locator(".calc-sheet");
+  await expect(sheet.getByRole("heading")).toHaveText("1 Mass from volume & concentration");
+  await expect(sheet.getByText("C = 100 mM × 10⁻³ = 0.1 mol/L")).toBeVisible();
+  await expect(sheet.getByText("m = C × V × MW")).toBeVisible();
+  await expect(sheet.getByText("m = 0.1 mol/L × 0.01 L × 180.16 g/mol")).toBeVisible();
+  await expect(sheet.getByText("m = 180.16 mg")).toBeVisible();
+  await expect(sheet.getByText("C = m / (MW × V) = 0.18016 / (180.16 × 0.01) = 0.1 mol/L ✓")).toBeVisible();
+
+  await page.getByRole("button", { name: "Remove calculation 1" }).click();
   await expect(page.getByText("Nothing in the report yet.", { exact: false })).toBeVisible();
+});
+
+test("the report keeps what was calculated, and survives a reload", async ({ page }) => {
+  await glucose(page);
+  await calc(page, "mass").getByRole("button", { name: "Add mass to report" }).click();
+  await box(page, "mass", "Concentration in millimolar").fill("200"); // later edits do not change it
+  await page.reload();
+  await page.getByRole("tab", { name: "Report (1)" }).click();
+  await expect(page.locator(".calc-sheet").getByText("m = 180.16 mg")).toBeVisible();
+});
+
+test("a calculation in the report can be renamed and collapsed", async ({ page }) => {
+  await glucose(page);
+  await calc(page, "mass").getByRole("button", { name: "Add mass to report" }).click();
+  await page.getByRole("tab", { name: "Report (1)" }).click();
+  const sheet = page.locator(".calc-sheet");
+
+  await page.getByRole("button", { name: "Rename calculation 1" }).click();
+  await page.getByLabel("Name for calculation 1").fill("Buffer A, 10 mL");
+  await page.keyboard.press("Enter");
+  await expect(sheet.getByRole("heading")).toContainText("Buffer A, 10 mL");
+  await expect(sheet.getByRole("heading")).toContainText("Mass from volume & concentration");
+
+  await page.getByRole("button", { name: "Collapse calculation 1" }).click();
+  await expect(sheet.getByText("m = C × V × MW")).toHaveCount(0);
+  await expect(sheet.locator(".sheet-summary")).toHaveText("m = 180.16 mg"); // the result stays in view
+  await page.getByRole("button", { name: "Expand calculation 1" }).click();
+  await expect(sheet.getByText("m = C × V × MW")).toBeVisible();
+
+  await page.getByRole("button", { name: "Rename calculation 1" }).click();
+  await page.getByLabel("Name for calculation 1").fill("never saved");
+  await page.keyboard.press("Escape");
+  await expect(sheet.getByRole("heading")).toContainText("Buffer A, 10 mL");
+
+  await page.reload();
+  await page.getByRole("tab", { name: "Report (1)" }).click();
+  await expect(sheet.getByRole("heading")).toContainText("Buffer A, 10 mL"); // the name survives a reload
+});
+
+test("Collapse all folds every calculation, then Expand all opens them", async ({ page }) => {
+  await glucose(page);
+  await calc(page, "mass").getByRole("button", { name: "Add mass to report" }).click();
+  await box(page, "volume", "Mass in milligrams").fill("90.08");
+  await calc(page, "volume").getByRole("button", { name: "Add volume to report" }).click();
+  await page.getByRole("tab", { name: "Report (2)" }).click();
+  await page.getByRole("button", { name: "Collapse all" }).click();
+  await expect(page.locator(".steps")).toHaveCount(0);
+  await expect(page.locator(".sheet-summary")).toHaveCount(2);
+  await page.getByRole("button", { name: "Expand all" }).click();
+  await expect(page.locator(".steps")).toHaveCount(2);
 });
