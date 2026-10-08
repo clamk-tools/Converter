@@ -35,6 +35,8 @@ export type QuantityId = FieldId | OutputId;
 
 /** The unit choices. An answer shares its quantity's choice; the molecular weight is always g/mol. */
 export type UnitSlot = "concentration" | "volume" | "mass" | "stock" | "target" | "finalVolume";
+/** The two unit menus of the converter (calculator 5): one for each kind of concentration. */
+export type ConverterSlot = "converterMolar" | "converterMass";
 export const SLOT: Record<QuantityId, UnitSlot | null> = {
   concentration: "concentration",
   molarMass: null,
@@ -75,7 +77,7 @@ export type Entry = { kind: "empty" } | { kind: "value"; value: number; dimensio
 export interface State {
   entries: Record<InputId, Entry>;
   /** the unit each quantity is shown in */
-  units: Record<UnitSlot, UnitId>;
+  units: Record<UnitSlot | ConverterSlot, UnitId>;
   /** the box being typed in (one quantity can have a box in several calculators), and its raw text */
   editing: { field: InputId; unit: UnitId; box: string; text: string } | null;
 }
@@ -84,6 +86,7 @@ export type Action =
   | { type: "type"; field: InputId; unit: UnitId; text: string; box?: string }
   | { type: "leave"; field: InputId }
   | { type: "unit"; quantity: QuantityId; unit: UnitId }
+  | { type: "converterUnit"; slot: ConverterSlot; unit: UnitId }
   | { type: "clear" };
 
 const empty: Entry = { kind: "empty" };
@@ -91,7 +94,7 @@ const empty: Entry = { kind: "empty" };
 // GraphPad's defaults: millimolar, milliliter, milligrams.
 export const initialState: State = {
   entries: { concentration: empty, molarMass: empty, volume: empty, mass: empty, stock: empty, target: empty, finalVolume: empty, converter: empty },
-  units: { concentration: "mM", volume: "mL", mass: "mg", stock: "mM", target: "mM", finalVolume: "mL" },
+  units: { concentration: "mM", volume: "mL", mass: "mg", stock: "mM", target: "mM", finalVolume: "mL", converterMolar: "mM", converterMass: "mg_mL" },
   editing: null,
 };
 
@@ -118,6 +121,8 @@ export function reducer(state: State, action: Action): State {
       const slot = SLOT[action.quantity];
       return slot ? { ...state, units: { ...state.units, [slot]: action.unit } } : state;
     }
+    case "converterUnit":
+      return { ...state, units: { ...state.units, [action.slot]: action.unit } };
     case "clear":
       return { ...state, entries: initialState.entries, editing: null };
   }

@@ -1,15 +1,10 @@
 import type { Dispatch } from "react";
 import { useId } from "react";
 
-import type { Action, Derived, State } from "../state/model";
+import type { Action, ConverterSlot, Derived, State } from "../state/model";
 import { boxText, converterNeedsMolarMass, converterText, issueAt } from "../state/model";
-import type { Dimension } from "../units/units";
-import { unitsOf } from "../units/units";
-
-const GROUPS: { dimension: Dimension; label: string }[] = [
-  { dimension: "molar", label: "Molar" },
-  { dimension: "massConc", label: "Mass per volume" },
-];
+import type { Dimension, UnitId } from "../units/units";
+import { unit, unitsOf } from "../units/units";
 
 interface Props {
   state: State;
@@ -17,16 +12,21 @@ interface Props {
   dispatch: Dispatch<Action>;
 }
 
-// Calculator 5: one concentration, shown as molar and as mass per volume at once. Every box is a view of the one
-// stored value, so typing in any of them fills the others; crossing between the two kinds goes through the molecular
-// weight, which is the one the first three calculators use (state/model.ts).
+const ROWS: { slot: ConverterSlot; dimension: Dimension; label: string }[] = [
+  { slot: "converterMolar", dimension: "molar", label: "Molar concentration" },
+  { slot: "converterMass", dimension: "massConc", label: "Mass concentration" },
+];
+
+// Calculator 5: one concentration on two lines, as molar and as mass per volume, each with its own unit menu. The two
+// boxes are views of one stored value, so typing in either fills the other; crossing from one kind to the other goes
+// through the molecular weight, which is the one the first three calculators use (state/model.ts).
 export function ConcentrationConverter({ state, derived, dispatch }: Props) {
   const id = useId();
   const mwIssue = issueAt(state, derived, "conversion", "molarMass");
   const valueIssue = issueAt(state, derived, "conversion", "converter");
 
   return (
-    <section className="calc" aria-labelledby={`${id}-title`} data-calculator="conversion">
+    <section className="calc conv" aria-labelledby={`${id}-title`} data-calculator="conversion">
       <h2 id={`${id}-title`}>5. Convert between mass &amp; molar concentration</h2>
 
       <div className={`row fixed-unit${mwIssue ? " has-issue" : ""}`}>
@@ -54,31 +54,38 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
         )}
       </div>
 
-      {GROUPS.map((group) => (
-        <div className="conv-group" key={group.dimension}>
-          <p className="conv-name">{group.label}</p>
-          <div className="conv-grid">
-            {unitsOf(group.dimension).map((u) => (
-              <label className="conv-box" key={u.id}>
-                <span className="conv-unit">{u.symbol}</span>
-                <input
-                  type="text"
-                  className="row-value"
-                  autoComplete="off"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                  aria-label={`Concentration in ${u.name}`}
-                  aria-invalid={valueIssue && derived.conversion.amount === null ? true : undefined}
-                  placeholder={converterNeedsMolarMass(derived, u.id) ? "needs MW" : ""}
-                  value={converterText(state, derived, u.id)}
-                  onChange={(e) => dispatch({ type: "type", field: "converter", unit: u.id, text: e.target.value })}
-                  onBlur={() => dispatch({ type: "leave", field: "converter" })}
-                />
-              </label>
-            ))}
+      {ROWS.map(({ slot, dimension, label }) => {
+        const unitId: UnitId = state.units[slot];
+        const invalid = valueIssue !== null && derived.conversion.amount === null;
+        return (
+          <div className={`row${valueIssue && dimension === "molar" ? " has-issue" : ""}`} key={slot}>
+            <label className="row-label" htmlFor={`${id}-${slot}`}>
+              {label}:
+            </label>
+            <input
+              id={`${id}-${slot}`}
+              className="row-value"
+              type="text"
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              aria-label={`${label} in ${unit(unitId).name}`}
+              aria-invalid={invalid ? true : undefined}
+              placeholder={converterNeedsMolarMass(derived, unitId) ? "needs MW" : ""}
+              value={converterText(state, derived, unitId)}
+              onChange={(e) => dispatch({ type: "type", field: "converter", unit: unitId, text: e.target.value })}
+              onBlur={() => dispatch({ type: "leave", field: "converter" })}
+            />
+            <select aria-label={`${label}: unit`} value={unitId} onChange={(e) => dispatch({ type: "converterUnit", slot, unit: e.target.value as UnitId })}>
+              {unitsOf(dimension).map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
           </div>
-        </div>
-      ))}
+        );
+      })}
 
       {valueIssue && <p className="row-issue conv-issue">{valueIssue}</p>}
       {!mwIssue && derived.conversion.amount && derived.conversion.molarMass === null && (
@@ -87,4 +94,3 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
     </section>
   );
 }
-

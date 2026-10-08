@@ -231,6 +231,17 @@ describe("5. converting between mass and molar concentration", () => {
     expect(converterText(t, derive(t), "mg_mL")).toBe("34.23"); // the mass side follows
   });
 
+  it("has a unit menu for each of its two lines, starting at millimolar and mg/mL, and a unit change keeps the value", () => {
+    expect([initialState.units.converterMolar, initialState.units.converterMass]).toEqual(["mM", "mg_mL"]);
+    let s = withMw(...typed("converter", "mM", "100"));
+    const before = s.entries.converter;
+    s = reducer(s, { type: "converterUnit", slot: "converterMass", unit: "pct_wv" });
+    s = reducer(s, { type: "converterUnit", slot: "converterMolar", unit: "uM" });
+    expect(s.entries.converter).toEqual(before);
+    expect(converterText(s, derive(s), s.units.converterMass)).toBe("1.8016"); // % w/v
+    expect(converterText(s, derive(s), s.units.converterMolar)).toBe("100000"); // µM
+  });
+
   it("is its own value: it does not change the concentration of calculators 1 to 3", () => {
     const s = run([...glucose, ...typed("converter", "mM", "5")]);
     expect(s.entries.concentration).toEqual({ kind: "value", value: 0.1, dimension: "molar" });

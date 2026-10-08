@@ -31,7 +31,7 @@ const UNITS = {
   // mass concentration: g/L is the same as mg/mL; 1 % w/v is 1 g in 100 mL = 10 g/L; 1 ppm is 1 mg/L (a dilute aqueous solution)
   g_L: { symbol: "g/L", name: "grams/liter", dimension: "massConc", exponent: 0 },
   mg_mL: { symbol: "mg/mL", name: "milligrams/milliliter", dimension: "massConc", exponent: 0 },
-  pct_wv: { symbol: "% w/v", name: "percent weight/volume", dimension: "massConc", exponent: 1 },
+  pct_wv: { symbol: "% w/v", name: "% w/v", dimension: "massConc", exponent: 1 },
   ug_mL: { symbol: "µg/mL", name: "micrograms/milliliter", dimension: "massConc", exponent: -3 },
   ppm: { symbol: "ppm", name: "ppm (mg/L)", dimension: "massConc", exponent: -3 },
   ng_mL: { symbol: "ng/mL", name: "nanograms/milliliter", dimension: "massConc", exponent: -6 },
