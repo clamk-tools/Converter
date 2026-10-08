@@ -5,6 +5,22 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-08 · GraphPad's calculators, exactly
+
+- **Seen:** the calculators are now the ones on GraphPad's page, from screenshots of it: the same four, numbered, with
+  the same rows in the same order ("Concentration:", "Formula weight (g/mol):", "Volume:" → "Mass ="), unit menus
+  in words (millimolar, milliliter, milligrams) and the answer in one box with its unit ("180.16 mg"). Removed, as
+  GraphPad has none of them: kDa, mass concentrations (mg/mL…), the amount and diluent rows, the every-unit lines,
+  the result sentences, the Copy buttons and Clear all. The links stay: concentration, formula weight, volume and
+  mass are one value each across the first three calculators, and a unit chosen for one shows everywhere, answers
+  included. The dilution keeps its own values.
+- **Inside:** the unit system has names and loses the mass-concentration, amount and kDa units; the state stores one
+  number per quantity. `ui/summary.ts`, `CopyButton.tsx` and `clipboard.ts` are deleted. 61 unit tests, 11
+  end-to-end tests.
+- **Decided:** GraphPad's orange "Mass =" button is a Clamk accent label, not a button, since answers follow typing.
+
+## Released
+
 ### 2026-10-08 · GraphPad's layout
 
 - **Seen:** the two tabs are replaced by four calculators stacked on one page, in the order of GraphPad's molarity
@@ -16,8 +32,6 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
   replace the cards, panels and sticky result bar. Tests rewritten for the new page (67 unit, 12 end-to-end).
 - **Decided:** values and units shared across the calculators (asked: "interconnected"); the all-units list kept for
   answers only. The equations and validation are unchanged: GraphPad's are the same.
-
-## Released
 
 ### 2026-10-03 · First version
 

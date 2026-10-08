@@ -19,9 +19,8 @@ dependent quantities recalculate on every keystroke with no update loops.
  engine/equations.ts   the bare formulas, canonical units
  engine/solve.ts       the two calculators: validation, then equations
  state/model.ts        the scientific state, the reducer (user actions), derive() and boxText()
- ui/summary.ts         the result as a sentence, and the text Copy puts on the clipboard
- ui/sections.ts        the four calculators as data: inputs, answer, formula (GraphPad's order)
- ui/*.tsx              components: Calculator (one section), UnitSelect, CopyButton, ThemeSwitch
+ ui/sections.ts        GraphPad's four calculators as data: their rows in order, and their answer
+ ui/*.tsx              components: Calculator (one calculator), UnitSelect, ThemeSwitch
  App.tsx               the frame (rail, header, footer) around the four calculators
  styles/               theme.css: tokens and controls (shared with the other tools); app.css: frame; calc.css: the calculator
 ```
@@ -34,12 +33,13 @@ A layer imports only from the layers above it. No formula lives in a component; 
  user types "100" in the µM box of Concentration
    → dispatch { type: "type", field: "concentration", unit: "uM", text: "100" }
    → reducer: parseNumber → 100 → toCanonical(100, µM) = 0.0001
-              entries.concentration = { amount: { dimension: "molar", value: 0.0001 } }
-              editing = { field, unit, text }          (only for the box being typed in)
-   → derive(state): solveSolution(...) → mass, moles; solveDilution(...) → V1, V2 − V1; issues per field
-   → every box: boxText(state, derived, quantity, unit)
+              entries.concentration = { kind: "value", value: 0.0001 }
+              editing = { field, unit, box, text }     (only for the box being typed in)
+   → derive(state): solveSolution(...) × 3 → mass, volume, molarity; solveDilution(...) → required volume
+   → every input box: boxText(state, derived, field, unit, calculator)
         the box being typed in → its raw text ("1e-" stays "1e-")
-        any other box          → formatNumber(valueIn(quantity, unit), precision)
+        any other box          → formatNumber(valueIn(field, unit), 12 digits)
+   → every answer: resultText(state, derived, answer) → "180.16 mg", 6 digits, in its quantity's unit
 ```
 
 Two kinds of relationship, kept apart:
@@ -54,20 +54,17 @@ Two kinds of relationship, kept apart:
 | Field | Holds |
 |---|---|
 | `entries` | the typed quantities: `molarMass`, `concentration`, `volume`, `mass`, `stock`, `target`, `finalVolume`. Each is empty, a canonical value, or invalid (with the reason) |
-| `units` | the unit each quantity is shown in, everywhere it appears. An answer shares its quantity's unit (`SLOT`: `massResult` → `mass`). Changing it changes nothing else |
+| `units` | the unit each quantity is shown in, everywhere it appears. An answer shares its quantity's unit (`SLOT`: `massResult` → `mass`; the required volume → the desired volume). The formula weight has none: always g/mol. Changing a unit changes nothing else |
 | `editing` | the box being typed in (quantity, unit and calculator) and its raw text |
 
 Rules the reducer follows:
 
 - A partial number (`1e-`, `.`) leaves the quantity at its last value; leaving the box with it marks it invalid.
-- Answers have their own ids (`massResult`, `volumeResult`, `concentrationResult`, `moles`, `stockVolume`,
-  `diluentVolume`) and are never stored: the mass to weigh in the first calculator and the mass typed in the second
+- Answers have their own ids (`massResult`, `volumeResult`, `concentrationResult`, `stockVolume`) and are never
+  stored: the mass to weigh in the first calculator and the mass typed in the second
   are different things on the page.
 - Each calculator applies its own rules to the shared values (`issueAt`): a mass of 0 gives 0 M in *Molarity*, but
   is refused in *Volume*.
-- A concentration remembers whether it was typed as molar or as mass per volume. Converting between the two needs the
-  formula weight; when MW changes, the typed form stays and the other follows.
-- Clear all empties every value and keeps the unit choices.
 
 ### Precision (`numbers/format.ts`)
 
@@ -82,8 +79,7 @@ hides float noise), 6 for a calculated value. Plain notation from 1e-5 to 1e10, 
 | `src/units/units.test.ts` | every unit relation of the brief (1 g = 1000 mg…), no float noise through the canonical unit |
 | `src/numbers/numbers.test.ts` | parsing (decimals, `e`, comma, partial, invalid, overflow), formatting (noise, notation, round trip) |
 | `src/engine/solve.test.ts` | each equation, both sanity checks, every validation rule, tiny and huge values, overflow |
-| `src/state/model.test.ts` | synchronisation (100 µM, 0.25 mM, 2 mL, 5 mg), unit changes, the dependency chain, solve-for switching, typing states, dilution |
-| `src/ui/summary.test.ts` | the result sentences and Copy text |
+| `src/state/model.test.ts` | synchronisation (100 µM, 0.25 mM, 2 mL, 5 mg), linked boxes, unit changes, the three calculators on shared values, per-calculator rules, typing states, dilution |
 | `e2e/calculator.spec.ts` | the built page used through the keyboard and mouse, in four browser set-ups; also fails on any request to another host |
 
 ## 5. Making a change

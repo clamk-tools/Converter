@@ -28,15 +28,9 @@ export function App() {
       </header>
 
       <main className="wrap page">
-        <div className="section-label">
-          <span className="cap">Calculators</span>
-          <span className="rule" />
-          <button type="button" className="quiet compact" onClick={() => dispatch({ type: "clear" })}>
-            Clear all
-          </button>
-        </div>
         <p className="intro">
-          The calculators share their values: a formula weight, concentration, volume or mass typed in one is used by all, and so is a unit you choose.
+          Four calculators, as on GraphPad's molarity page. Boxes of the same kind are linked: a concentration, formula weight, volume or mass typed in one
+          calculator appears in the others, and so does a unit you choose. Answers follow as you type.
         </p>
         {CALCULATORS.map((spec) => (
           <Calculator key={spec.id} spec={spec} state={state} derived={derived} dispatch={dispatch} />

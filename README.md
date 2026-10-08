@@ -9,28 +9,27 @@ installed and nothing is sent anywhere.
 
 ## Using it
 
-Four calculators on one page, in the order of GraphPad's molarity calculator. Each answer follows at every keystroke;
-there is no Calculate button.
+GraphPad's four molarity calculators, with the same rows in the same order. Each answer follows at every
+keystroke; there is no Calculate button.
 
-1. **Mass from volume and concentration:** formula weight, desired final volume, desired concentration → the mass
-   to weigh (and the amount, in mol). *180.16 g/mol, 10 mL, 100 mM → Weigh 180.16 mg and make up to 10 mL to get 100 mM.*
-2. **Volume from mass and concentration:** formula weight, mass, desired concentration → the final volume.
-3. **Molarity from mass and volume:** formula weight, mass, volume → the concentration.
-4. **Dilute a stock solution:** stock concentration, desired concentration, desired final volume → the volume of
-   stock and of diluent (C₁ × V₁ = C₂ × V₂). *1 M, 10 mM, 100 mL → Add 1 mL of stock to 99 mL of diluent: a 100-fold dilution.*
+1. **Mass from volume & concentration:** Concentration, Formula weight (g/mol), Volume → **Mass =**.
+   *100 mM, 180.16 g/mol, 10 mL → 180.16 mg.*
+2. **Volume from mass & concentration:** Mass, Formula weight, Concentration → **Volume =**.
+3. **Molarity from mass & volume:** Mass, Formula weight, Volume → **Molarity =**.
+4. **Dilute a stock solution:** Stock concentration, Desired concentration, Desired volume → **Required volume =**,
+   the volume of stock to take (C₁ × V₁ = C₂ × V₂). *1 M, 10 mM, 100 mL → 1 mL.*
 
-### One value per quantity
+### Linked boxes
 
-The calculators share their values. The formula weight typed in one is in all three molarity calculators; so are
-the concentration, the volume and the mass. A unit chosen for a quantity shows wherever it appears, answers
-included: pick M for a concentration and every concentration on the page is shown in M. Changing a unit changes how
-the value is shown, never the value itself (100 µM switched to mM shows 0.1).
+Boxes of the same kind are linked across the first three calculators: the concentration, the formula weight, the
+volume and the mass are each one value, so typing one in any calculator fills it in the others. A unit chosen for a
+quantity shows wherever it appears, and its answers are given in it too: pick molar for a concentration and every
+concentration, including the Molarity answer, is in molar. Changing a unit changes how a value is shown, never the
+value (100 micromolar switched to millimolar shows 0.1). The dilution keeps its own three values and units, and gives
+the required volume in the unit of the desired volume.
 
-Each answer is also listed in every other unit under its box (`= 0.18016 g · 180160 µg · 180160000 ng`), and
-**Copy** puts it on the clipboard as text, e.g. `180.16 mg`. **Clear all** empties every box and keeps the units.
-
-- Concentration: M, mM, µM, nM, pM, and as a mass concentration mg/mL, µg/mL, ng/mL (needs the formula weight).
-- Volume: L, mL, µL, nL. Mass: g, mg, µg, ng. Amount: mol to pmol. Formula weight: g/mol (= Da) or kDa.
+Units, named as on GraphPad: molar to picomolar, liter to nanoliter, grams to nanograms. The formula weight is in
+grams/mole (= daltons).
 
 ### Typing numbers
 
@@ -42,9 +41,8 @@ values are shown in the `e` notation the boxes accept, e.g. `2.5e-7`.
 ### What it refuses, and why
 
 A zero or negative formula weight or volume, a negative mass or concentration, a zero that would divide by zero
-(solving for a volume with a concentration of 0), a zero stock, and a target concentration above the stock: a
-dilution can only lower a concentration. Each problem is explained under its box and on the calculator's result line. A
-molar stock and a mass-concentration target (or the other way) can only be compared with the formula weight.
+(solving for a volume with a concentration of 0), a zero stock, and a desired concentration above the stock: a
+dilution can only lower a concentration. Each problem is explained under its box, and the answer stays empty.
 
 ### Light or dark
 

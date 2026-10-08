@@ -1,63 +1,44 @@
-// The four calculators, in GraphPad's order, as data: what each takes, what it gives, and its formula.
-// The layout lives in Calculator.tsx; the science in engine/ and state/.
+// The four calculators of GraphPad's molarity page, in its order, as data: the rows each takes, top to bottom, and
+// the answer it gives. The layout lives in Calculator.tsx; the science in engine/ and state/.
 
 import type { FieldId, OutputId, Section } from "../state/model";
 
 export interface CalculatorSpec {
   id: Section;
   title: string;
-  formula: string;
   inputs: { field: FieldId; label: string }[];
   result: { quantity: OutputId; label: string };
-  /** a second answer shown under the first */
-  extra?: { quantity: OutputId; label: string };
 }
+
+const FORMULA_WEIGHT = { field: "molarMass", label: "Formula weight (g/mol)" } as const;
 
 export const CALCULATORS: CalculatorSpec[] = [
   {
     id: "mass",
-    title: "Mass from volume and concentration",
-    formula: "m = C × V × MW",
-    inputs: [
-      { field: "molarMass", label: "Formula weight" },
-      { field: "volume", label: "Desired final volume" },
-      { field: "concentration", label: "Desired concentration" },
-    ],
-    result: { quantity: "massResult", label: "Mass to weigh" },
-    extra: { quantity: "moles", label: "Amount" },
+    title: "1. Mass from volume & concentration",
+    inputs: [{ field: "concentration", label: "Concentration" }, FORMULA_WEIGHT, { field: "volume", label: "Volume" }],
+    result: { quantity: "massResult", label: "Mass" },
   },
   {
     id: "volume",
-    title: "Volume from mass and concentration",
-    formula: "V = m / (C × MW)",
-    inputs: [
-      { field: "molarMass", label: "Formula weight" },
-      { field: "mass", label: "Mass" },
-      { field: "concentration", label: "Desired concentration" },
-    ],
-    result: { quantity: "volumeResult", label: "Final volume" },
+    title: "2. Volume from mass & concentration",
+    inputs: [{ field: "mass", label: "Mass" }, FORMULA_WEIGHT, { field: "concentration", label: "Concentration" }],
+    result: { quantity: "volumeResult", label: "Volume" },
   },
   {
     id: "concentration",
-    title: "Molarity from mass and volume",
-    formula: "C = m / (MW × V)",
-    inputs: [
-      { field: "molarMass", label: "Formula weight" },
-      { field: "mass", label: "Mass" },
-      { field: "volume", label: "Volume" },
-    ],
-    result: { quantity: "concentrationResult", label: "Concentration" },
+    title: "3. Molarity from mass & volume",
+    inputs: [{ field: "mass", label: "Mass" }, FORMULA_WEIGHT, { field: "volume", label: "Volume" }],
+    result: { quantity: "concentrationResult", label: "Molarity" },
   },
   {
     id: "dilution",
-    title: "Dilute a stock solution",
-    formula: "V₁ = C₂ × V₂ / C₁",
+    title: "4. Dilute a stock solution",
     inputs: [
       { field: "stock", label: "Stock concentration" },
       { field: "target", label: "Desired concentration" },
-      { field: "finalVolume", label: "Desired final volume" },
+      { field: "finalVolume", label: "Desired volume" },
     ],
-    result: { quantity: "stockVolume", label: "Volume of stock" },
-    extra: { quantity: "diluentVolume", label: "Volume of diluent" },
+    result: { quantity: "stockVolume", label: "Required volume" },
   },
 ];

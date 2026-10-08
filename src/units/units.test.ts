@@ -22,9 +22,10 @@ describe("unit conversion", () => {
     expect(convert(1, "nM", "pM")).toBe(1000);
   });
 
-  it("molecular weight: 1 kDa = 1000 g/mol; mass concentration: 1 mg/mL = 1000 µg/mL", () => {
-    expect(convert(1, "kDa", "g_mol")).toBe(1000);
-    expect(convert(1, "mg_mL", "ug_mL")).toBe(1000);
+  it("names the units as GraphPad does", () => {
+    expect(unitsOf("molar").map((u) => u.name)).toEqual(["molar", "millimolar", "micromolar", "nanomolar", "picomolar"]);
+    expect(unitsOf("volume").map((u) => u.name)).toEqual(["liter", "milliliter", "microliter", "nanoliter"]);
+    expect(unitsOf("mass").map((u) => u.name)).toEqual(["grams", "milligrams", "micrograms", "nanograms"]);
   });
 
   it("goes through the canonical unit without float noise", () => {
