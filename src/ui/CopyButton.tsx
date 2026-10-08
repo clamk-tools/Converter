@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { copyText } from "./clipboard";
 
-// Copies the result ("180.16 mg"). Says "Copied" for a moment, or "Select and copy" when the browser refuses.
+// Copies the result ("180.16 mg"); its accessible name says what it copies. Says "Copied" for a moment, or "Select and copy" when the browser refuses.
 export function CopyButton({ text, label }: { text: string; label: string }) {
   const [done, setDone] = useState<"copied" | "refused" | null>(null);
   useEffect(() => {
@@ -22,7 +22,7 @@ export function CopyButton({ text, label }: { text: string; label: string }) {
           </>
         )}
       </svg>
-      <span aria-live="polite">{done === "copied" ? "Copied" : done === "refused" ? "Select and copy" : `Copy ${text}`}</span>
+      <span aria-live="polite">{done === "copied" ? "Copied" : done === "refused" ? "Select and copy" : "Copy"}</span>
     </button>
   );
 }

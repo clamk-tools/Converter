@@ -1,196 +1,130 @@
-/* The calculator: tabs, the solve-for switch, the quantity cards and their unit boxes, the result bar.
+/* The calculators: four stacked sections (GraphPad's layout), each a column of label · box · unit rows and a result.
    Flat construction from the brief: surface + 1px border + 7px controls / 9px cards, mono for numbers and units. */
 
-/* ---------- tabs: 600 0.875rem muted, the active one in text with a 2px accent underline ---------- */
-
-.tabs {
-  display: flex;
-  gap: 18px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 14px;
-}
-
-.tabs button {
-  height: 40px;
-  padding: 0 2px;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  background: none;
-  color: var(--muted);
-  margin-bottom: -1px;
-}
-
-.tabs button:hover:not(:disabled) {
-  border-color: transparent;
-  color: var(--text);
-}
-
-.tabs button:active:not(:disabled) {
-  background: none;
-}
-
-.tabs button[aria-selected="true"] {
-  border-bottom-color: var(--accent);
-  color: var(--text);
-}
-
-.tabs button:focus-visible {
-  border-radius: 4px;
-}
-
-.panel {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.panel .section-label + * {
-  margin-top: 0;
-}
-
-.panel .section-label:not(:first-child) {
-  margin-top: 14px; /* with the gap: 26px between groups */
-}
-
-.section-label button {
+.page > .section-label button {
   margin: -8px 0;
 }
 
-/* ---------- segmented control: surface track, the active segment accent-tint with accent text ---------- */
-
-.segmented {
-  display: inline-flex;
-  align-self: flex-start;
-  max-width: 100%;
-  padding: 2px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  background: var(--surface);
-}
-
-.segmented label {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  height: 30px;
-  padding: 0 14px;
-  border-radius: 5px;
-  color: var(--muted);
+.intro {
+  margin: 0 0 4px;
+  max-width: 70ch;
   font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background-color 120ms ease,
-    color 120ms ease;
+  color: var(--muted);
 }
 
-.segmented label:hover {
-  color: var(--text);
-}
+/* ---------- a calculator ---------- */
 
-.segmented label.on {
-  background: var(--accent-tint);
-  color: var(--accent);
-}
-
-.segmented input {
-  position: absolute;
-  opacity: 0;
-  inset: 0;
-  margin: 0;
-  cursor: pointer;
-}
-
-.segmented label:has(input:focus-visible) {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-/* ---------- quantity cards ---------- */
-
-.qgrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
-  gap: 10px;
-}
-
-.qcard {
+.calc {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-  padding: 12px 14px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface);
-  transition: border-color 120ms ease;
+  overflow: hidden;
 }
 
-/* the answer: the selected look of the brief (accent-tint and an accent border) */
-.qcard.result {
-  border-color: var(--accent);
-  background: var(--accent-tint);
-}
-
-.qhead {
+.calc-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 4px 14px;
+  padding: 12px 14px 0;
 }
 
-.qhead h3 {
+.calc-head h2 {
   margin: 0;
-  font-size: 0.9rem;
-  font-weight: 600;
-  line-height: 1.4;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
 }
 
-.qsym {
-  font: 600 0.75rem/1 var(--font-mono);
+.calc-formula {
+  font: 600 0.75rem/1.4 var(--font-mono);
   color: var(--muted);
 }
 
-.qcard.result .qsym {
-  color: var(--muted-on-tint);
-}
-
-.badge {
-  margin-left: auto;
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--accent);
-  font: 600 0.65rem/1.4 var(--font-mono);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.qmain {
+.calc-rows {
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px 14px;
 }
 
-.qmain .qvalue {
-  flex: 1;
+/* a row: the label, the box, the unit; the problem, if any, under the box */
+.row,
+.result {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 15rem) 7.5rem;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.row-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.row-value {
+  width: 100%;
   min-width: 0;
-  height: 36px;
+  height: 34px !important;
   font-family: var(--font-mono);
-  font-size: 1.05rem;
+  font-size: 0.95rem !important;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
-.qmain select {
-  flex: none;
-  height: 36px;
-  min-width: 92px;
+.row select,
+.result select {
+  height: 34px;
   font-family: var(--font-mono);
   font-weight: 600;
   cursor: pointer;
 }
 
-/* read-only boxes (an answer): no hover change, a text cursor for selecting and copying */
+.row.has-issue .row-value {
+  border-color: var(--coral-ink);
+}
+
+.row-issue {
+  grid-column: 2 / -1;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--coral-text);
+}
+
+/* ---------- the answer: the selected look of the brief (accent-tint, an accent hairline) ---------- */
+
+.calc-result {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.calc-result.ready {
+  border-top-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.result {
+  grid-template-columns: 13rem minmax(0, 15rem) 7.5rem auto;
+}
+
+.result .row-label {
+  color: var(--text);
+}
+
+.result .row-value {
+  background: var(--surface);
+}
+
 input[readonly] {
   cursor: text;
 }
@@ -199,195 +133,80 @@ input[readonly]:hover {
   border-color: var(--border) !important;
 }
 
-.qcard.result input[readonly] {
-  border-color: transparent;
+.copy-slot {
+  display: block; /* holds the Copy column on a line without one, so every box lines up */
 }
 
-.qcard.result input[readonly]:hover {
-  border-color: transparent !important;
-}
-
-.qcard.has-issue input:not([readonly]) {
-  border-color: var(--coral-ink);
-}
-
-.qissue,
-.qhint {
-  margin: -2px 0 0;
-  font-size: 0.75rem;
-  line-height: 1.35;
-}
-
-.qissue {
-  color: var(--coral-text);
-  font-weight: 600;
-}
-
-.qhint {
-  color: var(--muted);
-}
-
-/* the same quantity in every unit: small labelled boxes, all editable, all in step */
-.equiv {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-}
-
-.qcard.result .equiv {
-  border-top-color: color-mix(in srgb, var(--accent) 25%, transparent);
-}
-
-.equiv-name {
-  margin: 0 0 4px;
-  font: 600 0.62rem/1 var(--font-mono);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.qcard.result .equiv-name {
-  color: var(--muted-on-tint);
-}
-
-.equiv-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 6px 10px;
-}
-
-.eq {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
-
-.eq-unit {
-  flex: none;
-  width: 44px;
-  font: 600 0.75rem/1 var(--font-mono);
-  color: var(--muted);
-  text-align: right;
-}
-
-.qcard.result .eq-unit {
-  color: var(--muted-on-tint);
-}
-
-.eq.current .eq-unit {
-  color: var(--accent);
-}
-
-.eq-value {
-  flex: 1;
-  min-width: 0;
-  height: 28px !important;
-  padding: 0 8px !important;
-  font-family: var(--font-mono);
-  font-size: 0.8125rem !important;
-  font-variant-numeric: tabular-nums;
-}
-
-.qcard.result .eq-value {
-  background: color-mix(in srgb, var(--surface) 60%, transparent);
-}
-
-/* ---------- the result bar ---------- */
-
-.resultbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  /* stays in view at the bottom of the screen while the cards above are edited, then settles in its place */
-  position: sticky;
-  bottom: 10px;
-  z-index: 1;
-  box-shadow: var(--shadow-float);
-}
-
-.resultbar-text p {
+.result-units {
+  grid-column: 2 / -1;
   margin: 0;
-}
-
-.resultbar-sentence {
-  font-size: 1rem;
-  font-weight: 600;
+  font: 500 0.75rem/1.5 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
   overflow-wrap: anywhere;
 }
 
-.resultbar-wait {
+.calc-result.ready .result-units {
+  color: var(--muted-on-tint);
+}
+
+.calc-status,
+.calc-note {
+  margin: 0;
   font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.calc-status {
   color: var(--muted);
 }
 
-.resultbar-note {
-  margin-top: 4px !important;
+.calc-result.ready .calc-status {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.calc-note {
   font-size: 0.85rem;
   color: var(--blue-text);
 }
 
-.resultbar .formula {
-  grid-column: 1 / -1;
-  margin: 0;
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-
-.resultbar .formula code {
-  font-weight: 500;
-}
-
 button.copy {
-  max-width: 100%;
-  font-variant-numeric: tabular-nums;
+  justify-self: start;
+  height: 34px;
 }
 
-button.copy span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+/* ---------- narrow screens: the label above its box ---------- */
 
-@media (max-width: 480px) {
-  .resultbar {
-    grid-template-columns: minmax(0, 1fr);
+@media (max-width: 640px) {
+  .row,
+  .result {
+    grid-template-columns: minmax(0, 1fr) 6.5rem;
   }
 
-  .resultbar button.copy {
-    justify-self: start;
+  .result {
+    grid-template-columns: minmax(0, 1fr) 6.5rem 5.5rem;
   }
 
-  .segmented {
-    align-self: stretch;
+  .row-label {
+    grid-column: 1 / -1;
   }
 
-  .segmented label {
-    flex: 1;
-    justify-content: center;
-    padding: 0 8px;
+  .row-issue,
+  .result-units {
+    grid-column: 1 / -1;
   }
 }
 
 @media (pointer: coarse) {
-  .eq-value {
+  .row-value {
     font-size: 16px !important;
-    height: 36px !important;
+    height: 40px !important;
   }
 
-  .segmented label {
+  .row select,
+  .result select,
+  button.copy {
     height: 40px;
   }
-}
-
-/* a box that gets focus scrolls clear of the sticky result bar, not under it */
-html {
-  scroll-padding-bottom: 170px;
 }

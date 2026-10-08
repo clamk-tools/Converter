@@ -20,8 +20,9 @@ dependent quantities recalculate on every keystroke with no update loops.
  engine/solve.ts       the two calculators: validation, then equations
  state/model.ts        the scientific state, the reducer (user actions), derive() and boxText()
  ui/summary.ts         the result as a sentence, and the text Copy puts on the clipboard
- ui/*.tsx              components: QuantityCard, SolutionPanel, DilutionPanel, ResultBar, CopyButton, ThemeSwitch
- App.tsx               the frame (rail, header, tabs, footer)
+ ui/sections.ts        the four calculators as data: inputs, answer, formula (GraphPad's order)
+ ui/*.tsx              components: Calculator (one section), UnitSelect, CopyButton, ThemeSwitch
+ App.tsx               the frame (rail, header, footer) around the four calculators
  styles/               theme.css: tokens and controls (shared with the other tools); app.css: frame; calc.css: the calculator
 ```
 
@@ -53,20 +54,20 @@ Two kinds of relationship, kept apart:
 | Field | Holds |
 |---|---|
 | `entries` | the typed quantities: `molarMass`, `concentration`, `volume`, `mass`, `stock`, `target`, `finalVolume`. Each is empty, a canonical value, or invalid (with the reason) |
-| `units` | the unit each quantity's main box shows. Changing it changes nothing else |
-| `solveFor` | which of mass, concentration, volume is the answer |
-| `tab` | which calculator is shown. Both share one state |
-| `editing` | the box being typed in and its raw text |
+| `units` | the unit each quantity is shown in, everywhere it appears. An answer shares its quantity's unit (`SLOT`: `massResult` → `mass`). Changing it changes nothing else |
+| `editing` | the box being typed in (quantity, unit and calculator) and its raw text |
 
 Rules the reducer follows:
 
 - A partial number (`1e-`, `.`) leaves the quantity at its last value; leaving the box with it marks it invalid.
-- Typing in an answer box does nothing (the box is also read-only).
-- Switching what to solve for turns the answer shown into an input, rounded as it was shown, so the screen stays
-  consistent (solve for mass, then for concentration: the concentration typed comes back).
+- Answers have their own ids (`massResult`, `volumeResult`, `concentrationResult`, `moles`, `stockVolume`,
+  `diluentVolume`) and are never stored: the mass to weigh in the first calculator and the mass typed in the second
+  are different things on the page.
+- Each calculator applies its own rules to the shared values (`issueAt`): a mass of 0 gives 0 M in *Molarity*, but
+  is refused in *Volume*.
 - A concentration remembers whether it was typed as molar or as mass per volume. Converting between the two needs the
-  molecular weight; when MW changes, the typed form stays and the other follows.
-- Clear empties one tab's fields; clearing the dilution keeps the shared molecular weight.
+  formula weight; when MW changes, the typed form stays and the other follows.
+- Clear all empties every value and keeps the unit choices.
 
 ### Precision (`numbers/format.ts`)
 

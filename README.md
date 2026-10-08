@@ -9,29 +9,28 @@ installed and nothing is sent anywhere.
 
 ## Using it
 
-Two tabs. Values typed in one are still there in the other, and the molecular weight is shared.
+Four calculators on one page, in the order of GraphPad's molarity calculator. Each answer follows at every keystroke;
+there is no Calculate button.
 
-**Make a solution.** Choose what to solve for (mass, concentration or volume), then fill in the other three. The
-answer follows at every keystroke; there is no Calculate button.
+1. **Mass from volume and concentration:** formula weight, desired final volume, desired concentration → the mass
+   to weigh (and the amount, in mol). *180.16 g/mol, 10 mL, 100 mM → Weigh 180.16 mg and make up to 10 mL to get 100 mM.*
+2. **Volume from mass and concentration:** formula weight, mass, desired concentration → the final volume.
+3. **Molarity from mass and volume:** formula weight, mass, volume → the concentration.
+4. **Dilute a stock solution:** stock concentration, desired concentration, desired final volume → the volume of
+   stock and of diluent (C₁ × V₁ = C₂ × V₂). *1 M, 10 mM, 100 mL → Add 1 mL of stock to 99 mL of diluent: a 100-fold dilution.*
 
-> 180.16 g/mol, 100 mM, 10 mL → *Weigh 180.16 mg and make up to 10 mL to get 100 mM.*
+### One value per quantity
 
-**Dilute a stock.** Give the stock concentration, the target concentration and the final volume. It gives the
-volume of stock to take and of diluent to add (C₁ × V₁ = C₂ × V₂).
+The calculators share their values. The formula weight typed in one is in all three molarity calculators; so are
+the concentration, the volume and the mass. A unit chosen for a quantity shows wherever it appears, answers
+included: pick M for a concentration and every concentration on the page is shown in M. Changing a unit changes how
+the value is shown, never the value itself (100 µM switched to mM shows 0.1).
 
-> 1 M stock, 10 mM target, 100 mL → *Add 1 mL of stock to 99 mL of diluent (100 mL in total): a 100-fold dilution.*
+Each answer is also listed in every other unit under its box (`= 0.18016 g · 180160 µg · 180160000 ng`), and
+**Copy** puts it on the clipboard as text, e.g. `180.16 mg`. **Clear all** empties every box and keeps the units.
 
-### One quantity, many boxes
-
-Each card is one physical quantity. Its main box has a unit menu, and below it the same quantity is shown in every
-unit. All the boxes are the same value: type 100 in µM and the M, mM, nM and pM boxes show 0.0001, 0.1, 100000 and
-100000000. You can type in any of them. Changing the unit menu changes how the value is shown, never the value
-itself (100 µM switched to mM shows 0.1).
-
-- Concentration: M, mM, µM, nM, pM, and as a mass concentration mg/mL, µg/mL, ng/mL (needs the molecular weight).
-- Volume: L, mL, µL, nL. Mass: g, mg, µg, ng. Amount: mol to pmol. Molecular weight: g/mol or kDa.
-- The answer card has a blue background and a **Result** tag; its boxes can be selected but not typed in.
-- **Copy** puts the answer on the clipboard as text, e.g. `180.16 mg`.
+- Concentration: M, mM, µM, nM, pM, and as a mass concentration mg/mL, µg/mL, ng/mL (needs the formula weight).
+- Volume: L, mL, µL, nL. Mass: g, mg, µg, ng. Amount: mol to pmol. Formula weight: g/mol (= Da) or kDa.
 
 ### Typing numbers
 
@@ -42,10 +41,10 @@ values are shown in the `e` notation the boxes accept, e.g. `2.5e-7`.
 
 ### What it refuses, and why
 
-A zero or negative molecular weight or volume, a negative mass or concentration, a zero that would divide by zero
+A zero or negative formula weight or volume, a negative mass or concentration, a zero that would divide by zero
 (solving for a volume with a concentration of 0), a zero stock, and a target concentration above the stock: a
-dilution can only lower a concentration. Each problem is explained under its box and in the result bar. A molar
-stock and a mass-concentration target (or the other way) can only be compared with the molecular weight.
+dilution can only lower a concentration. Each problem is explained under its box and on the calculator's result line. A
+molar stock and a mass-concentration target (or the other way) can only be compared with the formula weight.
 
 ### Light or dark
 
