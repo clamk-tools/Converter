@@ -9,29 +9,33 @@ installed and nothing is sent anywhere.
 
 ## Using it
 
-Two tabs. Values typed in one are still there in the other, and the molecular weight is shared.
+GraphPad's four molarity calculators, with the same rows in the same order. Each answer follows at every
+keystroke; there is no Calculate button.
 
-**Make a solution.** Choose what to solve for (mass, concentration or volume), then fill in the other three. The
-answer follows at every keystroke; there is no Calculate button.
+1. **Mass from volume & concentration:** Concentration, Molecular weight (g/mol or Da), Volume → **Mass =**.
+   *100 mM, 180.16 g/mol, 10 mL → 180.16 mg.*
+2. **Volume from mass & concentration:** Mass, Molecular weight, Concentration → **Volume =**.
+3. **Molarity from mass & volume:** Mass, Molecular weight, Volume → **Molarity =**.
+4. **Dilute a stock solution:** Stock concentration, Desired concentration, Desired volume → **Required volume =**,
+   the volume of stock to take (C₁ × V₁ = C₂ × V₂). *1 M, 10 mM, 100 mL → 1 mL.*
 
-> 180.16 g/mol, 100 mM, 10 mL → *Weigh 180.16 mg and make up to 10 mL to get 100 mM.*
+### Linked boxes
 
-**Dilute a stock.** Give the stock concentration, the target concentration and the final volume. It gives the
-volume of stock to take and of diluent to add (C₁ × V₁ = C₂ × V₂).
+Boxes of the same kind are linked across the first three calculators: the concentration, the molecular weight, the
+volume and the mass are each one value, so typing one in any calculator fills it in the others. A unit chosen for a
+quantity shows wherever it appears, and its answers are given in it too: pick molar for a concentration and every
+concentration, including the Molarity answer, is in molar. Changing a unit changes how a value is shown, never the
+value (100 micromolar switched to millimolar shows 0.1). The dilution keeps its own three values and units, and gives
+the required volume in the unit of the desired volume.
 
-> 1 M stock, 10 mM target, 100 mL → *Add 1 mL of stock to 99 mL of diluent (100 mL in total): a 100-fold dilution.*
+Units, named as on GraphPad: molar to picomolar, liter to nanoliter, grams to nanograms. The molecular weight is in
+grams/mole (= daltons).
 
-### One quantity, many boxes
+### Report
 
-Each card is one physical quantity. Its main box has a unit menu, and below it the same quantity is shown in every
-unit. All the boxes are the same value: type 100 in µM and the M, mM, nM and pM boxes show 0.0001, 0.1, 100000 and
-100000000. You can type in any of them. Changing the unit menu changes how the value is shown, never the value
-itself (100 µM switched to mM shows 0.1).
-
-- Concentration: M, mM, µM, nM, pM, and as a mass concentration mg/mL, µg/mL, ng/mL (needs the molecular weight).
-- Volume: L, mL, µL, nL. Mass: g, mg, µg, ng. Amount: mol to pmol. Molecular weight: g/mol or kDa.
-- The answer card has a blue background and a **Result** tag; its boxes can be selected but not typed in.
-- **Copy** puts the answer on the clipboard as text, e.g. `180.16 mg`.
+The icon beside each answer adds the calculation to the **Report** tab: one condensed line with its values, as they
+were when added, e.g. `Mass  C 100 mM · MW 180.16 g/mol · V 10 mL → m 180.16 mg`. A line can be removed, and the report
+cleared. It is kept in your browser, so it survives a reload; it is not sent anywhere.
 
 ### Typing numbers
 
@@ -43,9 +47,8 @@ values are shown in the `e` notation the boxes accept, e.g. `2.5e-7`.
 ### What it refuses, and why
 
 A zero or negative molecular weight or volume, a negative mass or concentration, a zero that would divide by zero
-(solving for a volume with a concentration of 0), a zero stock, and a target concentration above the stock: a
-dilution can only lower a concentration. Each problem is explained under its box and in the result bar. A molar
-stock and a mass-concentration target (or the other way) can only be compared with the molecular weight.
+(solving for a volume with a concentration of 0), a zero stock, and a desired concentration above the stock: a
+dilution can only lower a concentration. Each problem is explained under its box, and the answer stays empty.
 
 ### Light or dark
 

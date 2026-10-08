@@ -1,24 +1,180 @@
-/* The calculator: tabs, the solve-for switch, the quantity cards and their unit boxes, the result bar.
-   Flat construction from the brief: surface + 1px border + 7px controls / 9px cards, mono for numbers and units. */
+/* The calculators, laid out as on GraphPad's molarity page: four stacked panels, each a column of
+   "Label: [box] [unit]" rows ending with "Answer = [answer]". Clamk construction: surface + 1px border, 7px controls,
+   9px panels, mono for numbers, blue for the answer. */
 
-/* ---------- tabs: 600 0.875rem muted, the active one in text with a 2px accent underline ---------- */
+.calc {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.calc h2 {
+  margin: 0 0 6px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+/* a row: label, box and unit menu; the problem, if any, under the box */
+.row {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr) 10rem;
+  align-items: center;
+  gap: 4px 10px;
+  max-width: 40rem;
+}
+
+.row-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.row-value {
+  width: 100%;
+  min-width: 0;
+  height: 38px !important;
+  font-family: var(--font-mono);
+  font-size: 0.95rem !important;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* the molecular weight has no unit menu: its box takes the menu's place too */
+.row.fixed-unit .row-value {
+  grid-column: 2 / -1;
+}
+
+.row select {
+  height: 38px;
+  cursor: pointer;
+}
+
+.row.has-issue .row-value {
+  border-color: var(--coral-ink);
+}
+
+.row-issue {
+  grid-column: 2 / -1;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--coral-text);
+}
+
+/* "Mass =" then the answer: GraphPad's orange button becomes the Clamk accent, as a label (answers follow typing) */
+.row.result {
+  grid-template-columns: 13rem minmax(0, 1fr);
+  margin-top: 4px;
+}
+
+.result-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius-control);
+  background: var(--accent-tint);
+  color: var(--accent);
+  font-size: 1rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.row.result.ready .result-label {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.result-value {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  user-select: all;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.row.result.ready .result-value {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.calc-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--blue-text);
+}
+
+/* narrow screens: label above its box, the unit menu beside it */
+@media (max-width: 560px) {
+  .calc {
+    padding: 14px 14px 16px;
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr) 8.5rem;
+  }
+
+  .row-label {
+    grid-column: 1 / -1;
+  }
+
+  .row.fixed-unit .row-value,
+  .row-issue {
+    grid-column: 1 / -1;
+  }
+
+  .row.result {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+}
+
+@media (pointer: coarse) {
+  .row-value {
+    font-size: 16px !important;
+    height: 44px !important;
+  }
+
+  .row select,
+  .result-label,
+  .result-value {
+    height: 44px;
+  }
+}
+
+/* ---------- tabs: Calculators | Report (the brief's tab style) ---------- */
 
 .tabs {
   display: flex;
   gap: 18px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 14px;
 }
 
 .tabs button {
   height: 40px;
   padding: 0 2px;
+  margin-bottom: -1px;
   border: 0;
   border-bottom: 2px solid transparent;
   border-radius: 0;
   background: none;
   color: var(--muted);
-  margin-bottom: -1px;
 }
 
 .tabs button:hover:not(:disabled) {
@@ -30,7 +186,9 @@
   background: none;
 }
 
-.tabs button[aria-selected="true"] {
+.tabs button[aria-selected="true"],
+.tabs button[aria-selected="true"]:hover:not(:disabled) {
+  border-color: transparent;
   border-bottom-color: var(--accent);
   color: var(--text);
 }
@@ -42,352 +200,134 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  padding-top: 4px;
 }
 
-.panel .section-label + * {
-  margin-top: 0;
+/* ---------- the add-to-report icon, beside the answer ---------- */
+
+.row.result {
+  grid-template-columns: 13rem minmax(0, 1fr) 40px;
+  max-width: calc(40rem + 50px);
 }
 
-.panel .section-label:not(:first-child) {
-  margin-top: 14px; /* with the gap: 26px between groups */
-}
-
-.section-label button {
-  margin: -8px 0;
-}
-
-/* ---------- segmented control: surface track, the active segment accent-tint with accent text ---------- */
-
-.segmented {
-  display: inline-flex;
-  align-self: flex-start;
-  max-width: 100%;
-  padding: 2px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  background: var(--surface);
-}
-
-.segmented label {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  height: 30px;
-  padding: 0 14px;
-  border-radius: 5px;
-  color: var(--muted);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background-color 120ms ease,
-    color 120ms ease;
-}
-
-.segmented label:hover {
-  color: var(--text);
-}
-
-.segmented label.on {
-  background: var(--accent-tint);
+button.add-report {
+  width: 40px;
+  height: 40px;
   color: var(--accent);
 }
 
-.segmented input {
-  position: absolute;
-  opacity: 0;
-  inset: 0;
-  margin: 0;
-  cursor: pointer;
-}
-
-.segmented label:has(input:focus-visible) {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-/* ---------- quantity cards ---------- */
-
-.qgrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
-  gap: 10px;
-}
-
-.qcard {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-  padding: 12px 14px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  transition: border-color 120ms ease;
-}
-
-/* the answer: the selected look of the brief (accent-tint and an accent border) */
-.qcard.result {
+button.add-report.added {
   border-color: var(--accent);
   background: var(--accent-tint);
 }
 
-.qhead {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
+/* ---------- the report: one condensed line per calculation ---------- */
 
-.qhead h3 {
-  margin: 0;
+.report-empty {
+  margin: 8px 0 0;
   font-size: 0.9rem;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.qsym {
-  font: 600 0.75rem/1 var(--font-mono);
   color: var(--muted);
 }
 
-.qcard.result .qsym {
-  color: var(--muted-on-tint);
-}
-
-.badge {
-  margin-left: auto;
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--accent);
-  font: 600 0.65rem/1.4 var(--font-mono);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.qmain {
-  display: flex;
-  gap: 6px;
-}
-
-.qmain .qvalue {
-  flex: 1;
-  min-width: 0;
-  height: 36px;
-  font-family: var(--font-mono);
-  font-size: 1.05rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.qmain select {
-  flex: none;
-  height: 36px;
-  min-width: 92px;
-  font-family: var(--font-mono);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* read-only boxes (an answer): no hover change, a text cursor for selecting and copying */
-input[readonly] {
-  cursor: text;
-}
-
-input[readonly]:hover {
-  border-color: var(--border) !important;
-}
-
-.qcard.result input[readonly] {
-  border-color: transparent;
-}
-
-.qcard.result input[readonly]:hover {
-  border-color: transparent !important;
-}
-
-.qcard.has-issue input:not([readonly]) {
-  border-color: var(--coral-ink);
-}
-
-.qissue,
-.qhint {
-  margin: -2px 0 0;
-  font-size: 0.75rem;
-  line-height: 1.35;
-}
-
-.qissue {
-  color: var(--coral-text);
-  font-weight: 600;
-}
-
-.qhint {
-  color: var(--muted);
-}
-
-/* the same quantity in every unit: small labelled boxes, all editable, all in step */
-.equiv {
+.report {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
 }
 
-.qcard.result .equiv {
-  border-top-color: color-mix(in srgb, var(--accent) 25%, transparent);
+.report-list {
+  align-self: stretch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
 }
 
-.equiv-name {
-  margin: 0 0 4px;
-  font: 600 0.62rem/1 var(--font-mono);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.qcard.result .equiv-name {
-  color: var(--muted-on-tint);
-}
-
-.equiv-grid {
+.report-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 6px 10px;
+  grid-template-columns: 1.6rem 5.2rem minmax(0, 1fr) 28px;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 10px;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
 }
 
-.eq {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
+.report-row:first-child {
+  border-top: 0;
 }
 
-.eq-unit {
-  flex: none;
-  width: 44px;
-  font: 600 0.75rem/1 var(--font-mono);
+.report-n {
+  font: 600 0.7rem/1 var(--font-mono);
   color: var(--muted);
   text-align: right;
 }
 
-.qcard.result .eq-unit {
-  color: var(--muted-on-tint);
-}
-
-.eq.current .eq-unit {
-  color: var(--accent);
-}
-
-.eq-value {
-  flex: 1;
-  min-width: 0;
-  height: 28px !important;
-  padding: 0 8px !important;
-  font-family: var(--font-mono);
-  font-size: 0.8125rem !important;
-  font-variant-numeric: tabular-nums;
-}
-
-.qcard.result .eq-value {
-  background: color-mix(in srgb, var(--surface) 60%, transparent);
-}
-
-/* ---------- the result bar ---------- */
-
-.resultbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  /* stays in view at the bottom of the screen while the cards above are edited, then settles in its place */
-  position: sticky;
-  bottom: 10px;
-  z-index: 1;
-  box-shadow: var(--shadow-float);
-}
-
-.resultbar-text p {
-  margin: 0;
-}
-
-.resultbar-sentence {
-  font-size: 1rem;
+.report-kind {
   font-weight: 600;
-  overflow-wrap: anywhere;
 }
 
-.resultbar-wait {
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-.resultbar-note {
-  margin-top: 4px !important;
-  font-size: 0.85rem;
-  color: var(--blue-text);
-}
-
-.resultbar .formula {
-  grid-column: 1 / -1;
-  margin: 0;
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-
-.resultbar .formula code {
-  font-weight: 500;
-}
-
-button.copy {
-  max-width: 100%;
+.report-calc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  min-width: 0;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
-button.copy span {
-  overflow: hidden;
-  text-overflow: ellipsis;
+.report-term {
   white-space: nowrap;
 }
 
-@media (max-width: 480px) {
-  .resultbar {
-    grid-template-columns: minmax(0, 1fr);
+.report-sym {
+  color: var(--muted);
+}
+
+.report-arrow {
+  color: var(--muted);
+}
+
+.report-result {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.report-remove {
+  align-self: center;
+  width: 28px !important;
+}
+
+@media (max-width: 560px) {
+  .row.result {
+    grid-template-columns: auto minmax(0, 1fr) 44px;
   }
 
-  .resultbar button.copy {
-    justify-self: start;
+  .report-row {
+    grid-template-columns: 1.2rem minmax(0, 1fr) 28px;
   }
 
-  .segmented {
-    align-self: stretch;
+  .report-kind {
+    grid-column: 2;
   }
 
-  .segmented label {
-    flex: 1;
-    justify-content: center;
-    padding: 0 8px;
+  .report-calc {
+    grid-column: 2;
+  }
+
+  .report-remove {
+    grid-column: 3;
+    grid-row: 1;
   }
 }
 
 @media (pointer: coarse) {
-  .eq-value {
-    font-size: 16px !important;
-    height: 36px !important;
+  button.add-report {
+    width: 44px;
+    height: 44px;
   }
-
-  .segmented label {
-    height: 40px;
-  }
-}
-
-/* a box that gets focus scrolls clear of the sticky result bar, not under it */
-html {
-  scroll-padding-bottom: 170px;
 }

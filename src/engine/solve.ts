@@ -113,12 +113,12 @@ export interface DilutionResult {
 
 const DILUTION_NAMES: Record<DilutionInput, string> = {
   stock: "Stock concentration",
-  target: "Target concentration",
-  finalVolume: "Final volume",
+  target: "Desired concentration",
+  finalVolume: "Desired volume",
 };
 
 export const HIGHER_THAN_STOCK =
-  "The target is more concentrated than the stock. A dilution can only lower the concentration: use a more concentrated stock or a lower target.";
+  "The desired concentration is higher than the stock. A dilution can only lower the concentration: use a more concentrated stock or a lower desired concentration.";
 
 export function solveDilution(inputs: DilutionInputs): DilutionResult {
   const issues: Issue<DilutionInput>[] = [];
@@ -135,7 +135,7 @@ export function solveDilution(inputs: DilutionInputs): DilutionResult {
   if (issues.length || missing.length) return none;
 
   const { stock, target, finalVolume } = inputs as Record<DilutionInput, number>;
-  // equal within float noise: 1 mM against 1000 µM, or a mg/mL stock against an M target through the molecular weight
+  // equal within float noise: 1 mM against 1000 µM
   const same = Math.abs(target - stock) <= 1e-12 * stock;
   if (target > stock && !same) return { ...none, issues: [{ input: "target", message: HIGHER_THAN_STOCK }] };
 
@@ -148,6 +148,6 @@ export function solveDilution(inputs: DilutionInputs): DilutionResult {
     factor: same ? 1 : factor,
     issues,
     missing,
-    note: same ? "The target equals the stock: use the stock as it is, with no diluent." : null,
+    note: same ? "The desired concentration equals the stock: use the stock as it is, with no diluent." : null,
   };
 }
