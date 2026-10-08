@@ -19,7 +19,12 @@ import { resultText, unitOf, valueIn } from "./model";
 export interface ReportEntry {
   id: string;
   section: Section;
+  /** what kind of calculation it is: "Mass from volume & concentration" */
   title: string;
+  /** a name the user gave it ("Buffer A, 10 mL"); the title shows when there is none */
+  name?: string;
+  /** folded to its heading and result */
+  collapsed?: boolean;
   /** what was entered: "C = 100 mM", with the quantity's name */
   given: { name: string; text: string }[];
   /** conversions to base units, only for values not already in them: "V = 10 mL × 10⁻³ = 0.01 L" */
@@ -171,9 +176,27 @@ export function entryFor(state: State, derived: Derived, section: Section, id: s
   };
 }
 
+// ---------- renaming and collapsing ----------
+
+/** What the entry is called on the page: the user's name, or its title. */
+export const displayName = (e: ReportEntry) => e.name || e.title;
+
+/** Gives an entry a name; an empty name (spaces only) takes it back. */
+export const rename = (entries: ReportEntry[], id: string, name: string): ReportEntry[] =>
+  entries.map((e) => (e.id === id ? { ...e, name: name.trim().replace(/\s+/g, " ").slice(0, 80) || undefined } : e));
+
+export const toggleCollapsed = (entries: ReportEntry[], id: string): ReportEntry[] =>
+  entries.map((e) => (e.id === id ? { ...e, collapsed: !e.collapsed } : e));
+
+/** Folds every entry, or, when all are already folded, opens them all. */
+export const toggleAll = (entries: ReportEntry[]): ReportEntry[] => {
+  const fold = entries.some((e) => !e.collapsed);
+  return entries.map((e) => ({ ...e, collapsed: fold }));
+};
+
 /** The entry as plain text, for copying into a document. */
 export function entryText(e: ReportEntry, n: number): string {
-  const lines = [`${n}. ${e.title}`, "Given:", ...e.given.map((g) => `  ${g.text}  (${g.name.toLowerCase()})`)];
+  const lines = [`${n}. ${e.name ? `${e.name} (${e.title})` : e.title}`, "Given:", ...e.given.map((g) => `  ${g.text}  (${g.name.toLowerCase()})`)];
   if (e.convert.length) lines.push("In base units:", ...e.convert.map((c) => `  ${c}`));
   lines.push("Formula:", `  ${e.formula}`, "Substitution:", ...e.substitution.map((s) => `  ${s}`), "Result:", ...e.result.map((r) => `  ${r}`));
   lines.push("Check:", `  ${e.check.text} ${e.check.ok ? "✓" : "✗"}`);

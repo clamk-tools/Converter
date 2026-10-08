@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { UnitId } from "../units/units";
 import { derive, initialState, reducer } from "./model";
 import type { Action, FieldId, State } from "./model";
-import { entryFor, entryText } from "./report";
+import { displayName, entryFor, entryText, rename, toggleAll, toggleCollapsed } from "./report";
 
 const typed = (field: FieldId, unit: UnitId, text: string): Action[] => [{ type: "type", field, unit, text }, { type: "leave", field }];
 const run = (actions: Action[]): State => actions.reduce(reducer, initialState);
@@ -90,5 +90,36 @@ describe("a worked calculation", () => {
         "  C = m / (MW × V) = 0.18016 / (180.16 × 0.01) = 0.1 mol/L ✓",
       ].join("\n"),
     );
+  });
+});
+
+describe("renaming and collapsing", () => {
+  const a = entryFor(glucose, derive(glucose), "mass", "a")!;
+  const b = entryFor(glucose, derive(glucose), "mass", "b")!;
+
+  it("a name replaces the title on the page, and an empty name takes it back", () => {
+    expect(displayName(a)).toBe("Mass from volume & concentration");
+    const named = rename([a, b], "a", "  Buffer   A, 10 mL ");
+    expect(named[0].name).toBe("Buffer A, 10 mL");
+    expect(displayName(named[0])).toBe("Buffer A, 10 mL");
+    expect(named[1]).toBe(b); // the others are untouched
+    expect(displayName(rename(named, "a", "   ")[0])).toBe("Mass from volume & concentration");
+  });
+
+  it("a name is kept to 80 characters", () => {
+    expect(rename([a], "a", "x".repeat(200))[0].name).toHaveLength(80);
+  });
+
+  it("folds and opens one calculation, and all of them", () => {
+    const one = toggleCollapsed([a, b], "a");
+    expect(one.map((e) => !!e.collapsed)).toEqual([true, false]);
+    expect(toggleCollapsed(one, "a")[0].collapsed).toBe(false);
+    expect(toggleAll(one).map((e) => e.collapsed)).toEqual([true, true]); // one is open: fold all
+    expect(toggleAll(toggleAll(one)).map((e) => e.collapsed)).toEqual([false, false]); // all folded: open all
+  });
+
+  it("the copied text carries the name and the kind of calculation", () => {
+    const text = entryText(rename([a], "a", "Buffer A")[0], 1);
+    expect(text.split("\n")[0]).toBe("1. Buffer A (Mass from volume & concentration)");
   });
 });

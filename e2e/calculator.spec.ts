@@ -178,3 +178,44 @@ test("the report keeps what was calculated, and survives a reload", async ({ pag
   await page.getByRole("tab", { name: "Report (1)" }).click();
   await expect(page.locator(".calc-sheet").getByText("m = 180.16 mg")).toBeVisible();
 });
+
+test("a calculation in the report can be renamed and collapsed", async ({ page }) => {
+  await glucose(page);
+  await calc(page, "mass").getByRole("button", { name: "Add mass to report" }).click();
+  await page.getByRole("tab", { name: "Report (1)" }).click();
+  const sheet = page.locator(".calc-sheet");
+
+  await page.getByRole("button", { name: "Rename calculation 1" }).click();
+  await page.getByLabel("Name for calculation 1").fill("Buffer A, 10 mL");
+  await page.keyboard.press("Enter");
+  await expect(sheet.getByRole("heading")).toContainText("Buffer A, 10 mL");
+  await expect(sheet.getByRole("heading")).toContainText("Mass from volume & concentration");
+
+  await page.getByRole("button", { name: "Collapse calculation 1" }).click();
+  await expect(sheet.getByText("m = C × V × MW")).toHaveCount(0);
+  await expect(sheet.locator(".sheet-summary")).toHaveText("m = 180.16 mg"); // the result stays in view
+  await page.getByRole("button", { name: "Expand calculation 1" }).click();
+  await expect(sheet.getByText("m = C × V × MW")).toBeVisible();
+
+  await page.getByRole("button", { name: "Rename calculation 1" }).click();
+  await page.getByLabel("Name for calculation 1").fill("never saved");
+  await page.keyboard.press("Escape");
+  await expect(sheet.getByRole("heading")).toContainText("Buffer A, 10 mL");
+
+  await page.reload();
+  await page.getByRole("tab", { name: "Report (1)" }).click();
+  await expect(sheet.getByRole("heading")).toContainText("Buffer A, 10 mL"); // the name survives a reload
+});
+
+test("Collapse all folds every calculation, then Expand all opens them", async ({ page }) => {
+  await glucose(page);
+  await calc(page, "mass").getByRole("button", { name: "Add mass to report" }).click();
+  await box(page, "volume", "Mass in milligrams").fill("90.08");
+  await calc(page, "volume").getByRole("button", { name: "Add volume to report" }).click();
+  await page.getByRole("tab", { name: "Report (2)" }).click();
+  await page.getByRole("button", { name: "Collapse all" }).click();
+  await expect(page.locator(".steps")).toHaveCount(0);
+  await expect(page.locator(".sheet-summary")).toHaveCount(2);
+  await page.getByRole("button", { name: "Expand all" }).click();
+  await expect(page.locator(".steps")).toHaveCount(2);
+});

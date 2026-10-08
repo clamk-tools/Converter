@@ -2,7 +2,7 @@ import type { KeyboardEvent } from "react";
 import { useEffect, useMemo, useReducer, useState } from "react";
 
 import { derive, initialState, reducer } from "./state/model";
-import { entryFor, loadReport, saveReport } from "./state/report";
+import { entryFor, loadReport, rename, saveReport, toggleAll, toggleCollapsed } from "./state/report";
 import type { ReportEntry } from "./state/report";
 import { Calculator } from "./ui/Calculator";
 import { Report } from "./ui/Report";
@@ -82,7 +82,14 @@ export function App() {
               />
             ))
           ) : (
-            <Report entries={report} onRemove={(id) => setReport((r) => r.filter((e) => e.id !== id))} onClear={() => setReport([])} />
+            <Report
+              entries={report}
+              onRename={(id, name) => setReport((r) => rename(r, id, name))}
+              onToggle={(id) => setReport((r) => toggleCollapsed(r, id))}
+              onToggleAll={() => setReport(toggleAll)}
+              onRemove={(id) => setReport((r) => r.filter((e) => e.id !== id))}
+              onClear={() => setReport([])}
+            />
           )}
         </div>
       </main>

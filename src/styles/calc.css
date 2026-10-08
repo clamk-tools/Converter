@@ -244,18 +244,24 @@ button.add-report.added {
 
 .sheet-head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 10px 8px 14px;
-  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+  gap: 2px;
+  padding: 6px 8px 6px 6px;
+}
+
+.sheet-title {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 6px 0;
 }
 
 .sheet-head h2 {
   margin: 0;
   font-size: 0.95rem;
   font-weight: 700;
+  line-height: 1.5;
   letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
 }
 
 .sheet-n {
@@ -264,9 +270,46 @@ button.add-report.added {
   color: var(--muted);
 }
 
+/* the calculation's kind, after a name the user gave it */
+.sheet-kind {
+  margin-left: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+/* a folded calculation: its result stays visible */
+.sheet-summary {
+  margin: 0 0 2px;
+  font: 600 0.8rem/1.6 var(--font-mono);
+  color: var(--accent);
+}
+
+.sheet-rename {
+  width: 100%;
+  height: 28px !important;
+  font-size: 0.9rem !important;
+  font-weight: 600;
+}
+
+/* no padding: the shared compact button's 10px each side would squeeze a 14px icon in a 28px button */
 .sheet-head button {
   width: 28px;
+  padding: 0;
   flex: none;
+}
+
+.sheet-fold svg {
+  transition: transform 180ms ease;
+}
+
+.sheet-fold[aria-expanded="false"] svg {
+  transform: rotate(-90deg);
+}
+
+.calc-sheet:has(.steps) .sheet-head {
+  border-bottom: 1px solid var(--border);
 }
 
 /* a label column (mono, uppercase, as the brief's section labels) and the lines of that step */
@@ -335,6 +378,11 @@ button.add-report.added {
 @media (max-width: 560px) {
   .row.result {
     grid-template-columns: auto minmax(0, 1fr) 44px;
+  }
+
+  .sheet-kind {
+    display: block;
+    margin: 0;
   }
 
   .steps {

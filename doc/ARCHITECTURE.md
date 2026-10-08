@@ -80,7 +80,7 @@ hides float noise), 6 for a calculated value. Plain notation from 1e-5 to 1e10, 
 | `src/units/units.test.ts` | every unit relation of the brief (1 g = 1000 mg…), no float noise through the canonical unit |
 | `src/numbers/numbers.test.ts` | parsing (decimals, `e`, comma, partial, invalid, overflow), formatting (noise, notation, round trip) |
 | `src/engine/solve.test.ts` | each equation, both sanity checks, every validation rule, tiny and huge values, overflow |
-| `src/state/report.test.ts` | each calculation worked by hand (given, conversions, substitution, result, check), base-unit and tiny values, a snapshot that later edits do not change, the plain-text form |
+| `src/state/report.test.ts` | each calculation worked by hand (given, conversions, substitution, result, check), base-unit and tiny values, a snapshot that later edits do not change, the plain-text form, renaming and collapsing |
 | `src/state/model.test.ts` | synchronisation (100 µM, 0.25 mM, 2 mL, 5 mg), linked boxes, unit changes, the three calculators on shared values, per-calculator rules, typing states, dilution |
 | `e2e/calculator.spec.ts` | the built page used through the keyboard and mouse, in four browser set-ups; also fails on any request to another host |
 
