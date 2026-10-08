@@ -150,3 +150,15 @@ test("the theme switch is shared with the hub through its storage key", async ({
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", theme!);
 });
+
+test("an answer can be added to the report, which lists it in one line", async ({ page }) => {
+  const add = calc(page, "mass").getByRole("button", { name: "Add mass to report" });
+  await expect(add).toBeDisabled();
+  await glucose(page);
+  await add.click();
+  await expect(page.getByRole("tab", { name: "Report (1)" })).toBeVisible();
+  await page.getByRole("tab", { name: "Report (1)" }).click();
+  await expect(page.locator(".report-row")).toHaveText(/Mass\s*C 100 mM\s*MW 180.16 g\/mol\s*V 10 mL\s*→\s*m 180.16 mg/);
+  await page.getByRole("button", { name: "Remove line 1" }).click();
+  await expect(page.getByText("Nothing in the report yet.", { exact: false })).toBeVisible();
+});
