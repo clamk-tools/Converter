@@ -19,8 +19,9 @@ dependent quantities recalculate on every keystroke with no update loops.
  engine/equations.ts   the bare formulas, canonical units
  engine/solve.ts       the two calculators: validation, then equations
  state/model.ts        the scientific state, the reducer (user actions), derive() and boxText()
+ state/report.ts       the report: entries as text snapshots, kept in the browser's storage
  ui/sections.ts        GraphPad's four calculators as data: their rows in order, and their answer
- ui/*.tsx              components: Calculator (one calculator), UnitSelect, ThemeSwitch
+ ui/*.tsx              components: Calculator (one calculator), Report, UnitSelect, ThemeSwitch
  App.tsx               the frame (rail, header, footer) around the four calculators
  styles/               theme.css: tokens and controls (shared with the other tools); app.css: frame; calc.css: the calculator
 ```
@@ -54,7 +55,7 @@ Two kinds of relationship, kept apart:
 | Field | Holds |
 |---|---|
 | `entries` | the typed quantities: `molarMass`, `concentration`, `volume`, `mass`, `stock`, `target`, `finalVolume`. Each is empty, a canonical value, or invalid (with the reason) |
-| `units` | the unit each quantity is shown in, everywhere it appears. An answer shares its quantity's unit (`SLOT`: `massResult` → `mass`; the required volume → the desired volume). The formula weight has none: always g/mol. Changing a unit changes nothing else |
+| `units` | the unit each quantity is shown in, everywhere it appears. An answer shares its quantity's unit (`SLOT`: `massResult` → `mass`; the required volume → the desired volume). The molecular weight has none: always g/mol. Changing a unit changes nothing else |
 | `editing` | the box being typed in (quantity, unit and calculator) and its raw text |
 
 Rules the reducer follows:
@@ -79,6 +80,7 @@ hides float noise), 6 for a calculated value. Plain notation from 1e-5 to 1e10, 
 | `src/units/units.test.ts` | every unit relation of the brief (1 g = 1000 mg…), no float noise through the canonical unit |
 | `src/numbers/numbers.test.ts` | parsing (decimals, `e`, comma, partial, invalid, overflow), formatting (noise, notation, round trip) |
 | `src/engine/solve.test.ts` | each equation, both sanity checks, every validation rule, tiny and huge values, overflow |
+| `src/state/report.test.ts` | an entry as one line, a snapshot that later edits do not change, none without an answer |
 | `src/state/model.test.ts` | synchronisation (100 µM, 0.25 mM, 2 mL, 5 mg), linked boxes, unit changes, the three calculators on shared values, per-calculator rules, typing states, dilution |
 | `e2e/calculator.spec.ts` | the built page used through the keyboard and mouse, in four browser set-ups; also fails on any request to another host |
 

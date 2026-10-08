@@ -12,24 +12,30 @@ installed and nothing is sent anywhere.
 GraphPad's four molarity calculators, with the same rows in the same order. Each answer follows at every
 keystroke; there is no Calculate button.
 
-1. **Mass from volume & concentration:** Concentration, Formula weight (g/mol), Volume → **Mass =**.
+1. **Mass from volume & concentration:** Concentration, Molecular weight (g/mol or Da), Volume → **Mass =**.
    *100 mM, 180.16 g/mol, 10 mL → 180.16 mg.*
-2. **Volume from mass & concentration:** Mass, Formula weight, Concentration → **Volume =**.
-3. **Molarity from mass & volume:** Mass, Formula weight, Volume → **Molarity =**.
+2. **Volume from mass & concentration:** Mass, Molecular weight, Concentration → **Volume =**.
+3. **Molarity from mass & volume:** Mass, Molecular weight, Volume → **Molarity =**.
 4. **Dilute a stock solution:** Stock concentration, Desired concentration, Desired volume → **Required volume =**,
    the volume of stock to take (C₁ × V₁ = C₂ × V₂). *1 M, 10 mM, 100 mL → 1 mL.*
 
 ### Linked boxes
 
-Boxes of the same kind are linked across the first three calculators: the concentration, the formula weight, the
+Boxes of the same kind are linked across the first three calculators: the concentration, the molecular weight, the
 volume and the mass are each one value, so typing one in any calculator fills it in the others. A unit chosen for a
 quantity shows wherever it appears, and its answers are given in it too: pick molar for a concentration and every
 concentration, including the Molarity answer, is in molar. Changing a unit changes how a value is shown, never the
 value (100 micromolar switched to millimolar shows 0.1). The dilution keeps its own three values and units, and gives
 the required volume in the unit of the desired volume.
 
-Units, named as on GraphPad: molar to picomolar, liter to nanoliter, grams to nanograms. The formula weight is in
+Units, named as on GraphPad: molar to picomolar, liter to nanoliter, grams to nanograms. The molecular weight is in
 grams/mole (= daltons).
+
+### Report
+
+The icon beside each answer adds the calculation to the **Report** tab: one condensed line with its values, as they
+were when added, e.g. `Mass  C 100 mM · MW 180.16 g/mol · V 10 mL → m 180.16 mg`. A line can be removed, and the report
+cleared. It is kept in your browser, so it survives a reload; it is not sent anywhere.
 
 ### Typing numbers
 
@@ -40,7 +46,7 @@ values are shown in the `e` notation the boxes accept, e.g. `2.5e-7`.
 
 ### What it refuses, and why
 
-A zero or negative formula weight or volume, a negative mass or concentration, a zero that would divide by zero
+A zero or negative molecular weight or volume, a negative mass or concentration, a zero that would divide by zero
 (solving for a volume with a concentration of 0), a zero stock, and a desired concentration above the stock: a
 dilution can only lower a concentration. Each problem is explained under its box, and the answer stays empty.
 

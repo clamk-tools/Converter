@@ -5,6 +5,23 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-08 · A report, and "molecular weight"
+
+- **Seen:** each answer has an icon to add it to a report. A second tab, *Report*, lists what was added as one
+  condensed numbered line each (`Mass  C 100 mM · MW 180.16 g/mol · V 10 mL → m 180.16 mg`), with the values as they were
+  when added; a line can be removed and the report cleared. The report is kept in the browser. The row is now
+  "Molecular weight (g/mol or Da)" (was "Formula weight"), and the messages say the same.
+- **Inside:** new `state/report.ts` (entries as snapshots, browser storage guarded) and `ui/Report.tsx`; the page gets
+  two tabs. 65 unit tests, 12 end-to-end tests.
+- **Decided:** the label says "g/mol or Da" and the unit stays g/mol, as 1 Da = 1 g/mol.
+
+### 2026-10-08 · Less text
+
+- **Seen:** the paragraph above the calculators and "Runs in your browser, nothing is sent." in the footer are gone.
+  The footer keeps the links to the hub and the source.
+
+## Released
+
 ### 2026-10-08 · GraphPad's calculators, exactly
 
 - **Seen:** the calculators are now the ones on GraphPad's page, from screenshots of it: the same four, numbered, with
@@ -19,13 +36,11 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
   end-to-end tests.
 - **Decided:** GraphPad's orange "Mass =" button is a Clamk accent label, not a button, since answers follow typing.
 
-## Released
-
 ### 2026-10-08 · GraphPad's layout
 
 - **Seen:** the two tabs are replaced by four calculators stacked on one page, in the order of GraphPad's molarity
   calculator: mass, volume, molarity, dilution. Each input is one box with a unit menu; each answer is listed in every
-  other unit under its box. The calculators share their values and units: a formula weight typed once is in all
+  other unit under its box. The calculators share their values and units: a molecular weight typed once is in all
   three, and a unit picked for a quantity shows everywhere. "Molecular weight" is now "Formula weight", as on GraphPad.
 - **Inside:** `state/model.ts` drops `solveFor` and the tabs; each calculator solves for its own answer from the shared
   values, and answers have their own ids so they are never stored. New `ui/sections.ts` and `ui/Calculator.tsx`

@@ -2,7 +2,7 @@
 //
 // Each dimension has one canonical unit, and every value in the scientific state is stored in it:
 //
-//   concentration  M (mol/L)      volume  L      mass  g      formula weight  g/mol
+//   concentration  M (mol/L)      volume  L      mass  g      molecular weight  g/mol
 //
 // A unit is a power of ten of its canonical unit, so it is stored as that exponent, not as a float factor:
 // 1 µM = 10^-6 M. Converting by dividing or multiplying by an exact power of ten gives the closest double to the

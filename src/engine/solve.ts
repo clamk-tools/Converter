@@ -40,7 +40,7 @@ export const NEEDS: Record<SolveFor, SolutionInput[]> = {
 };
 
 const NAMES: Record<SolutionInput, string> = {
-  molarMass: "Formula weight",
+  molarMass: "Molecular weight",
   concentration: "Concentration",
   volume: "Volume",
   mass: "Mass",

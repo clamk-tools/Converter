@@ -12,7 +12,7 @@ Every value is stored in one canonical unit per kind of quantity. All other unit
 | Molar concentration | M = mol/L | M, mM (10⁻³), µM (10⁻⁶), nM (10⁻⁹), pM (10⁻¹²) |
 | Volume | L | L, mL, µL, nL |
 | Mass | g | g, mg, µg, ng |
-| Formula weight (molecular weight) | g/mol (= Da) | g/mol only |
+| Molecular weight | g/mol (= Da) | g/mol only (labelled "g/mol or Da") |
 
 ## Formulas
 
@@ -33,7 +33,7 @@ by the tests. In a dilution C₁ and C₂ are compared in the same unit, whichev
 
 | Input | Allowed | Why |
 |---|---|---|
-| Formula weight | > 0 | divides every formula |
+| Molecular weight | > 0 | divides every formula |
 | Volume, desired volume | > 0 | a volume of 0 holds nothing; divides C |
 | Concentration (solving for mass) | ≥ 0 | 0 M needs 0 g |
 | Mass (solving for concentration) | ≥ 0 | 0 g gives 0 M |

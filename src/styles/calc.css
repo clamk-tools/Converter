@@ -2,13 +2,6 @@
    "Label: [box] [unit]" rows ending with "Answer = [answer]". Clamk construction: surface + 1px border, 7px controls,
    9px panels, mono for numbers, blue for the answer. */
 
-.intro {
-  margin: 0 0 4px;
-  max-width: 70ch;
-  font-size: 0.875rem;
-  color: var(--muted);
-}
-
 .calc {
   display: flex;
   flex-direction: column;
@@ -51,7 +44,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* the formula weight has no unit menu: its box takes the menu's place too */
+/* the molecular weight has no unit menu: its box takes the menu's place too */
 .row.fixed-unit .row-value {
   grid-column: 2 / -1;
 }
@@ -161,6 +154,180 @@
   .row select,
   .result-label,
   .result-value {
+    height: 44px;
+  }
+}
+
+/* ---------- tabs: Calculators | Report (the brief's tab style) ---------- */
+
+.tabs {
+  display: flex;
+  gap: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tabs button {
+  height: 40px;
+  padding: 0 2px;
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--muted);
+}
+
+.tabs button:hover:not(:disabled) {
+  border-color: transparent;
+  color: var(--text);
+}
+
+.tabs button:active:not(:disabled) {
+  background: none;
+}
+
+.tabs button[aria-selected="true"],
+.tabs button[aria-selected="true"]:hover:not(:disabled) {
+  border-color: transparent;
+  border-bottom-color: var(--accent);
+  color: var(--text);
+}
+
+.tabs button:focus-visible {
+  border-radius: 4px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+/* ---------- the add-to-report icon, beside the answer ---------- */
+
+.row.result {
+  grid-template-columns: 13rem minmax(0, 1fr) 40px;
+  max-width: calc(40rem + 50px);
+}
+
+button.add-report {
+  width: 40px;
+  height: 40px;
+  color: var(--accent);
+}
+
+button.add-report.added {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+/* ---------- the report: one condensed line per calculation ---------- */
+
+.report-empty {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.report {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.report-list {
+  align-self: stretch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.report-row {
+  display: grid;
+  grid-template-columns: 1.6rem 5.2rem minmax(0, 1fr) 28px;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 10px;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.report-row:first-child {
+  border-top: 0;
+}
+
+.report-n {
+  font: 600 0.7rem/1 var(--font-mono);
+  color: var(--muted);
+  text-align: right;
+}
+
+.report-kind {
+  font-weight: 600;
+}
+
+.report-calc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.report-term {
+  white-space: nowrap;
+}
+
+.report-sym {
+  color: var(--muted);
+}
+
+.report-arrow {
+  color: var(--muted);
+}
+
+.report-result {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.report-remove {
+  align-self: center;
+  width: 28px !important;
+}
+
+@media (max-width: 560px) {
+  .row.result {
+    grid-template-columns: auto minmax(0, 1fr) 44px;
+  }
+
+  .report-row {
+    grid-template-columns: 1.2rem minmax(0, 1fr) 28px;
+  }
+
+  .report-kind {
+    grid-column: 2;
+  }
+
+  .report-calc {
+    grid-column: 2;
+  }
+
+  .report-remove {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+@media (pointer: coarse) {
+  button.add-report {
+    width: 44px;
     height: 44px;
   }
 }
