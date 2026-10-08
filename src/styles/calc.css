@@ -222,7 +222,7 @@ button.add-report.added {
   background: var(--accent-tint);
 }
 
-/* ---------- the report: one condensed line per calculation ---------- */
+/* ---------- the calculation report: each calculation written out step by step ---------- */
 
 .report-empty {
   margin: 8px 0 0;
@@ -233,73 +233,103 @@ button.add-report.added {
 .report {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
+  gap: 10px;
 }
 
-.report-list {
-  align-self: stretch;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.calc-sheet {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface);
 }
 
-.report-row {
-  display: grid;
-  grid-template-columns: 1.6rem 5.2rem minmax(0, 1fr) 28px;
-  align-items: baseline;
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  padding: 7px 10px;
-  border-top: 1px solid var(--border);
-  font-size: 0.85rem;
+  padding: 8px 10px 8px 14px;
+  border-bottom: 1px solid var(--border);
 }
 
-.report-row:first-child {
+.sheet-head h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.sheet-n {
+  margin-right: 6px;
+  font: 600 0.75rem/1 var(--font-mono);
+  color: var(--muted);
+}
+
+.sheet-head button {
+  width: 28px;
+  flex: none;
+}
+
+/* a label column (mono, uppercase, as the brief's section labels) and the lines of that step */
+.steps {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 0;
+  margin: 0;
+  padding: 4px 14px 8px;
+}
+
+.steps dt,
+.steps dd {
+  margin: 0;
+  padding: 5px 0;
+  border-top: 1px solid var(--border);
+}
+
+.steps dt:first-of-type,
+.steps dt:first-of-type + dd {
   border-top: 0;
 }
 
-.report-n {
-  font: 600 0.7rem/1 var(--font-mono);
+.steps dt {
+  font: 600 0.65rem/1.9 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--muted);
-  text-align: right;
 }
 
-.report-kind {
-  font-weight: 600;
-}
-
-.report-calc {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px 12px;
-  min-width: 0;
-  font-family: var(--font-mono);
+.steps dd p {
+  margin: 0;
+  font: 500 0.85rem/1.7 var(--font-mono);
   font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
 
-.report-term {
-  white-space: nowrap;
-}
-
-.report-sym {
+.step-name {
+  margin-left: 6px;
+  font: 500 0.75rem/1 var(--font-sans);
   color: var(--muted);
 }
 
-.report-arrow {
-  color: var(--muted);
-}
-
-.report-result {
+.step-result p {
   font-weight: 600;
+}
+
+.step-result p:last-child {
   color: var(--accent);
 }
 
-.report-remove {
-  align-self: center;
-  width: 28px !important;
+.step-ok .step-mark {
+  color: var(--green-text);
+  font-weight: 700;
+}
+
+.step-bad {
+  color: var(--coral-text);
+}
+
+.report-actions {
+  display: flex;
+  gap: 8px;
 }
 
 @media (max-width: 560px) {
@@ -307,21 +337,22 @@ button.add-report.added {
     grid-template-columns: auto minmax(0, 1fr) 44px;
   }
 
-  .report-row {
-    grid-template-columns: 1.2rem minmax(0, 1fr) 28px;
+  .steps {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .report-kind {
-    grid-column: 2;
+  .steps dt {
+    border-top: 1px solid var(--border);
+    padding-bottom: 0;
   }
 
-  .report-calc {
-    grid-column: 2;
+  .steps dd {
+    border-top: 0;
+    padding-top: 2px;
   }
 
-  .report-remove {
-    grid-column: 3;
-    grid-row: 1;
+  .steps dt:first-of-type {
+    border-top: 0;
   }
 }
 

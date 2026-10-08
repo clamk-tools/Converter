@@ -151,14 +151,30 @@ test("the theme switch is shared with the hub through its storage key", async ({
   await expect(page.locator("html")).toHaveAttribute("data-theme", theme!);
 });
 
-test("an answer can be added to the report, which lists it in one line", async ({ page }) => {
+test("an answer can be added to the report, which writes the calculation out step by step", async ({ page }) => {
   const add = calc(page, "mass").getByRole("button", { name: "Add mass to report" });
   await expect(add).toBeDisabled();
   await glucose(page);
   await add.click();
-  await expect(page.getByRole("tab", { name: "Report (1)" })).toBeVisible();
   await page.getByRole("tab", { name: "Report (1)" }).click();
-  await expect(page.locator(".report-row")).toHaveText(/Mass\s*C 100 mM\s*MW 180.16 g\/mol\s*V 10 mL\s*→\s*m 180.16 mg/);
-  await page.getByRole("button", { name: "Remove line 1" }).click();
+
+  const sheet = page.locator(".calc-sheet");
+  await expect(sheet.getByRole("heading")).toHaveText("1 Mass from volume & concentration");
+  await expect(sheet.getByText("C = 100 mM × 10⁻³ = 0.1 mol/L")).toBeVisible();
+  await expect(sheet.getByText("m = C × V × MW")).toBeVisible();
+  await expect(sheet.getByText("m = 0.1 mol/L × 0.01 L × 180.16 g/mol")).toBeVisible();
+  await expect(sheet.getByText("m = 180.16 mg")).toBeVisible();
+  await expect(sheet.getByText("C = m / (MW × V) = 0.18016 / (180.16 × 0.01) = 0.1 mol/L ✓")).toBeVisible();
+
+  await page.getByRole("button", { name: "Remove calculation 1" }).click();
   await expect(page.getByText("Nothing in the report yet.", { exact: false })).toBeVisible();
+});
+
+test("the report keeps what was calculated, and survives a reload", async ({ page }) => {
+  await glucose(page);
+  await calc(page, "mass").getByRole("button", { name: "Add mass to report" }).click();
+  await box(page, "mass", "Concentration in millimolar").fill("200"); // later edits do not change it
+  await page.reload();
+  await page.getByRole("tab", { name: "Report (1)" }).click();
+  await expect(page.locator(".calc-sheet").getByText("m = 180.16 mg")).toBeVisible();
 });

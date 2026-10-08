@@ -31,11 +31,25 @@ the required volume in the unit of the desired volume.
 Units, named as on GraphPad: molar to picomolar, liter to nanoliter, grams to nanograms. The molecular weight is in
 grams/mole (= daltons).
 
-### Report
+### Calculation report
 
-The icon beside each answer adds the calculation to the **Report** tab: one condensed line with its values, as they
-were when added, e.g. `Mass  C 100 mM · MW 180.16 g/mol · V 10 mL → m 180.16 mg`. A line can be removed, and the report
-cleared. It is kept in your browser, so it survives a reload; it is not sent anywhere.
+The icon beside each answer adds its calculation to the **Report** tab, written out so that a client can follow it:
+what was entered, each conversion to base units with its factor, the formula, the numbers substituted, the result in
+base units and in the unit chosen, and a check made by working backwards from the result (it must give back the input).
+
+```
+1  Mass from volume & concentration
+   GIVEN         C = 100 mM · MW = 180.16 g/mol · V = 10 mL
+   IN BASE UNITS C = 100 mM × 10⁻³ = 0.1 mol/L · V = 10 mL × 10⁻³ = 0.01 L
+   FORMULA       m = C × V × MW
+   SUBSTITUTION  m = 0.1 mol/L × 0.01 L × 180.16 g/mol = 0.18016 g
+   RESULT        m = 0.18016 g = 180.16 mg
+   CHECK         C = m / (MW × V) = 0.18016 / (180.16 × 0.01) = 0.1 mol/L ✓
+```
+
+The values are those at the moment of adding; later edits do not change an entry. A calculation can be removed, the
+report cleared, or copied as text for a document. It is kept in your browser, so it survives a reload; it is not sent
+anywhere.
 
 ### Typing numbers
 

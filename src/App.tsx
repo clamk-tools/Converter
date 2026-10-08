@@ -76,7 +76,7 @@ export function App() {
                 derived={derived}
                 dispatch={dispatch}
                 onAdd={() => {
-                  const entry = entryFor(state, derived, spec.id, spec.inputs.map((i) => i.field), spec.result.quantity, `${Date.now()}-${Math.random()}`);
+                  const entry = entryFor(state, derived, spec.id, `${Date.now()}-${Math.random()}`);
                   if (entry) setReport((r) => [...r, entry]);
                 }}
               />
