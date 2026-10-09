@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { concentrationFrom, massFrom, moles, stockVolumeFrom, volumeFrom } from "./equations";
-import { HIGHER_THAN_STOCK, solveDilution, solveSolution } from "./solve";
+import { concentrationFrom, massConcentrationOf, massFrom, molarConcentrationOf, moles, stockVolumeFrom, volumeFrom } from "./equations";
+import { HIGHER_THAN_STOCK, checkConversion, solveDilution, solveSolution } from "./solve";
 
 // Glucose: MW 180.16 g/mol. 100 mM in 10 mL needs 180.16 mg (doc/CALCULATIONS.md, worked example).
 const MW = 180.16;
@@ -21,6 +21,23 @@ describe("equations", () => {
   });
   it("V1 = C2 × V2 / C1", () => {
     expect(stockVolumeFrom(1, 0.01, 0.1)).toBeCloseTo(0.001, 15);
+  });
+});
+
+describe("converting a concentration", () => {
+  it("ρ = C × MW and C = ρ / MW", () => {
+    expect(massConcentrationOf(0.1, MW)).toBeCloseTo(18.016, 12); // 0.1 mol/L × 180.16 g/mol
+    expect(molarConcentrationOf(18.016, MW)).toBeCloseTo(0.1, 15);
+    expect(molarConcentrationOf(massConcentrationOf(0.0123, 58.44), 58.44)).toBeCloseTo(0.0123, 15);
+  });
+
+  it("accepts zero, and refuses a negative concentration or a molecular weight of zero or less", () => {
+    expect(checkConversion(0, MW).issues).toEqual([]);
+    expect(checkConversion(null, null).issues).toEqual([]);
+    expect(checkConversion(null, 100).issues).toEqual([]);
+    expect(checkConversion(-1, MW).issues).toEqual([{ input: "converter", message: "Concentration cannot be negative." }]);
+    expect(checkConversion(1, 0).issues).toEqual([{ input: "molarMass", message: "Molecular weight must be greater than zero." }]);
+    expect(checkConversion(1, -5).issues[0].input).toBe("molarMass");
   });
 });
 

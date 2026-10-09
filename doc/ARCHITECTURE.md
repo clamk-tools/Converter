@@ -21,7 +21,7 @@ dependent quantities recalculate on every keystroke with no update loops.
  state/model.ts        the scientific state, the reducer (user actions), derive() and boxText()
  state/report.ts       the calculation report: each entry a worked calculation (given → base units → formula → substitution → result → check), kept in the browser's storage
  ui/sections.ts        GraphPad's four calculators as data: their rows in order, and their answer
- ui/*.tsx              components: Calculator (one calculator), Report, UnitSelect, ThemeSwitch
+ ui/*.tsx              components: Calculator (one calculator), ConcentrationConverter (calculator 5), Report, UnitSelect, ThemeSwitch
  App.tsx               the frame (rail, header, footer) around the four calculators
  styles/               theme.css: tokens and controls (shared with the other tools); app.css: frame; calc.css: the calculator
 ```
@@ -81,7 +81,8 @@ hides float noise), 6 for a calculated value. Plain notation from 1e-5 to 1e10, 
 | `src/numbers/numbers.test.ts` | parsing (decimals, `e`, comma, partial, invalid, overflow), formatting (noise, notation, round trip) |
 | `src/engine/solve.test.ts` | each equation, both sanity checks, every validation rule, tiny and huge values, overflow |
 | `src/state/report.test.ts` | each calculation worked by hand (given, conversions, substitution, result, check), base-unit and tiny values, a snapshot that later edits do not change, the plain-text form, renaming and collapsing |
-| `src/state/model.test.ts` | synchronisation (100 µM, 0.25 mM, 2 mL, 5 mg), linked boxes, unit changes, the three calculators on shared values, per-calculator rules, typing states, dilution |
+| `src/engine/solve.test.ts` also | ρ = C × MW and back, the checks of calculator 5 |
+| `src/state/model.test.ts` | synchronisation (100 µM, 0.25 mM, 2 mL, 5 mg), linked boxes, unit changes, calculator 5 (two linked lines, each with its unit menu, across kinds through the molecular weight, "needs MW"), the three calculators on shared values, per-calculator rules, typing states, dilution |
 | `e2e/calculator.spec.ts` | the built page used through the keyboard and mouse, in four browser set-ups; also fails on any request to another host |
 
 ## 5. Making a change
@@ -108,3 +109,13 @@ Visual changes follow `doc/LLM feed for visual/LLMfeed_VISUAL-IDENTITY.md` and u
   phone shows the full keyboard so that `e` can be typed.
 - **A decimal comma is accepted**, but `1,500` is refused: it could mean either.
 - **Fonts and code served by the site**, under a Content-Security-Policy: no third party sees who uses the tool.
+
+## 7. Calculator 5 (the converter)
+
+One concentration on two lines, molar and mass per volume, each with its own unit menu (`units.converterMolar`,
+`units.converterMass`, changed by the `converterUnit` action). It is stored once, as typed: `entries.converter` is a
+canonical value *and its dimension* (`molar` in M, or `massConc` in g/L), which is why `Entry` carries `dimension`.
+`converterValueIn()` shows it in any unit: a change of unit within its dimension, or, across dimensions, ρ = C × MW or
+C = ρ / MW with the molecular weight of calculators 1 to 3 (`null` without one: the box says "needs MW"). Typing in a
+line replaces the stored value, so the other follows. It is deliberately separate from `entries.concentration`:
+converting a value must not change the mass worked out in calculator 1.

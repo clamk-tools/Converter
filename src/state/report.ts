@@ -41,7 +41,7 @@ export interface ReportEntry {
 /** Names for the report's titles and the Report tab's lines. */
 export const SECTION_NAMES: Record<Section, string> = { mass: "Mass", volume: "Volume", concentration: "Molarity", dilution: "Dilution" };
 
-const BASE_LABEL: Record<Dimension, string> = { molar: "mol/L", volume: "L", mass: "g", molarMass: "g/mol" };
+const BASE_LABEL: Record<Dimension, string> = { molar: "mol/L", massConc: "g/L", volume: "L", mass: "g", molarMass: "g/mol" };
 
 const SYMBOL: Record<FieldId | OutputId, string> = {
   concentration: "C",

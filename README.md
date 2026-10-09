@@ -9,7 +9,7 @@ installed and nothing is sent anywhere.
 
 ## Using it
 
-GraphPad's four molarity calculators, with the same rows in the same order. Each answer follows at every
+GraphPad's four molarity calculators, with the same rows in the same order, and a fifth to convert between mass and molar concentration. Each answer follows at every
 keystroke; there is no Calculate button.
 
 1. **Mass from volume & concentration:** Concentration, Molecular weight (g/mol or Da), Volume → **Mass =**.
@@ -18,6 +18,14 @@ keystroke; there is no Calculate button.
 3. **Molarity from mass & volume:** Mass, Molecular weight, Volume → **Molarity =**.
 4. **Dilute a stock solution:** Stock concentration, Desired concentration, Desired volume → **Required volume =**,
    the volume of stock to take (C₁ × V₁ = C₂ × V₂). *1 M, 10 mM, 100 mL → 1 mL.*
+
+5. **Convert between mass & molar concentration:** Molecular weight, then two lines: **Molar concentration** and
+   **Mass concentration**, each with its own unit menu (molar to picomolar; g/L, mg/mL, % w/v, µg/mL, ppm, ng/mL). The two
+   lines are linked: type in either and the other follows (*100 mM at 180.16 g/mol → 18.016 mg/mL, or 1.8016 % w/v, or
+   18016 ppm*, depending on the unit chosen). A unit menu changes only how a value is shown. The molecular weight is
+   the one of calculators 1 to 3; the mass line says "needs MW" until there is one (a change of unit within one line
+   never needs it). 1 % w/v is 1 g in 100 mL (10 g/L); ppm is mg/L, as for a dilute aqueous solution. Its concentration is
+   its own, and does not change the concentration of calculators 1 to 3.
 
 ### Linked boxes
 

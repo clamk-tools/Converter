@@ -151,3 +151,25 @@ export function solveDilution(inputs: DilutionInputs): DilutionResult {
     note: same ? "The desired concentration equals the stock: use the stock as it is, with no diluent." : null,
   };
 }
+
+export interface ConversionResult {
+  issues: Issue<"converter" | "molarMass">[];
+}
+
+/**
+ * The checks for converting a concentration between mass and molar. The value may be zero (nothing dissolved) but not
+ * negative. The molecular weight, when there is one, must be positive: it is only needed to cross between the two
+ * kinds of concentration, so its absence is not a problem here (the page says "needs MW" at the boxes it affects).
+ */
+export function checkConversion(value: number | null, molarMass: number | null): ConversionResult {
+  const issues: ConversionResult["issues"] = [];
+  if (value !== null) {
+    const message = check("Concentration", value, "nonNegative");
+    if (message) issues.push({ input: "converter", message });
+  }
+  if (molarMass !== null) {
+    const message = check(NAMES.molarMass, molarMass, "positive");
+    if (message) issues.push({ input: "molarMass", message });
+  }
+  return { issues };
+}

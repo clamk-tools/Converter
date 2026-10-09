@@ -410,3 +410,21 @@ button.add-report.added {
     height: 44px;
   }
 }
+
+/* ---------- calculator 5: its problem line sits under the rows, not inside one ---------- */
+
+.conv-issue {
+  margin: 0;
+}
+
+/* its unit names are the longest ("milligrams/milliliter"): the menus get the room they need */
+.conv .row {
+  grid-template-columns: 13rem minmax(0, 14rem) 12.5rem;
+  max-width: 41rem;
+}
+
+@media (max-width: 560px) {
+  .conv .row {
+    grid-template-columns: minmax(0, 1fr) 12rem;
+  }
+}

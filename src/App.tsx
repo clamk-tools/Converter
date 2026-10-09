@@ -5,6 +5,7 @@ import { derive, initialState, reducer } from "./state/model";
 import { entryFor, loadReport, rename, saveReport, toggleAll, toggleCollapsed } from "./state/report";
 import type { ReportEntry } from "./state/report";
 import { Calculator } from "./ui/Calculator";
+import { ConcentrationConverter } from "./ui/ConcentrationConverter";
 import { Report } from "./ui/Report";
 import { CALCULATORS } from "./ui/sections";
 import { ThemeSwitch } from "./ui/ThemeSwitch";
@@ -68,7 +69,8 @@ export function App() {
         </div>
         <div className="panel" role="tabpanel" id="panel" aria-labelledby={`tab-${tab}`}>
           {tab === "calculators" ? (
-            CALCULATORS.map((spec) => (
+            <>
+              {CALCULATORS.map((spec) => (
               <Calculator
                 key={spec.id}
                 spec={spec}
@@ -80,7 +82,9 @@ export function App() {
                   if (entry) setReport((r) => [...r, entry]);
                 }}
               />
-            ))
+              ))}
+              <ConcentrationConverter state={state} derived={derived} dispatch={dispatch} />
+            </>
           ) : (
             <Report
               entries={report}
