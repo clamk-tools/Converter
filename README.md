@@ -19,13 +19,14 @@ keystroke; there is no Calculate button.
 4. **Dilute a stock solution:** Stock concentration, Desired concentration, Desired volume → **Required volume =**,
    the volume of stock to take (C₁ × V₁ = C₂ × V₂). *1 M, 10 mM, 100 mL → 1 mL.*
 
-5. **Convert between mass & molar concentration:** Molecular weight, then two lines: **Molar concentration** and
-   **Mass concentration**, each with its own unit menu (molar to picomolar; g/L, mg/mL, % w/v, µg/mL, ppm, ng/mL). The two
-   lines are linked: type in either and the other follows (*100 mM at 180.16 g/mol → 18.016 mg/mL, or 1.8016 % w/v, or
-   18016 ppm*, depending on the unit chosen). A unit menu changes only how a value is shown. The molecular weight is
-   the one of calculators 1 to 3; the mass line says "needs MW" until there is one (a change of unit within one line
-   never needs it). 1 % w/v is 1 g in 100 mL (10 g/L); ppm is mg/L, as for a dilute aqueous solution. Its concentration is
-   its own, and does not change the concentration of calculators 1 to 3.
+5. **Convert between mass & molar concentration:** Molecular weight, then two lines: **Molar concentration** (molar to
+   picomolar) and **Mass concentration**. The mass line has **two menus, one for the mass unit and one for the volume
+   unit**: any of g, mg, µg, ng per L, mL, µL, nL (µg/mL, mg/L, ng/µL…), so you choose both halves. The mass menu also
+   offers **% w/v** (g per 100 mL) and **ppm** (mg per L); then the volume menu shows what they mean and cannot be
+   changed. The two lines are linked: type in either and the other follows (*100 mM at 180.16 g/mol → 18.016 mg/mL, or
+   18 016 mg/L, or 1.8016 % w/v*). A unit menu only changes how a value is shown. The molecular weight is the one of
+   calculators 1 to 3; the mass line says "needs MW" until there is one (a change of unit within one line never needs
+   it). Its concentration is its own, and does not change the concentration of calculators 1 to 3.
 
 ### Linked boxes
 

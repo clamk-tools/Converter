@@ -10,7 +10,7 @@ Every value is stored in one canonical unit per kind of quantity. All other unit
 | Quantity | Canonical | Units shown |
 |---|---|---|
 | Molar concentration | M = mol/L | M, mM (10⁻³), µM (10⁻⁶), nM (10⁻⁹), pM (10⁻¹²) |
-| Mass concentration | g/L | g/L (1), mg/mL (1), % w/v (10), µg/mL (10⁻³), ppm (10⁻³), ng/mL (10⁻⁶) |
+| Mass concentration | g/L | a pair, any mass unit per any volume unit: g, mg, µg, ng per L, mL, µL, nL (the exponent of the mass unit minus that of the volume unit: mg/mL = 10⁰, µg/mL = 10⁻³, ng/L = 10⁻⁹, g/nL = 10⁹); and % w/v (10), ppm (10⁻³) |
 | Volume | L | L, mL, µL, nL |
 | Mass | g | g, mg, µg, ng |
 | Molecular weight | g/mol (= Da) | g/mol only (labelled "g/mol or Da") |

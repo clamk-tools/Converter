@@ -417,14 +417,43 @@ button.add-report.added {
   margin: 0;
 }
 
-/* its unit names are the longest ("milligrams/milliliter"): the menus get the room they need */
+/* the mass concentration has two menus, the mass unit and the volume unit, with a slash between: they get the room */
 .conv .row {
-  grid-template-columns: 13rem minmax(0, 14rem) 12.5rem;
-  max-width: 41rem;
+  grid-template-columns: 13rem minmax(0, 12rem) 16rem;
+  max-width: 44rem;
 }
 
+.conv-pair {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.conv-pair select {
+  flex: 1;
+  min-width: 0;
+}
+
+.conv-slash {
+  font: 600 1rem/1 var(--font-mono);
+  color: var(--muted);
+}
+
+.conv-pair select:disabled {
+  opacity: 1;
+  color: var(--muted);
+  cursor: default;
+}
+
+/* a narrow screen: the molar line keeps its box beside its menu; the mass line puts its two menus under its box */
 @media (max-width: 560px) {
   .conv .row {
     grid-template-columns: minmax(0, 1fr) 12rem;
+  }
+
+  .conv .row.pair .row-value,
+  .conv .row.pair .conv-pair {
+    grid-column: 1 / -1;
   }
 }

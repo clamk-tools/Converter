@@ -193,7 +193,7 @@ describe("4. dilution", () => {
 
 describe("5. converting between mass and molar concentration", () => {
   const MOLAR_U: UnitId[] = ["M", "mM", "uM", "nM", "pM"];
-  const MASS_U: UnitId[] = ["g_L", "mg_mL", "pct_wv", "ug_mL", "ppm", "ng_mL"];
+  const MASS_U: UnitId[] = ["g/L", "mg/mL", "pct_wv", "ug/mL", "ppm", "ng/mL"];
   const convert = (s: State, units: UnitId[]) => Object.fromEntries(units.map((u) => [u, converterText(s, derive(s), u)]));
   const withMw = (...actions: Action[]) => run([...typed("molarMass", "g_mol", "180.16"), ...actions]);
 
@@ -201,38 +201,38 @@ describe("5. converting between mass and molar concentration", () => {
     // 0.1 mol/L × 180.16 g/mol = 18.016 g/L = 18.016 mg/mL = 1.8016 % w/v = 18016 µg/mL = 18016 ppm = 18016000 ng/mL
     const s = withMw(...typed("converter", "mM", "100"));
     expect(convert(s, MOLAR_U)).toEqual({ M: "0.1", mM: "100", uM: "100000", nM: "100000000", pM: "1e11" });
-    expect(convert(s, MASS_U)).toEqual({ g_L: "18.016", mg_mL: "18.016", pct_wv: "1.8016", ug_mL: "18016", ppm: "18016", ng_mL: "18016000" });
+    expect(convert(s, MASS_U)).toEqual({ "g/L": "18.016", "mg/mL": "18.016", pct_wv: "1.8016", "ug/mL": "18016", ppm: "18016", "ng/mL": "18016000" });
     const back = withMw(...typed("converter", "pct_wv", "1.8016"));
     expect(convert(back, MOLAR_U)).toEqual({ M: "0.1", mM: "100", uM: "100000", nM: "100000000", pM: "1e11" });
-    const other = withMw(...typed("converter", "ug_mL", "18016"));
+    const other = withMw(...typed("converter", "ug/mL", "18016"));
     expect(converterText(other, derive(other), "mM")).toBe("100");
   });
 
   it("1 % w/v is 10 g/L and 1 ppm is 1 mg/L (= 1 µg/mL)", () => {
     const s = run(typed("converter", "pct_wv", "1"));
-    expect(convert(s, ["g_L", "mg_mL", "ug_mL", "ppm"])).toEqual({ g_L: "10", mg_mL: "10", ug_mL: "10000", ppm: "10000" });
+    expect(convert(s, ["g/L", "mg/mL", "ug/mL", "ppm"])).toEqual({ "g/L": "10", "mg/mL": "10", "ug/mL": "10000", ppm: "10000" });
     const p = run(typed("converter", "ppm", "1"));
-    expect(convert(p, ["g_L", "mg_mL", "ug_mL", "pct_wv"])).toEqual({ g_L: "0.001", mg_mL: "0.001", ug_mL: "1", pct_wv: "0.0001" });
+    expect(convert(p, ["g/L", "mg/mL", "ug/mL", "pct_wv"])).toEqual({ "g/L": "0.001", "mg/mL": "0.001", "ug/mL": "1", pct_wv: "0.0001" });
   });
 
   it("within one kind it needs no molecular weight; across kinds it asks for one", () => {
     const s = run(typed("converter", "mM", "100"));
     expect(convert(s, ["M", "uM"])).toEqual({ M: "0.1", uM: "100000" });
-    expect(converterText(s, derive(s), "g_L")).toBe("");
-    expect(converterNeedsMolarMass(derive(s), "g_L")).toBe(true);
+    expect(converterText(s, derive(s), "g/L")).toBe("");
+    expect(converterNeedsMolarMass(derive(s), "g/L")).toBe(true);
     expect(converterNeedsMolarMass(derive(s), "uM")).toBe(false);
   });
 
   it("uses the molecular weight typed in the other calculators, and follows a change of it", () => {
     const s = run([...typed("molarMass", "g_mol", "180.16"), ...typed("converter", "mM", "100")]);
-    expect(converterText(s, derive(s), "mg_mL")).toBe("18.016");
+    expect(converterText(s, derive(s), "mg/mL")).toBe("18.016");
     const t = reducer(reducer(s, type("molarMass", "g_mol", "342.3")), { type: "leave", field: "molarMass" });
     expect(converterText(t, derive(t), "mM")).toBe("100"); // typed as molar: it stays
-    expect(converterText(t, derive(t), "mg_mL")).toBe("34.23"); // the mass side follows
+    expect(converterText(t, derive(t), "mg/mL")).toBe("34.23"); // the mass side follows
   });
 
   it("has a unit menu for each of its two lines, starting at millimolar and mg/mL, and a unit change keeps the value", () => {
-    expect([initialState.units.converterMolar, initialState.units.converterMass]).toEqual(["mM", "mg_mL"]);
+    expect([initialState.units.converterMolar, initialState.units.converterMass]).toEqual(["mM", "mg/mL"]);
     let s = withMw(...typed("converter", "mM", "100"));
     const before = s.entries.converter;
     s = reducer(s, { type: "converterUnit", slot: "converterMass", unit: "pct_wv" });
@@ -240,6 +240,28 @@ describe("5. converting between mass and molar concentration", () => {
     expect(s.entries.converter).toEqual(before);
     expect(converterText(s, derive(s), s.units.converterMass)).toBe("1.8016"); // % w/v
     expect(converterText(s, derive(s), s.units.converterMolar)).toBe("100000"); // µM
+  });
+
+  it("any mass unit per any volume unit: the pair is chosen, and the value is the same", () => {
+    // 100 mM × 180.16 g/mol = 18.016 g/L
+    const s = withMw(...typed("converter", "mM", "100"));
+    const show = (u: UnitId) => converterText(s, derive(s), u);
+    expect(show("g/L")).toBe("18.016");
+    expect(show("g/mL")).toBe("0.018016");
+    expect(show("mg/L")).toBe("18016");
+    expect(show("ug/uL")).toBe("18.016");
+    expect(show("ng/nL")).toBe("18.016");
+    expect(show("g/nL")).toBe("1.8016e-8");
+    expect(show("ng/L")).toBe("1.8016e10");
+  });
+
+  it("typed in a chosen pair, the other line follows", () => {
+    const s = withMw(...typed("converter", "ug/mL", "18016"));
+    expect(converterText(s, derive(s), "mM")).toBe("100");
+    const t = withMw(...typed("converter", "mg/L", "18016"));
+    expect(converterText(t, derive(t), "mM")).toBe("100");
+    const u = withMw(...typed("converter", "g/mL", "0.018016"));
+    expect(converterText(u, derive(u), "mM")).toBe("100");
   });
 
   it("is its own value: it does not change the concentration of calculators 1 to 3", () => {
@@ -258,16 +280,16 @@ describe("5. converting between mass and molar concentration", () => {
   it("refuses a negative concentration, and a molecular weight of zero", () => {
     const neg = withMw(...typed("converter", "mM", "-5"));
     expect(issueAt(neg, derive(neg), "conversion", "converter")).toBe("Concentration cannot be negative.");
-    expect(converterText(neg, derive(neg), "g_L")).toBe("");
+    expect(converterText(neg, derive(neg), "g/L")).toBe("");
     const zero = run([...typed("molarMass", "g_mol", "0"), ...typed("converter", "mM", "5")]);
     expect(issueAt(zero, derive(zero), "conversion", "molarMass")).toBe("Molecular weight must be greater than zero.");
-    expect(converterText(zero, derive(zero), "g_L")).toBe("");
+    expect(converterText(zero, derive(zero), "g/L")).toBe("");
     expect(converterText(zero, derive(zero), "M")).toBe("0.005"); // within one kind it still works
   });
 
   it("zero converts to zero, and tiny values keep their digits", () => {
-    expect(converterText(withMw(...typed("converter", "mM", "0")), derive(withMw(...typed("converter", "mM", "0"))), "g_L")).toBe("0");
+    expect(converterText(withMw(...typed("converter", "mM", "0")), derive(withMw(...typed("converter", "mM", "0"))), "g/L")).toBe("0");
     const tiny = withMw(...typed("converter", "pM", "1"));
-    expect(converterText(tiny, derive(tiny), "ng_mL")).toBe("0.00018016"); // 1e-12 mol/L × 180.16 = 1.8016e-10 g/L = 1.8016e-4 ng/mL
+    expect(converterText(tiny, derive(tiny), "ng/mL")).toBe("0.00018016"); // 1e-12 mol/L × 180.16 = 1.8016e-10 g/L = 1.8016e-4 ng/mL
   });
 });

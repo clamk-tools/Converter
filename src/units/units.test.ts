@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { convert, fromCanonical, toCanonical, unitsOf } from "./units";
+import { convert, fromCanonical, isPair, pair, splitPair, toCanonical, unit, unitsOf } from "./units";
 
 describe("unit conversion", () => {
   it("mass: 1 g = 1000 mg, 1 mg = 1000 µg, 1 µg = 1000 ng", () => {
@@ -22,14 +22,38 @@ describe("unit conversion", () => {
     expect(convert(1, "nM", "pM")).toBe(1000);
   });
 
-  it("mass concentration: 1 g/L = 1 mg/mL, 1 % w/v = 10 g/L, 1 mg/mL = 1000 µg/mL, 1 ppm = 1 mg/L", () => {
-    expect(convert(1, "g_L", "mg_mL")).toBe(1);
-    expect(convert(1, "pct_wv", "g_L")).toBe(10);
-    expect(convert(1, "mg_mL", "ug_mL")).toBe(1000);
-    expect(convert(1, "ug_mL", "ng_mL")).toBe(1000);
-    expect(convert(1, "ppm", "g_L")).toBe(0.001);
-    expect(convert(1, "ppm", "ug_mL")).toBe(1);
-    expect(unitsOf("massConc").map((u) => u.symbol)).toEqual(["g/L", "mg/mL", "% w/v", "µg/mL", "ppm", "ng/mL"]);
+  it("mass concentration is a pair, a mass unit per a volume unit: any of the 4 × 4", () => {
+    expect(convert(1, "g/L", "mg/mL")).toBe(1);
+    expect(convert(1, "mg/mL", "ug/mL")).toBe(1000);
+    expect(convert(1, "ug/mL", "ng/mL")).toBe(1000);
+    expect(convert(1, "g/mL", "g/L")).toBe(1000);
+    expect(convert(1, "mg/L", "ug/mL")).toBe(1);
+    expect(convert(1, "ug/L", "ng/mL")).toBe(1);
+    expect(convert(1, "ng/uL", "ug/mL")).toBe(1);
+    expect(convert(1, "g/nL", "g/L")).toBe(1e9);
+    expect(convert(1, "ng/L", "g/L")).toBe(1e-9);
+    expect(toCanonical(5, "mg/mL")).toBe(5); // g/L is the canonical unit, and mg/mL is the same thing
+    expect(toCanonical(5, "ug/mL")).toBe(0.005);
+  });
+
+  it("names a pair from its two units, and lists every pair, then % w/v and ppm", () => {
+    expect(unit("ug/mL")).toMatchObject({ symbol: "µg/mL", name: "micrograms/milliliter", dimension: "massConc", exponent: -3 });
+    expect(unit("mg/L").exponent).toBe(-3);
+    const all = unitsOf("massConc").map((u) => u.symbol);
+    expect(all).toHaveLength(18);
+    expect(all.slice(0, 5)).toEqual(["g/L", "g/mL", "g/µL", "g/nL", "mg/L"]);
+    expect(all.slice(-2)).toEqual(["% w/v", "ppm"]);
+    expect(isPair("mg/mL")).toBe(true);
+    expect(isPair("ppm")).toBe(false);
+    expect(splitPair("ug/mL")).toEqual(["ug", "mL"]);
+    expect(pair("ng", "uL")).toBe("ng/uL");
+  });
+
+  it("1 % w/v is 10 g/L and 1 ppm is 1 mg/L", () => {
+    expect(convert(1, "pct_wv", "g/L")).toBe(10);
+    expect(convert(1, "ppm", "g/L")).toBe(0.001);
+    expect(convert(1, "ppm", "mg/L")).toBe(1);
+    expect(convert(1, "ppm", "ug/mL")).toBe(1);
   });
 
   it("names the units as GraphPad does", () => {
