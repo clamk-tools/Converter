@@ -28,6 +28,9 @@ keystroke; there is no Calculate button.
    calculators 1 to 3; the mass line says "needs MW" until there is one (a change of unit within one line never needs
    it). Its concentration is its own, and does not change the concentration of calculators 1 to 3.
 
+Each calculator has an **i** beside its title: press it to see the formulas that calculator uses, and the rules that go
+with them.
+
 ### Linked boxes
 
 Boxes of the same kind are linked across the first three calculators: the concentration, the molecular weight, the

@@ -5,6 +5,16 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-10 · An "i" on each calculator, with its formulas
+
+- **Seen:** every calculator has a small **i** beside its title. Pressed, it opens a bubble under the title with the
+  formulas that calculator uses, each with what it says in words, and the rules that go with them (base units, what must
+  be above zero). Pressed again, or Escape, it closes. Calculators 1 to 3: n = C × V, n = m / MW and the two combined;
+  4: C₁ × V₁ = C₂ × V₂, V₁ = C₂ × V₂ / C₁, V₂ − V₁; 5: ρ = C × MW, C = ρ / MW, % w/v and ppm.
+- **Inside:** the text is data in `ui/formulas.ts`, shown by `ui/InfoBubble.tsx`; no formula is computed there. 22
+  end-to-end tests.
+- **Decided:** a bubble under the title (not a hover tip) so it works on a phone and can be read at length.
+
 ### 2026-10-09 · Calculator 5: choose the mass and the volume unit
 
 - **Seen:** the mass concentration line of calculator 5 has two menus, a mass unit (grams, milligrams, micrograms,
