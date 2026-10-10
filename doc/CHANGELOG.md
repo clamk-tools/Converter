@@ -5,6 +5,13 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-10 · A simpler README
+
+- **Seen:** `README.md` is rewritten in plain words for someone who just wants to use the tool: a table of the five
+  calculators with an example each, then units, linked boxes, the formulas, the report, typing numbers, when there is
+  no answer, and privacy. The developer part is at the end, under its own heading.
+- **Decided:** the science stays complete in `doc/CALCULATIONS.md`; the README links to it rather than repeating it.
+
 ### 2026-10-10 · Numeric keypad on a phone
 
 - **Seen:** on a phone, every number box opens the numeric keypad (digits and a decimal separator) instead of the full

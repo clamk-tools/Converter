@@ -1,53 +1,67 @@
 # Molarity Calculator
 
-Mass, concentration, volume and dilution for the bench, with every unit kept in step.
+A free calculator for making solutions at the bench: mass, volume, concentration and dilution.
 
 **Open it:** https://clamk-tools.github.io/Converter/
 
-The tool is one of the [Clamk Tools](https://clamk-tools.github.io/). It runs entirely in the browser: nothing is
-installed and nothing is sent anywhere.
+It works in any web browser, on a computer or a phone. Nothing to install, no account, and nothing you type leaves
+your device. It is one of the [Clamk Tools](https://clamk-tools.github.io/).
 
-## Using it
+---
 
-GraphPad's four molarity calculators, with the same rows in the same order, and a fifth to convert between mass and molar concentration. Each answer follows at every
-keystroke; there is no Calculate button.
+## The five calculators
 
-1. **Mass from volume & concentration:** Concentration, Molecular weight (g/mol or Da), Volume → **Mass =**.
-   *100 mM, 180.16 g/mol, 10 mL → 180.16 mg.*
-2. **Volume from mass & concentration:** Mass, Molecular weight, Concentration → **Volume =**.
-3. **Molarity from mass & volume:** Mass, Molecular weight, Volume → **Molarity =**.
-4. **Dilute a stock solution:** Stock concentration, Desired concentration, Desired volume → **Required volume =**,
-   the volume of stock to take (C₁ × V₁ = C₂ × V₂). *1 M, 10 mM, 100 mL → 1 mL.*
+Type your numbers; the answer appears as you type. There is no Calculate button.
 
-5. **Convert between mass & molar concentration:** Molecular weight, then two lines: **Molar concentration** (molar to
-   picomolar) and **Mass concentration**. The mass line has **two menus, one for the mass unit and one for the volume
-   unit**: any of g, mg, µg, ng per L, mL, µL, nL (µg/mL, mg/L, ng/µL…), so you choose both halves. The mass menu also
-   offers **% w/v** (g per 100 mL) and **ppm** (mg per L); then the volume menu shows what they mean and cannot be
-   changed. The two lines are linked: type in either and the other follows (*100 mM at 180.16 g/mol → 18.016 mg/mL, or
-   18 016 mg/L, or 1.8016 % w/v*). A unit menu only changes how a value is shown. The molecular weight is the one of
-   calculators 1 to 3; the mass line says "needs MW" until there is one (a change of unit within one line never needs
-   it). Its concentration is its own, and does not change the concentration of calculators 1 to 3.
+| # | Calculator | You enter | You get | Example |
+|---|---|---|---|---|
+| 1 | Mass | concentration, molecular weight, volume | the mass to weigh | 100 mM, 180.16 g/mol, 10 mL → **180.16 mg** |
+| 2 | Volume | mass, molecular weight, concentration | the volume to make up | 180.16 mg, 180.16 g/mol, 100 mM → **10 mL** |
+| 3 | Molarity | mass, molecular weight, volume | the concentration | 180.16 mg, 180.16 g/mol, 10 mL → **100 mM** |
+| 4 | Dilution | stock concentration, desired concentration, desired volume | the volume of stock to take | 1 M, 10 mM, 100 mL → **1 mL** |
+| 5 | Converter | molecular weight, and a molar or mass concentration | the other one | 100 mM at 180.16 g/mol → **18.016 mg/mL** |
 
-Each calculator has an **i** beside its title: press it to see the formulas that calculator uses, and the rules that go
-with them.
+Calculators 1 to 4 are the same as GraphPad's molarity calculator. The molecular weight is in g/mol, which is the same
+number as daltons (Da).
 
-### Linked boxes
+### Units
 
-Boxes of the same kind are linked across the first three calculators: the concentration, the molecular weight, the
-volume and the mass are each one value, so typing one in any calculator fills it in the others. A unit chosen for a
-quantity shows wherever it appears, and its answers are given in it too: pick molar for a concentration and every
-concentration, including the Molarity answer, is in molar. Changing a unit changes how a value is shown, never the
-value (100 micromolar switched to millimolar shows 0.1). The dilution keeps its own three values and units, and gives
-the required volume in the unit of the desired volume.
+Each box has a unit menu: molar to picomolar, liter to nanoliter, grams to nanograms.
 
-Units, named as on GraphPad: molar to picomolar, liter to nanoliter, grams to nanograms. The molecular weight is in
-grams/mole (= daltons).
+- **Changing a unit never changes the value.** 100 µM switched to mM shows 0.1.
+- **Calculator 5's mass line has two menus**, one for the mass and one for the volume, so you can build any pair:
+  µg/mL, mg/L, ng/µL… It also offers **% w/v** (grams per 100 mL) and **ppm** (milligrams per liter).
 
-### Calculation report
+### Boxes that are linked
 
-The icon beside each answer adds its calculation to the **Report** tab, written out so that a client can follow it:
-what was entered, each conversion to base units with its factor, the formula, the numbers substituted, the result in
-base units and in the unit chosen, and a check made by working backwards from the result (it must give back the input).
+Calculators 1, 2 and 3 share their values. Type a molecular weight once and it appears in all three. Choose millimolar
+for a concentration and every concentration, answers included, is shown in millimolar.
+
+Calculator 4 (dilution) keeps its own values. Calculator 5 shares only the molecular weight, so converting a
+concentration never changes the other calculators.
+
+### The "i" button: the formulas
+
+Each calculator has a small **i** at the right of its title. Press it to see the formulas that calculator uses, with
+the unit of each symbol. Press it again to close it.
+
+| Calculator | Formula |
+|---|---|
+| 1. Mass | m = C × V × MW |
+| 2. Volume | V = m / (C × MW) |
+| 3. Molarity | C = m / (MW × V) |
+| 4. Dilution | C₁V₁ = C₂V₂, so V₁ = C₂ × V₂ / C₁ |
+| 5. Converter | mass concentration = C × MW |
+
+m = mass (g), C = concentration (mol/L), V = volume (L), MW = molecular weight (g/mol). Every value is converted to
+these units before calculating. [`doc/CALCULATIONS.md`](doc/CALCULATIONS.md) has every formula and rule in full.
+
+---
+
+## The report
+
+Beside each answer is an icon that adds the calculation to the **Report** tab. Each entry is written out step by step,
+so that someone else (a client, a colleague) can check it:
 
 ```
 1  Mass from volume & concentration
@@ -59,74 +73,91 @@ base units and in the unit chosen, and a check made by working backwards from th
    CHECK         C = m / (MW × V) = 0.18016 / (180.16 × 0.01) = 0.1 mol/L ✓
 ```
 
-The values are those at the moment of adding; later edits do not change an entry. Each calculation has a pencil to
-rename it (for example "Glucose stock, 100 mM": the kind of calculation stays beside the name) and a chevron to
-collapse it to its heading and result; it can also be removed. *Collapse all* folds the whole report, and the report
-can be copied as text for a document or cleared. It is kept in your browser, so it survives a reload; it is not sent
-anywhere.
+The last line, **CHECK**, works backwards from the answer to make sure it gives back what you entered.
 
-### Typing numbers
+In the report you can:
 
-`0.25`, `0,25` (decimal comma), `1e-6`, `2.5E8` and a leading minus are read. A number being typed (`1e-`, `0.`)
-is left alone until you leave the box. `1,500` is refused as ambiguous (1.5 or 1500?), as are thousands separators.
-Results are shown to 6 significant digits; typed values keep their digits (up to 12). Very small or very large
-values are shown in the `e` notation the boxes accept, e.g. `2.5e-7`.
+- **Rename** an entry (pencil icon), for example "Glucose stock".
+- **Fold** an entry to its title and result (arrow icon), or fold them all at once.
+- **Remove** an entry, or clear the whole report.
+- **Copy as text** to paste the whole report into a document.
 
-On a phone every number box opens the **numeric keypad** (Android and iPhone), as in a phone app. It has no `e` and no
-minus: type a small or large value in a better unit (nM, µL) instead. On a computer keyboard `1e-6` still works.
+An entry keeps the values it had when you added it. The report stays in your browser after you close the page. It is
+never sent anywhere. Calculator 5 cannot add to the report yet.
 
-### What it refuses, and why
+---
 
-A zero or negative molecular weight or volume, a negative mass or concentration, a zero that would divide by zero
-(solving for a volume with a concentration of 0), a zero stock, and a desired concentration above the stock: a
-dilution can only lower a concentration. Each problem is explained under its box, and the answer stays empty.
+## Typing numbers
 
-### Light or dark
+- **Decimals:** `0.25` and `0,25` both mean a quarter.
+- **Powers of ten:** `1e-6` means 0.000001 (on a computer keyboard).
+- **On a phone** the number keypad opens, as in a phone app. It has no `e` key, so for very small or large values pick a
+  better unit instead (nM rather than M).
+- **Refused:** `1,500`, because it could mean 1.5 or 1500. Write `1500`.
+- **Precision:** answers show 6 significant figures. A number you typed keeps up to 12.
 
-The page follows the system setting until the switch at the top right is used. The choice is then kept in the
-browser, and it is the same one on the hub and on every Clamk tool.
+## When there is no answer
+
+The answer stays empty, and a short message under the box says why, when:
+
+- a molecular weight or volume is zero or negative;
+- a mass or concentration is negative;
+- a zero would mean dividing by zero (for example a concentration of 0 when solving for a volume);
+- the desired concentration is higher than the stock: a dilution can only lower a concentration.
+
+## Light or dark
+
+The page follows your device's setting. The switch at the top right changes it, and the choice is shared with the
+other Clamk tools.
 
 ## Privacy
 
-Everything is calculated in the page. The page, its fonts and its code are served by the site itself: no CDN, no
-analytics. The built page carries a Content-Security-Policy that makes the browser refuse requests to any other
-host, and the end-to-end tests fail if the page asks anything of another host.
+All calculations happen on your device. The page loads nothing from other websites: no analytics, no outside fonts,
+no trackers. The browser is told to block any such request, and the automatic tests fail if the page ever tries one.
 
-## Developing
+---
 
-Needs Node 22 or later.
+## For developers
+
+The rest of this page is for whoever changes the tool.
+
+**Built with:** React and TypeScript, built by Vite, tested with Vitest (calculations) and Playwright (the page in real
+browsers). Needs Node 22 or later.
 
 ```
 npm install
 npx playwright install chromium firefox webkit
 
 npm run dev        # the page, at http://localhost:5184
-npm test           # unit tests: units, numbers, equations, state, result sentences   < 1 s
-npm run lint
+npm test           # unit tests (units, numbers, formulas, state, report), under a second
+npm run lint       # code style
 npm run build      # type check, then build into dist/
-npm run preview    # dist/ at http://localhost:4174/Converter/, the path it has on GitHub Pages
+npm run preview    # dist/ at http://localhost:4174/Converter/, as on GitHub Pages
 npm run e2e        # the built page in Chromium, Firefox, WebKit and a phone-sized Chromium (build first)
 ```
 
-On a machine that already has a Chromium (such as a cloud container), use it and skip the other browsers:
+On a machine that already has Chromium (a cloud container, say), skip the other browsers:
 `PLAYWRIGHT_CHROMIUM=/path/to/chrome PLAYWRIGHT_ONLY_CHROMIUM=1 npm run e2e`.
 
-### Before changing it
+### Read before changing anything
 
-| File | What it holds |
+| File | What it explains |
 |---|---|
-| [`doc/ARCHITECTURE.md`](doc/ARCHITECTURE.md) | How the tool is made, and how to make a change |
+| [`doc/ARCHITECTURE.md`](doc/ARCHITECTURE.md) | How the tool is built, and the steps for making a change |
 | [`doc/CALCULATIONS.md`](doc/CALCULATIONS.md) | Every formula, unit and rule, with the worked examples the tests check |
-| [`doc/DESIGN-ASSESSMENT.md`](doc/DESIGN-ASSESSMENT.md) | What was taken from the other Clamk tools, and why |
+| [`doc/DESIGN-ASSESSMENT.md`](doc/DESIGN-ASSESSMENT.md) | What was reused from the other Clamk tools, and why |
 | [`doc/CHANGELOG.md`](doc/CHANGELOG.md) | What changed, newest first |
-| [`doc/LLM feed for visual/`](doc/LLM%20feed%20for%20visual/LLMfeed_VISUAL-IDENTITY.md) | The Clamk Tools visual identity brief, which the page follows |
+| [`doc/LLM feed for visual/`](doc/LLM%20feed%20for%20visual/LLMfeed_VISUAL-IDENTITY.md) | The Clamk Tools visual identity, which the page follows |
 
 ### Publishing safely
 
-The repo is public, so `.githooks/check-privacy.sh` keeps a personal email, a private path on a local machine and
-secrets out of every commit (identity, message and content). Turn it on once per clone:
-`git config core.hooksPath .githooks`. Private terms (an OS user name, a private folder name) go one per line in
-`~/.git-privacy-terms` or `.git/privacy-terms`. A line holding an invented example carries the marker `privacy-ok`.
+This repository is public, so everything committed here is public forever.
 
-`.github/workflows/ci.yml` runs the privacy check, lint, unit tests, build and end-to-end tests on every push and
-pull request, and publishes `dist/` to GitHub Pages from `main` (Settings → Pages → Source: GitHub Actions).
+- **Privacy check:** `.githooks/check-privacy.sh` blocks a commit that contains a personal email, a private path on
+  your computer, or a secret key or token. Turn it on once per copy of the repository:
+  `git config core.hooksPath .githooks`.
+- **Private words:** your computer user name or private project names go one per line in `~/.git-privacy-terms` or
+  `.git/privacy-terms`, which are never published. A line holding an invented example can carry the marker
+  `privacy-ok`.
+- **Automatic checks:** on every push, `.github/workflows/ci.yml` runs the privacy check, code style, unit tests, build
+  and browser tests. Only if all pass, a push to `main` publishes the site to GitHub Pages.
