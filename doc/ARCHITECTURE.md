@@ -21,7 +21,8 @@ dependent quantities recalculate on every keystroke with no update loops.
  state/model.ts        the scientific state, the reducer (user actions), derive() and boxText()
  state/report.ts       the calculation report: each entry a worked calculation (given → base units → formula → substitution → result → check), kept in the browser's storage
  ui/sections.ts        GraphPad's four calculators as data: their rows in order, and their answer
- ui/*.tsx              components: Calculator (one calculator), ConcentrationConverter (calculator 5), Report, UnitSelect, ThemeSwitch
+ ui/formulas.ts       the formulas of each calculator, as text for its "i" bubble (documentation, not computation)
+ ui/*.tsx              components: Calculator (one calculator), ConcentrationConverter (calculator 5), InfoBubble, Report, UnitSelect, ThemeSwitch
  App.tsx               the frame (rail, header, footer) around the four calculators
  styles/               theme.css: tokens and controls (shared with the other tools); app.css: frame; calc.css: the calculator
 ```

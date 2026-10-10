@@ -12,8 +12,18 @@
   background: var(--surface);
 }
 
-.calc h2 {
+.calc-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
   margin: 0 0 6px;
+}
+
+.calc h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
   font-size: 1.125rem;
   font-weight: 700;
   line-height: 1.3;
@@ -456,4 +466,78 @@ button.add-report.added {
   .conv .row.pair .conv-pair {
     grid-column: 1 / -1;
   }
+}
+
+/* ---------- the "i" beside a title and the bubble of formulas it opens ---------- */
+
+button.info-button {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin-left: auto;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  font: italic 700 0.8125rem/1 var(--font-mono);
+  color: var(--accent);
+}
+
+button.info-button[aria-expanded="true"] {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.info-bubble {
+  box-sizing: border-box;
+  flex: 1 0 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 7px 10px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--accent-tint);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.info-formulas {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+}
+
+.info-formulas > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+}
+
+.info-formulas dt {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.info-bubble strong {
+  font-weight: 700;
+}
+
+.info-bubble sup {
+  font-size: 0.82em;
+  font-weight: 500;
+  line-height: 0;
+}
+
+.info-formulas dd {
+  margin: 0;
+  color: var(--muted-on-tint);
+}
+
+.info-notes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted-on-tint);
+  font-size: 0.8125rem;
 }

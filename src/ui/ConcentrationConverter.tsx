@@ -5,6 +5,7 @@ import type { Action, ConverterSlot, Derived, State } from "../state/model";
 import { boxText, converterNeedsMolarMass, converterText, issueAt } from "../state/model";
 import type { MassUnitId, UnitId, VolumeUnitId } from "../units/units";
 import { isPair, pair, splitPair, unit, unitsOf } from "../units/units";
+import { InfoBubble } from "./InfoBubble";
 
 interface Props {
   state: State;
@@ -69,7 +70,10 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
 
   return (
     <section className="calc conv" aria-labelledby={`${id}-title`} data-calculator="conversion">
-      <h2 id={`${id}-title`}>5. Convert between mass &amp; molar concentration</h2>
+      <div className="calc-head">
+        <h2 id={`${id}-title`}>5. Convert between mass &amp; molar concentration</h2>
+        <InfoBubble calculator="conversion" title="calculator 5" />
+      </div>
 
       <div className={`row fixed-unit${mwIssue ? " has-issue" : ""}`}>
         <label className="row-label" htmlFor={`${id}-mw`}>

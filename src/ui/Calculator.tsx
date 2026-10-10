@@ -5,6 +5,7 @@ import type { Action, Derived, State } from "../state/model";
 import { boxText, issueAt, resultText, unitOf } from "../state/model";
 import { unit } from "../units/units";
 import type { CalculatorSpec } from "./sections";
+import { InfoBubble } from "./InfoBubble";
 import { UnitSelect } from "./UnitSelect";
 
 interface Props {
@@ -32,7 +33,10 @@ export function Calculator({ spec, state, derived, dispatch, onAdd }: Props) {
 
   return (
     <section className="calc" aria-labelledby={`${id}-title`} data-calculator={spec.id}>
-      <h2 id={`${id}-title`}>{spec.title}</h2>
+      <div className="calc-head">
+        <h2 id={`${id}-title`}>{spec.title}</h2>
+        <InfoBubble calculator={spec.id} title={spec.title} />
+      </div>
 
       {spec.inputs.map(({ field, label }) => {
         const issue = issueAt(state, derived, spec.id, field);

@@ -299,3 +299,23 @@ test("5. a negative concentration and a molecular weight of zero are explained",
   await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("0");
   await expect(calc(page, "conversion").getByText("Molecular weight must be greater than zero.")).toBeVisible();
 });
+
+test("each calculator has an i that opens a bubble with the formulas it uses", async ({ page }) => {
+  const expected: [Id, string][] = [
+    ["mass", "m = n × MW = C × V × MW"],
+    ["volume", "V = n / C = m / (C × MW)"],
+    ["concentration", "C = n / V = m / (MW × V)"],
+    ["dilution", "C₁V₁ = C₂V₂"],
+    ["conversion", "ρ = C × MW"],
+  ];
+  for (const [id, formula] of expected) {
+    const button = calc(page, id).getByRole("button", { name: /Formulas used in/ });
+    await expect(button).toHaveAttribute("aria-expanded", "false");
+    await expect(calc(page, id).getByText(formula, { exact: true })).toHaveCount(0);
+    await button.click();
+    await expect(button).toHaveAttribute("aria-expanded", "true");
+    await expect(calc(page, id).getByText(formula, { exact: true })).toBeVisible();
+    await button.click();
+    await expect(calc(page, id).getByText(formula, { exact: true })).toHaveCount(0);
+  }
+});
