@@ -83,6 +83,7 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
           id={`${id}-mw`}
           className="row-value"
           type="text"
+          inputMode="decimal"
           autoComplete="off"
           autoCapitalize="off"
           spellCheck={false}
@@ -114,6 +115,7 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
               id={`${id}-${slot}`}
               className="row-value"
               type="text"
+              inputMode="decimal"
               autoComplete="off"
               autoCapitalize="off"
               spellCheck={false}

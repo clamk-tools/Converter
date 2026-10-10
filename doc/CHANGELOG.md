@@ -5,6 +5,16 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-10 · Numeric keypad on a phone
+
+- **Seen:** on a phone, every number box opens the numeric keypad (digits and a decimal separator) instead of the full
+  keyboard, on Android and iPhone.
+- **Inside:** `inputMode="decimal"` on every number box (the four calculators, and the molecular weight and the
+  concentration of calculator 5); the boxes stay text boxes. 23 end-to-end tests.
+- **Decided:** `inputMode="decimal"` rather than `"numeric"`, since `"numeric"` has no decimal point. The keypad has
+  no `e` and no minus, so on a phone scientific notation is typed in a better unit instead (nM, µL); a keyboard still
+  takes `1e-6`. The decimal comma, which many phones' keypads give, was already accepted.
+
 ### 2026-10-10 · An "i" on each calculator, with its formulas
 
 - **Seen:** every calculator has a small **i** beside its title. Pressed, it opens a compact bubble under the title with

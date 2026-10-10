@@ -106,8 +106,11 @@ Visual changes follow `doc/LLM feed for visual/LLMfeed_VISUAL-IDENTITY.md` and u
 - **Same stack as Metadata-Miner** (React, Vite, plain CSS with tokens, Vitest, Playwright, ESLint), the closest
   sibling tool, so the family stays maintainable by the same hands. No state library: one `useReducer` is enough.
 - **No Calculate button.** Answers follow every keystroke, as the inputs are cheap to compute.
-- **Text boxes, not `type="number"`**: number boxes reject `1e-` while it is typed and differ between browsers. The
-  phone shows the full keyboard so that `e` can be typed.
+- **Text boxes, not `type="number"`**: number boxes reject `1e-` while it is typed and differ between browsers.
+  Every number box has `inputMode="decimal"`, so a phone (Android and iPhone) shows the numeric keypad: digits and a
+  decimal separator, as in a phone app. That keypad has no `e` and no minus, so on a phone a very small or large value
+  is typed in a better unit (nM, µL…) rather than in scientific notation; a keyboard still accepts `1e-6`. The keypad's
+  separator follows the phone's language (a comma in many), which is why the decimal comma is accepted.
 - **A decimal comma is accepted**, but `1,500` is refused: it could mean either.
 - **Fonts and code served by the site**, under a Content-Security-Policy: no third party sees who uses the tool.
 

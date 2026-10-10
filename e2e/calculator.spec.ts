@@ -319,3 +319,10 @@ test("each calculator has an i that opens a bubble with the formulas it uses", a
     await expect(calc(page, id).getByText(formula, { exact: true })).toHaveCount(0);
   }
 });
+
+test("every number box asks a phone for the numeric keypad", async ({ page }) => {
+  const boxes = page.locator('input.row-value');
+  const count = await boxes.count();
+  expect(count).toBeGreaterThanOrEqual(14);
+  for (let i = 0; i < count; i++) await expect(boxes.nth(i)).toHaveAttribute("inputmode", "decimal");
+});
