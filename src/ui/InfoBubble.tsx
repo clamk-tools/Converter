@@ -2,6 +2,13 @@ import { useId, useState } from "react";
 
 import { INFO } from "./formulas";
 
+// The symbols (C, V, m, n, MW, ρ and their numbered forms) are written in bold; units and words stay regular.
+const SYMBOL = /(?<![A-Za-z])(MW|ρ|[CVmn][₁₂]?)(?![A-Za-z])/g;
+
+function symbols(text: string) {
+  return text.split(SYMBOL).map((part, i) => (i % 2 ? <strong key={i}>{part}</strong> : part));
+}
+
 interface Props {
   calculator: keyof typeof INFO;
   title: string;
@@ -33,14 +40,14 @@ export function InfoBubble({ calculator, title }: Props) {
           <dl className="info-formulas">
             {info.formulas.map((f) => (
               <div key={f.equation}>
-                <dt>{f.equation}</dt>
+                <dt>{symbols(f.equation)}</dt>
                 {f.meaning && <dd>{f.meaning}</dd>}
               </div>
             ))}
           </dl>
           <ul className="info-notes">
             {info.notes.map((n) => (
-              <li key={n}>{n}</li>
+              <li key={n}>{symbols(n)}</li>
             ))}
           </ul>
         </div>

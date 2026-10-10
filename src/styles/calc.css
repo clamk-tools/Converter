@@ -515,7 +515,12 @@ button.info-button[aria-expanded="true"] {
 }
 
 .info-formulas dt {
-  font: 600 0.8125rem/1.35 var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.info-bubble strong {
+  font-weight: 700;
 }
 
 .info-formulas dd {
