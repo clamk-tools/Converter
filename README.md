@@ -72,6 +72,9 @@ is left alone until you leave the box. `1,500` is refused as ambiguous (1.5 or 1
 Results are shown to 6 significant digits; typed values keep their digits (up to 12). Very small or very large
 values are shown in the `e` notation the boxes accept, e.g. `2.5e-7`.
 
+On a phone every number box opens the **numeric keypad** (Android and iPhone), as in a phone app. It has no `e` and no
+minus: type a small or large value in a better unit (nM, µL) instead. On a computer keyboard `1e-6` still works.
+
 ### What it refuses, and why
 
 A zero or negative molecular weight or volume, a negative mass or concentration, a zero that would divide by zero

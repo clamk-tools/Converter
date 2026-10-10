@@ -51,6 +51,7 @@ export function Calculator({ spec, state, derived, dispatch, onAdd }: Props) {
               id={`${id}-${field}`}
               className="row-value"
               type="text"
+              inputMode="decimal"
               autoComplete="off"
               autoCapitalize="off"
               spellCheck={false}
