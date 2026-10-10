@@ -8,34 +8,28 @@ export interface Formula {
   meaning: string;
 }
 
+/** The formula calculator 1 uses for each quantity it can find, shown under its tiles. */
+export const SOLVED_BY: Record<"mass" | "volume" | "concentration", string> = {
+  mass: "m = C × V × MW",
+  volume: "V = m / (C × MW)",
+  concentration: "C = m / (MW × V)",
+};
+
 export interface CalculatorInfo {
   formulas: Formula[];
   /** conventions and checks that apply to the whole calculator */
   notes: string[];
 }
 
-
-export const INFO: Record<"mass" | "volume" | "concentration" | "dilution" | "conversion", CalculatorInfo> = {
-  mass: {
+export const INFO: Record<"solution" | "dilution" | "conversion", CalculatorInfo> = {
+  solution: {
     formulas: [
-      { equation: "n = C × V", meaning: "" },
-      { equation: "m = n × MW = C × V × MW", meaning: "" },
+      { equation: "n = C × V = m / MW", meaning: "" },
+      { equation: "m = C × V × MW", meaning: "mass" },
+      { equation: "V = m / (C × MW)", meaning: "volume" },
+      { equation: "C = m / (MW × V)", meaning: "concentration" },
     ],
-    notes: ["C^{mol/L}, V^{L}, m^{g}, MW^{g/mol}, n^{mol}. Units are converted to these first."],
-  },
-  volume: {
-    formulas: [
-      { equation: "n = m / MW", meaning: "" },
-      { equation: "V = n / C = m / (C × MW)", meaning: "" },
-    ],
-    notes: ["m^{g}, C^{mol/L}, MW^{g/mol}, n^{mol}, V^{L}. Units are converted to these first.", "m, C and MW must be > 0."],
-  },
-  concentration: {
-    formulas: [
-      { equation: "n = m / MW", meaning: "" },
-      { equation: "C = n / V = m / (MW × V)", meaning: "" },
-    ],
-    notes: ["m^{g}, MW^{g/mol}, V^{L}, n^{mol}, C^{mol/L}. Units are converted to these first."],
+    notes: ["C^{mol/L}, V^{L}, m^{g}, MW^{g/mol}, n^{mol}. Units are converted to these first.", "MW > 0. To find V: m and C > 0."],
   },
   dilution: {
     formulas: [

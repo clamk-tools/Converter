@@ -9,36 +9,39 @@ your device. It is one of the [Clamk Tools](https://clamk-tools.github.io/).
 
 ---
 
-## The five calculators
+## The three calculators
 
 Type your numbers; the answer appears as you type. There is no Calculate button.
 
 | # | Calculator | You enter | You get | Example |
 |---|---|---|---|---|
-| 1 | Mass | concentration, molecular weight, volume | the mass to weigh | 100 mM, 180.16 g/mol, 10 mL → **180.16 mg** |
-| 2 | Volume | mass, molecular weight, concentration | the volume to make up | 180.16 mg, 180.16 g/mol, 100 mM → **10 mL** |
-| 3 | Molarity | mass, molecular weight, volume | the concentration | 180.16 mg, 180.16 g/mol, 10 mL → **100 mM** |
-| 4 | Dilution | stock concentration, desired concentration, desired volume | the volume of stock to take | 1 M, 10 mM, 100 mL → **1 mL** |
-| 5 | Converter | molecular weight, and a molar or mass concentration | the other one | 100 mM at 180.16 g/mol → **18.016 mg/mL** |
+| 1 | Mass, volume or concentration | the molecular weight, and two of mass, volume, concentration | the third one | 100 mM, 180.16 g/mol, 10 mL → **180.16 mg** |
+| 2 | Dilution | stock concentration, desired concentration, desired volume | the volume of stock to take | 1 M, 10 mM, 100 mL → **1 mL** |
+| 3 | Converter | molecular weight, and a molar or mass concentration | the other one | 100 mM at 180.16 g/mol → **18.016 mg/mL** |
 
-Calculators 1 to 4 are the same as GraphPad's molarity calculator. The molecular weight is in g/mol, which is the same
-number as daltons (Da).
+The molecular weight is in g/mol, which is the same number as daltons (Da).
+
+### Calculator 1: tick what you want to find
+
+Mass, volume and concentration are one formula, mass = concentration × volume × molecular weight, so they share one
+card of four tiles. **Tick the name of the value you want** (mass, at first): its tile turns blue and shows the answer.
+Type the other two. The molecular weight tile, top left and grey, is the substance's constant: it is always typed.
+
+When you tick another value, the answer you had stays in its box as a typed number. Found 180.16 mg, then ticked
+Volume: the mass box keeps 180.16 mg and the volume shows 10 mL. Switching back and forth is a quick check.
 
 ### Units
 
 Each box has a unit menu: molar to picomolar, liter to nanoliter, grams to nanograms.
 
 - **Changing a unit never changes the value.** 100 µM switched to mM shows 0.1.
-- **Calculator 5's mass line has two menus**, one for the mass and one for the volume, so you can build any pair:
+- **Calculator 3's mass line has two menus**, one for the mass and one for the volume, so you can build any pair:
   µg/mL, mg/L, ng/µL… It also offers **% w/v** (grams per 100 mL) and **ppm** (milligrams per liter).
 
 ### Boxes that are linked
 
-Calculators 1, 2 and 3 share their values. Type a molecular weight once and it appears in all three. Choose millimolar
-for a concentration and every concentration, answers included, is shown in millimolar.
-
-Calculator 4 (dilution) keeps its own values. Calculator 5 shares only the molecular weight, so converting a
-concentration never changes the other calculators.
+Calculator 2 (dilution) keeps its own values. Calculator 3 shares only the molecular weight with calculator 1 (grey in
+both, as a constant), so converting a concentration never changes calculator 1.
 
 ### The "i" button: the formulas
 
@@ -47,11 +50,9 @@ the unit of each symbol. Press it again to close it.
 
 | Calculator | Formula |
 |---|---|
-| 1. Mass | m = C × V × MW |
-| 2. Volume | V = m / (C × MW) |
-| 3. Molarity | C = m / (MW × V) |
-| 4. Dilution | C₁V₁ = C₂V₂, so V₁ = C₂ × V₂ / C₁ |
-| 5. Converter | mass concentration = C × MW |
+| 1. Mass, volume or concentration | m = C × V × MW, so V = m / (C × MW) and C = m / (MW × V) |
+| 2. Dilution | C₁V₁ = C₂V₂, so V₁ = C₂ × V₂ / C₁ |
+| 3. Converter | mass concentration = C × MW |
 
 m = mass (g), C = concentration (mol/L), V = volume (L), MW = molecular weight (g/mol). Every value is converted to
 these units before calculating. [`doc/CALCULATIONS.md`](doc/CALCULATIONS.md) has every formula and rule in full.
@@ -83,7 +84,7 @@ In the report you can:
 - **Copy as text** to paste the whole report into a document.
 
 An entry keeps the values it had when you added it. The report stays in your browser after you close the page. It is
-never sent anywhere. Calculator 5 cannot add to the report yet.
+never sent anywhere. Calculator 3 cannot add to the report yet.
 
 ---
 

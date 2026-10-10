@@ -50,9 +50,9 @@ describe("one value per quantity, shown in any unit", () => {
   });
 
   it("shows the raw text only in the box being typed in, not in the same quantity's box in another calculator", () => {
-    const s = run([type("volume", "mL", "1e-3", "mass")]);
-    expect(show(s, "volume", "mL", "mass")).toBe("1e-3");
-    expect(show(s, "volume", "mL", "concentration")).toBe("0.001");
+    const s = run([type("molarMass", "g_mol", "1e2", "solution")]);
+    expect(show(s, "molarMass", "g_mol", "solution")).toBe("1e2");
+    expect(show(s, "molarMass", "g_mol", "conversion")).toBe("100");
   });
 
   it("keeps a trailing point while typing", () => {
@@ -90,7 +90,54 @@ describe("changing unit keeps the quantity, and applies wherever the quantity ap
   });
 });
 
-describe("each calculator solves for its own quantity from the shared values", () => {
+describe("calculator 1 finds the quantity that is ticked", () => {
+  const find = (target: "mass" | "volume" | "concentration"): Action => ({ type: "find", target });
+
+  it("finds the mass at first", () => {
+    expect(initialState.find).toBe("mass");
+    const s = run(glucose);
+    expect(resultText(s, derive(s), "massResult")).toBe("180.16 mg");
+  });
+
+  it("ticking another quantity keeps the answer shown so far as a typed value", () => {
+    const s = run([...glucose, find("volume")]);
+    expect(s.find).toBe("volume");
+    expect(s.entries.mass).toEqual({ kind: "value", value: 0.18016, dimension: "mass" });
+    expect(show(s, "mass", "mg")).toBe("180.16");
+    expect(resultText(s, derive(s), "volumeResult")).toBe("10 mL"); // 180.16 mg at 100 mM, 180.16 g/mol
+  });
+
+  it("then the new answer follows the typed values: half the mass, half the volume", () => {
+    const s = run([...glucose, find("volume"), ...typed("mass", "mg", "90.08")]);
+    expect(resultText(s, derive(s), "volumeResult")).toBe("5 mL");
+  });
+
+  it("goes round the three and back without drifting", () => {
+    const s = run([...glucose, find("volume"), find("concentration"), find("mass")]);
+    expect(resultText(s, derive(s), "massResult")).toBe("180.16 mg");
+    expect(resultText(s, derive(s), "concentrationResult")).toBe("100 mM");
+  });
+
+  it("an answer not there yet leaves its box empty when another is ticked", () => {
+    const s = run([...typed("mass", "mg", "5"), ...typed("concentration", "mM", "100"), find("volume")]);
+    expect(s.entries.mass.kind).toBe("empty"); // the mass was the answer, and had none: 5 mg was not shown
+  });
+
+  it("ticking the quantity already found changes nothing", () => {
+    const s = run(glucose);
+    expect(reducer(s, find("mass"))).toBe(s);
+  });
+
+  it("applies the rules of the quantity it finds", () => {
+    const s = run([...glucose, find("concentration"), ...typed("mass", "mg", "0")]);
+    expect(issueAt(s, derive(s), "solution", "mass")).toBeNull(); // 0 mg in 10 mL is 0 mM
+    expect(resultText(s, derive(s), "concentrationResult")).toBe("0 mM");
+    const v = reducer(s, find("volume"));
+    expect(issueAt(v, derive(v), "solution", "mass")).toBe("Mass must be greater than zero to calculate a volume.");
+  });
+});
+
+describe("each of the three solves for its own quantity from the shared values", () => {
   it("1. mass: the sanity check gives 180.16 mg", () => {
     const s = run(glucose);
     expect(resultText(s, derive(s), "massResult")).toBe("180.16 mg");
@@ -161,7 +208,7 @@ describe("validation", () => {
   });
 });
 
-describe("4. dilution", () => {
+describe("2. dilution", () => {
   const dilute = (stock: [UnitId, string], target: [UnitId, string], volume: [UnitId, string]) =>
     run([...typed("stock", ...stock), ...typed("target", ...target), ...typed("finalVolume", ...volume)]);
 
@@ -191,7 +238,7 @@ describe("4. dilution", () => {
   });
 });
 
-describe("5. converting between mass and molar concentration", () => {
+describe("3. converting between mass and molar concentration", () => {
   const MOLAR_U: UnitId[] = ["M", "mM", "uM", "nM", "pM"];
   const MASS_U: UnitId[] = ["g/L", "mg/mL", "pct_wv", "ug/mL", "ppm", "ng/mL"];
   const convert = (s: State, units: UnitId[]) => Object.fromEntries(units.map((u) => [u, converterText(s, derive(s), u)]));
@@ -264,7 +311,7 @@ describe("5. converting between mass and molar concentration", () => {
     expect(converterText(u, derive(u), "mM")).toBe("100");
   });
 
-  it("is its own value: it does not change the concentration of calculators 1 to 3", () => {
+  it("is its own value: it does not change the concentration of calculator 1", () => {
     const s = run([...glucose, ...typed("converter", "mM", "5")]);
     expect(s.entries.concentration).toEqual({ kind: "value", value: 0.1, dimension: "molar" });
     expect(resultText(s, derive(s), "massResult")).toBe("180.16 mg");

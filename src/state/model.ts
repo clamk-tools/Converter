@@ -8,9 +8,10 @@
 // quantity, so the others follow. Choosing another unit only changes how a quantity is shown, never its value, and
 // the choice holds wherever that quantity appears, answers included.
 //
-// The page has GraphPad's four calculators. The first three share the concentration, molecular weight, volume and mass;
-// each solves for the one it does not take, so the answers are never stored and nothing loops. The dilution has its
-// own three values.
+// The first calculator is one formula, m = C × V × MW, solved for the quantity the user ticks (State.find): mass,
+// volume or concentration. The molecular weight is always typed. The quantity being found is shown as the answer and
+// is never stored while it is the answer, so nothing loops; when another one is ticked, the answer becomes a typed
+// value, as it was shown. The dilution has its own three values; the converter shares only the molecular weight.
 //
 // Only the box being typed in shows the raw text (State.editing), so "1e-" or "0." is never reformatted under the
 // user's fingers. Every other box, and that box once left, shows the formatted value.
@@ -27,7 +28,7 @@ export type { SolveFor };
 
 /** The quantities the user can type. */
 export type FieldId = "concentration" | "molarMass" | "volume" | "mass" | "stock" | "target" | "finalVolume";
-/** Every box that can be typed in: the quantities above, and the concentration of the converter (calculator 5). */
+/** Every box that can be typed in: the quantities above, and the concentration of the converter (calculator 3). */
 export type InputId = FieldId | "converter";
 /** Each calculator's answer: only ever calculated. */
 export type OutputId = "massResult" | "volumeResult" | "concentrationResult" | "stockVolume";
@@ -35,7 +36,7 @@ export type QuantityId = FieldId | OutputId;
 
 /** The unit choices. An answer shares its quantity's choice; the molecular weight is always g/mol. */
 export type UnitSlot = "concentration" | "volume" | "mass" | "stock" | "target" | "finalVolume";
-/** The two unit menus of the converter (calculator 5): one for each kind of concentration. */
+/** The two unit menus of the converter (calculator 3): one for each kind of concentration. */
 export type ConverterSlot = "converterMolar" | "converterMass";
 export const SLOT: Record<QuantityId, UnitSlot | null> = {
   concentration: "concentration",
@@ -76,6 +77,8 @@ export type Entry = { kind: "empty" } | { kind: "value"; value: number; dimensio
 
 export interface State {
   entries: Record<InputId, Entry>;
+  /** the quantity the first calculator finds from the other two and the molecular weight */
+  find: SolveFor;
   /** the unit each quantity is shown in */
   units: Record<UnitSlot | ConverterSlot, UnitId>;
   /** the box being typed in (one quantity can have a box in several calculators), and its raw text */
@@ -87,13 +90,15 @@ export type Action =
   | { type: "leave"; field: InputId }
   | { type: "unit"; quantity: QuantityId; unit: UnitId }
   | { type: "converterUnit"; slot: ConverterSlot; unit: UnitId }
+  | { type: "find"; target: SolveFor }
   | { type: "clear" };
 
 const empty: Entry = { kind: "empty" };
 
-// GraphPad's defaults: millimolar, milliliter, milligrams.
+// GraphPad's defaults: millimolar, milliliter, milligrams, and the mass to find.
 export const initialState: State = {
   entries: { concentration: empty, molarMass: empty, volume: empty, mass: empty, stock: empty, target: empty, finalVolume: empty, converter: empty },
+  find: "mass",
   units: { concentration: "mM", volume: "mL", mass: "mg", stock: "mM", target: "mM", finalVolume: "mL", converterMolar: "mM", converterMass: "mg/mL" },
   editing: null,
 };
@@ -123,6 +128,13 @@ export function reducer(state: State, action: Action): State {
     }
     case "converterUnit":
       return { ...state, units: { ...state.units, [action.slot]: action.unit } };
+    case "find": {
+      if (action.target === state.find) return state;
+      // the answer shown so far stays in its box, as a typed value (empty if there was no answer)
+      const answer = derive(state).values[RESULT_OF[state.find]];
+      const kept: Entry = answer === null ? empty : { kind: "value", value: answer, dimension: DIMENSION[state.find] };
+      return { ...state, find: action.target, editing: null, entries: { ...state.entries, [state.find]: kept } };
+    }
     case "clear":
       return { ...state, entries: initialState.entries, editing: null };
   }
@@ -138,7 +150,7 @@ export interface Derived {
   /** each calculator's result; its issues are about its own inputs (a zero mass is fine for one, not another) */
   solutions: Record<SolveFor, SolutionResult>;
   dilution: DilutionResult;
-  /** the converter (calculator 5): its concentration as typed, and the molecular weight it can cross with */
+  /** the converter (calculator 3): its concentration as typed, and the molecular weight it can cross with */
   conversion: ConversionResult & { amount: { dimension: Dimension; value: number } | null; molarMass: number | null };
 }
 
@@ -174,12 +186,15 @@ export function derive(state: State): Derived {
   return { values, solutions, dilution, conversion };
 }
 
-/** The problem to show at a box in one calculator: text that is not a number, else that calculator's rule. */
-export function issueAt(state: State, derived: Derived, section: Section | "conversion", field: InputId): string | null {
+/** The problem to show at a box in one calculator: text that is not a number, else that calculator's rule. "solution" is
+ *  the first calculator, whose rules are those of the quantity it finds (a zero mass is fine for a concentration, not for
+ *  a volume). */
+export function issueAt(state: State, derived: Derived, section: Section | "solution" | "conversion", field: InputId): string | null {
   const entry = state.entries[field];
   if (entry.kind === "invalid") return entry.reason;
+  const solved = section === "solution" ? state.find : section;
   const issues: { input: string; message: string }[] =
-    section === "dilution" ? derived.dilution.issues : section === "conversion" ? derived.conversion.issues : derived.solutions[section].issues;
+    solved === "dilution" ? derived.dilution.issues : solved === "conversion" ? derived.conversion.issues : derived.solutions[solved].issues;
   return issues.find((i) => i.input === field)?.message ?? null;
 }
 
@@ -208,12 +223,17 @@ export function boxText(state: State, derived: Derived, quantity: FieldId, unitI
 
 /** What an answer box shows: "180.16 mg", in the unit chosen for that quantity, to 6 significant digits. */
 export function resultText(state: State, derived: Derived, quantity: OutputId): string {
-  const unitId = unitOf(state, quantity);
-  const value = valueIn(derived, quantity, unitId);
-  return value === null ? "" : `${formatNumber(value, COMPUTED)} ${unit(unitId).symbol}`;
+  const number = resultNumber(state, derived, quantity);
+  return number === "" ? "" : `${number} ${unit(unitOf(state, quantity)).symbol}`;
 }
 
-// ---------- the converter (calculator 5) ----------
+/** The answer's number alone, for a box whose unit menu sits beside it: "180.16". */
+export function resultNumber(state: State, derived: Derived, quantity: OutputId): string {
+  const value = valueIn(derived, quantity, unitOf(state, quantity));
+  return value === null ? "" : formatNumber(value, COMPUTED);
+}
+
+// ---------- the converter (calculator 3) ----------
 
 /**
  * The converter's concentration in one unit. Within its own kind (molar, or mass per volume) this is only a change

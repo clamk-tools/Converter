@@ -16,6 +16,10 @@
   --on-accent: #ffffff;
   --accent-tint: #eaf1fe;
   --switch-track: #e0e9fb;
+  /* a constant input (the molecular weight): a slightly grey tile, box and hairline */
+  --fixed-tile: #f3f5f6;
+  --fixed-box: #eceff1;
+  --fixed-line: #dfe3e6;
 
   /* markers: a pale tint (surfaces), an ink (dots, borders, icons) and a text-safe ink (small text) */
   --blue-tint: #eaf1fe;
@@ -58,6 +62,9 @@
     --on-accent: #15181a;
     --accent-tint: #16233d;
     --switch-track: #283343;
+    --fixed-tile: #191c1f;
+    --fixed-box: #23282b;
+    --fixed-line: #2b3134;
     --blue-tint: #16233d;
     --blue-ink: #7fa8ff;
     --blue-text: #7fa8ff;
@@ -88,6 +95,9 @@
   --on-accent: #15181a;
   --accent-tint: #16233d;
   --switch-track: #283343;
+  --fixed-tile: #191c1f;
+  --fixed-box: #23282b;
+  --fixed-line: #2b3134;
   --blue-tint: #16233d;
   --blue-ink: #7fa8ff;
   --blue-text: #7fa8ff;

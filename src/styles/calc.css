@@ -1,6 +1,6 @@
-/* The calculators, laid out as on GraphPad's molarity page: four stacked panels, each a column of
-   "Label: [box] [unit]" rows ending with "Answer = [answer]". Clamk construction: surface + 1px border, 7px controls,
-   9px panels, mono for numbers, blue for the answer. */
+/* The calculators: three stacked panels. The first is four tiles, two by two; the dilution and the converter are
+   columns of "Label: [box] [unit]" rows, as on GraphPad's molarity page. Clamk construction: surface + 1px border, 7px
+   controls, 9px panels, mono for numbers, blue for the answer, grey for a constant. */
 
 .calc {
   display: flex;
@@ -52,11 +52,6 @@
   font-size: 0.95rem !important;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-}
-
-/* the molecular weight has no unit menu: its box takes the menu's place too */
-.row.fixed-unit .row-value {
-  grid-column: 2 / -1;
 }
 
 .row select {
@@ -145,7 +140,6 @@
     grid-column: 1 / -1;
   }
 
-  .row.fixed-unit .row-value,
   .row-issue {
     grid-column: 1 / -1;
   }
@@ -165,6 +159,250 @@
   .result-label,
   .result-value {
     height: 44px;
+  }
+}
+
+/* ---------- calculator 1: four tiles, two by two, the one being found in blue ---------- */
+
+.calc-hint {
+  margin: -10px 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 2px 14px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+
+.tile.found {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+/* the molecular weight: a constant of the substance, typed once, never found */
+.tile.fixed,
+.row.fixed {
+  border-color: var(--fixed-line);
+  background: var(--fixed-tile);
+}
+
+.tile-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+/* the tick and the name are one button, as wide as the tile */
+button.tile-find {
+  width: calc(100% + 28px);
+  height: 44px;
+  margin: 0 -14px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: none;
+  text-align: left;
+}
+
+button.tile-find:hover:not(:disabled) .tick {
+  border-color: var(--accent);
+}
+
+button.tile-find:active:not(:disabled) {
+  background: none;
+}
+
+.tick {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--muted);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--on-accent);
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+
+.tile.found .tick {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.tile-name {
+  flex: 1;
+  min-width: 0;
+  font: 600 0.7rem/1.3 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.tile.found .tile-name,
+.tile.found .tile-note {
+  color: var(--accent);
+}
+
+.tile-note,
+.row-note {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.tile.fixed .tile-name,
+.tile.fixed .tile-note,
+.tile.fixed .tile-unit,
+.row.fixed .row-label,
+.row.fixed .row-note {
+  color: var(--muted-on-tint);
+}
+
+/* the number and its unit, side by side; under each other on a phone */
+.tile-field {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tile-value,
+.tile-answer {
+  flex: 1;
+  min-width: 0;
+  height: 48px !important;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.tile-value {
+  font-size: 1.0625rem !important;
+}
+
+.tile.fixed .tile-value,
+.row.fixed .row-value {
+  border-color: var(--fixed-line);
+  background: var(--fixed-box);
+}
+
+.tile-answer {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 1.375rem;
+  letter-spacing: -0.01em;
+  user-select: all;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.tile-field select {
+  flex: none;
+  width: 10rem;
+  height: 48px;
+  cursor: pointer;
+}
+
+.tile-unit {
+  flex: none;
+  display: flex;
+  align-items: center;
+  width: 10rem;
+  font-size: 0.8125rem;
+}
+
+.tile .row-issue {
+  margin-top: -2px;
+}
+
+.calc-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.calc-formula {
+  flex: 1;
+  min-width: 0;
+  font: 600 0.875rem var(--font-mono);
+}
+
+/* the converter's molecular weight row: grey as its tile in calculator 1 */
+.row.fixed {
+  margin: 0 -10px;
+  padding: 8px 10px;
+  border: 1px solid var(--fixed-line);
+  border-radius: var(--radius-control);
+}
+
+@media (max-width: 560px) {
+  .tiles {
+    gap: 8px;
+  }
+
+  .tile {
+    padding: 2px 10px 10px;
+  }
+
+  button.tile-find {
+    width: calc(100% + 20px);
+    margin: 0 -10px;
+    padding: 0 10px;
+  }
+
+  .tile-name {
+    font-size: 0.65rem;
+  }
+
+  /* "Finding" would crowd a narrow tile: the blue tick and tile say it */
+  .tile-find .tile-note {
+    display: none;
+  }
+
+  .tile-field {
+    flex-direction: column;
+  }
+
+  /* stacked, the box keeps its height rather than sharing the column's */
+  .tile-value,
+  .tile-answer {
+    flex: none;
+  }
+
+  .tile-field select,
+  .tile-unit {
+    width: 100%;
+    height: 40px;
   }
 }
 
