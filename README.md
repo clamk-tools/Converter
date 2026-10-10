@@ -154,7 +154,8 @@ On a machine that already has Chromium (a cloud container, say), skip the other 
 This repository is public, so everything committed here is public forever.
 
 - **Privacy check:** `.githooks/check-privacy.sh` blocks a commit that contains a personal email, a private path on
-  your computer, or a secret key or token. Turn it on once per copy of the repository: `git config core.hooksPath .githooks`.
+  your computer, or a secret key or token. Turn it on once per copy of the repository:
+  `git config core.hooksPath .githooks`.
 - **Private words:** your computer user name or private project names go one per line in `~/.git-privacy-terms` or
   `.git/privacy-terms`, which are never published. A line holding an invented example can carry the marker
   `privacy-ok`.
