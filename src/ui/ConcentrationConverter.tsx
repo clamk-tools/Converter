@@ -6,6 +6,7 @@ import { boxText, converterNeedsMolarMass, converterText, issueAt } from "../sta
 import type { MassUnitId, UnitId, VolumeUnitId } from "../units/units";
 import { isPair, pair, splitPair, unit, unitsOf } from "../units/units";
 import { InfoBubble } from "./InfoBubble";
+import { CONVERTER_TITLE } from "./sections";
 
 interface Props {
   state: State;
@@ -60,9 +61,9 @@ function MassUnits({ unitId, dispatch }: { unitId: UnitId; dispatch: Dispatch<Ac
   );
 }
 
-// Calculator 5: one concentration on two lines, as molar and as mass per volume, each with its own unit menu. The two
+// Calculator 3: one concentration on two lines, as molar and as mass per volume, each with its own unit menu. The two
 // boxes are views of one stored value, so typing in either fills the other; crossing from one kind to the other goes
-// through the molecular weight, which is the one the first three calculators use (state/model.ts).
+// through the molecular weight, the one calculator 1 uses (state/model.ts). Its row is grey, as there: a constant.
 export function ConcentrationConverter({ state, derived, dispatch }: Props) {
   const id = useId();
   const mwIssue = issueAt(state, derived, "conversion", "molarMass");
@@ -71,11 +72,11 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
   return (
     <section className="calc conv" aria-labelledby={`${id}-title`} data-calculator="conversion">
       <div className="calc-head">
-        <h2 id={`${id}-title`}>5. Convert between mass &amp; molar concentration</h2>
-        <InfoBubble calculator="conversion" title="calculator 5" />
+        <h2 id={`${id}-title`}>{CONVERTER_TITLE}</h2>
+        <InfoBubble calculator="conversion" title={CONVERTER_TITLE} />
       </div>
 
-      <div className={`row fixed-unit${mwIssue ? " has-issue" : ""}`}>
+      <div className={`row fixed${mwIssue ? " has-issue" : ""}`}>
         <label className="row-label" htmlFor={`${id}-mw`}>
           Molecular weight (g/mol or Da):
         </label>
@@ -94,6 +95,7 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
           onChange={(e) => dispatch({ type: "type", field: "molarMass", unit: "g_mol", text: e.target.value, box: "conversion" })}
           onBlur={() => dispatch({ type: "leave", field: "molarMass" })}
         />
+        <span className="row-note">constant</span>
         {mwIssue && (
           <p className="row-issue" id={`${id}-mw-issue`}>
             {mwIssue}

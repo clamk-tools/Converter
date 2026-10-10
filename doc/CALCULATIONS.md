@@ -28,7 +28,7 @@ C₁ × V₁ = C₂ × V₂  →  V₁ = C₂ × V₂ / C₁        dilution: th
 ρ = C × MW   and   C = ρ / MW                  mass concentration ρ (g/L) and molar concentration C (mol/L)
 ```
 
-The first four are the equations of GraphPad's molarity calculator, one per calculator on the page; the last is calculator 5. The mass-concentration units are exact: g/L and mg/mL are the same thing; 1 % w/v is 1 g per 100 mL = 10 g/L; 1 ppm is taken as 1 mg/L (right for a dilute aqueous solution, where 1 L weighs 1 kg). n = m / MW is used only
+The first four are the equations of GraphPad's molarity calculator. Mass, concentration and volume are one formula solved three ways: calculator 1 on the page, which solves it for the quantity ticked; the dilution is calculator 2; the last is calculator 3. The mass-concentration units are exact: g/L and mg/mL are the same thing; 1 % w/v is 1 g per 100 mL = 10 g/L; 1 ppm is taken as 1 mg/L (right for a dilute aqueous solution, where 1 L weighs 1 kg). n = m / MW is used only
 by the tests. In a dilution C₁ and C₂ are compared in the same unit, whichever ones were chosen for them.
 
 ## Rules
@@ -40,7 +40,7 @@ by the tests. In a dilution C₁ and C₂ are compared in the same unit, whichev
 | Concentration (solving for mass) | ≥ 0 | 0 M needs 0 g |
 | Mass (solving for concentration) | ≥ 0 | 0 g gives 0 M |
 | Concentration and mass (solving for volume) | > 0 | C = 0 divides by zero; m = 0 gives a volume of 0 |
-| Concentration to convert (calculator 5) | ≥ 0 | 0 converts to 0; negative has no meaning. The molecular weight is needed only to cross between molar and mass |
+| Concentration to convert (calculator 3) | ≥ 0 | 0 converts to 0; negative has no meaning. The molecular weight is needed only to cross between molar and mass |
 | Stock and desired concentration | > 0 | C₁ = 0 divides by zero; C₂ = 0 is not a dilution |
 | Desired vs stock | C₂ ≤ C₁ | a dilution can only lower a concentration |
 

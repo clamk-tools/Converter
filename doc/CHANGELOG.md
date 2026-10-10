@@ -5,6 +5,21 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-10 · Calculators 1, 2 and 3 become one card
+
+- **Seen:** mass, volume and concentration are one formula (m = C × V × MW), so they are now one card,
+  "1. Mass, volume or concentration": four tiles, two by two, on a laptop and on a phone. Tick the name of the value
+  to find (mass at first): its tile turns blue and shows the answer; type the other two. The molecular weight is the
+  first tile, in light grey and marked "constant", as it is always typed; the converter's molecular weight row is grey
+  the same way. The page now has three calculators: 1 this card, 2 the dilution, 3 the converter.
+- **Inside:** `State.find` and the `find` action in `state/model.ts`; `ui/SolutionCard.tsx` replaces the three
+  calculators; the add-to-report icon moved to `ui/AddToReport.tsx`; three `--fixed-*` colour tokens in `theme.css`.
+  The engine and the report are unchanged. 95 unit tests, 24 end-to-end tests.
+- **Decided** (from six designs, then eight phone versions of the tiles, compared on a design canvas): the answer shows
+  in the ticked tile rather than in a separate answer row; ticking another tile keeps the answer as a typed value, so
+  nothing seen disappears and switching back and forth is a check; the tile order is molecular weight, concentration,
+  volume, mass.
+
 ### 2026-10-10 · A simpler README
 
 - **Seen:** `README.md` is rewritten in plain words for someone who just wants to use the tool: a table of the five
