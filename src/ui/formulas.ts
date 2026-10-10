@@ -21,7 +21,7 @@ export const INFO: Record<"mass" | "volume" | "concentration" | "dilution" | "co
       { equation: "n = C × V", meaning: "" },
       { equation: "m = n × MW = C × V × MW", meaning: "" },
     ],
-    notes: ["C mol/L, V L, m g, MW g/mol, n mol. Units are converted to these first."],
+    notes: ["C^{mol/L}, V^{L}, m^{g}, MW^{g/mol}, n^{mol}. Units are converted to these first."],
   },
   volume: {
     formulas: [

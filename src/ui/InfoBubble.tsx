@@ -1,12 +1,23 @@
+import type { ReactNode } from "react";
 import { useId, useState } from "react";
 
 import { INFO } from "./formulas";
 
-// The symbols (C, V, m, n, MW, ρ and their numbered forms) are written in bold; units and words stay regular.
-const SYMBOL = /(?<![A-Za-z])(MW|ρ|[CVmn][₁₂]?)(?![A-Za-z])/g;
+// The symbols (C, V, m, n, MW, ρ and their numbered forms) are written in bold; units and words stay regular. A unit
+// written after a symbol as ^{mol/L} is set as its superscript: "C^{mol/L}" shows C with mol/L above it.
+const SYMBOL = /(?<![A-Za-z])(MW|ρ|[CVmn][₁₂]?)(?:\^\{([^}]*)\})?(?![A-Za-z])/g;
 
 function symbols(text: string) {
-  return text.split(SYMBOL).map((part, i) => (i % 2 ? <strong key={i}>{part}</strong> : part));
+  const parts = text.split(SYMBOL);
+  const nodes: ReactNode[] = [];
+  for (let i = 0; i < parts.length; i += 3) {
+    nodes.push(parts[i]);
+    if (i + 1 < parts.length) {
+      nodes.push(<strong key={i}>{parts[i + 1]}</strong>);
+      if (parts[i + 2]) nodes.push(<sup key={`${i}u`}>{parts[i + 2]}</sup>);
+    }
+  }
+  return nodes;
 }
 
 interface Props {
