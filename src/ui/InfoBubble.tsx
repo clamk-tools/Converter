@@ -34,7 +34,7 @@ export function InfoBubble({ calculator, title }: Props) {
             {info.formulas.map((f) => (
               <div key={f.equation}>
                 <dt>{f.equation}</dt>
-                <dd>{f.meaning}</dd>
+                {f.meaning && <dd>{f.meaning}</dd>}
               </div>
             ))}
           </dl>

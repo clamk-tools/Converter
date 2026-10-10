@@ -302,10 +302,10 @@ test("5. a negative concentration and a molecular weight of zero are explained",
 
 test("each calculator has an i that opens a bubble with the formulas it uses", async ({ page }) => {
   const expected: [Id, string][] = [
-    ["mass", "m = C × V × MW"],
-    ["volume", "V = m / (C × MW)"],
-    ["concentration", "C = m / (MW × V)"],
-    ["dilution", "C₁ × V₁ = C₂ × V₂"],
+    ["mass", "m = n × MW = C × V × MW"],
+    ["volume", "V = n / C = m / (C × MW)"],
+    ["concentration", "C = n / V = m / (MW × V)"],
+    ["dilution", "C₁V₁ = C₂V₂"],
     ["conversion", "ρ = C × MW"],
   ];
   for (const [id, formula] of expected) {

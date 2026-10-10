@@ -21,6 +21,8 @@
 }
 
 .calc h2 {
+  flex: 1;
+  min-width: 0;
   margin: 0;
   font-size: 1.125rem;
   font-weight: 700;
@@ -472,6 +474,7 @@ button.info-button {
   flex: none;
   width: 24px;
   height: 24px;
+  margin-left: auto;
   padding: 0;
   border-radius: var(--radius-pill);
   font: italic 700 0.8125rem/1 var(--font-mono);
@@ -484,21 +487,23 @@ button.info-button[aria-expanded="true"] {
 }
 
 .info-bubble {
+  box-sizing: border-box;
   flex: 1 0 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: 4px;
+  padding: 7px 10px;
   border: 1px solid var(--accent);
   border-radius: var(--radius-md);
   background: var(--accent-tint);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
 }
 
 .info-formulas {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 1px;
   margin: 0;
 }
 
@@ -506,11 +511,11 @@ button.info-button[aria-expanded="true"] {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 2px 12px;
+  gap: 0 8px;
 }
 
 .info-formulas dt {
-  font: 600 0.9rem/1.4 var(--font-mono);
+  font: 600 0.8125rem/1.35 var(--font-mono);
 }
 
 .info-formulas dd {
@@ -520,6 +525,8 @@ button.info-button[aria-expanded="true"] {
 
 .info-notes {
   margin: 0;
-  padding-left: 18px;
+  padding: 0;
+  list-style: none;
   color: var(--muted-on-tint);
+  font-size: 0.75rem;
 }
