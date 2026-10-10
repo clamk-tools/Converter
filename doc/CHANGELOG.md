@@ -8,7 +8,7 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 ### 2026-10-10 · An "i" on each calculator, with its formulas
 
 - **Seen:** every calculator has a small **i** beside its title. Pressed, it opens a compact bubble under the title with
-  the formulas that calculator uses (symbols in bold, units regular and, in the letters line, raised beside their symbol as C^mol/L; a few words beside some) and one line of letters, units and rules. The **i** sits at
+  the formulas that calculator uses (symbols in bold, units regular and, in the letters line of every bubble, raised beside their symbol as C^mol/L; a few words beside some) and one line of letters, units and rules. The **i** sits at
   the right end of the title row. Pressed again, or Escape, it closes. Calculators 1 to 3: n = C × V, n = m / MW and the two combined;
   4: C₁V₁ = C₂V₂, V₁ = C₂ × V₂ / C₁, V₂ − V₁; 5: ρ = C × MW, C = ρ / MW, % w/v and ppm.
 - **Inside:** the text is data in `ui/formulas.ts`, shown by `ui/InfoBubble.tsx`; no formula is computed there. 22
