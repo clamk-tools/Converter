@@ -35,7 +35,7 @@ export const INFO: Record<"mass" | "volume" | "concentration" | "dilution" | "co
       { equation: "n = m / MW", meaning: "" },
       { equation: "C = n / V = m / (MW × V)", meaning: "" },
     ],
-    notes: ["m^{g}, MW^{g/mol}, V^{L}, n^{mol}, C^{mol/L}. Units are converted to these first.", "MW and V must be > 0."],
+    notes: ["m^{g}, MW^{g/mol}, V^{L}, n^{mol}, C^{mol/L}. Units are converted to these first."],
   },
   dilution: {
     formulas: [
