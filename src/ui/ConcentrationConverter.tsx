@@ -3,8 +3,8 @@ import { useId } from "react";
 
 import type { Action, ConverterSlot, Derived, State } from "../state/model";
 import { boxText, converterNeedsMolarMass, converterText, issueAt } from "../state/model";
-import type { Dimension, UnitId } from "../units/units";
-import { unit, unitsOf } from "../units/units";
+import type { MassUnitId, UnitId, VolumeUnitId } from "../units/units";
+import { isPair, pair, splitPair, unit, unitsOf } from "../units/units";
 
 interface Props {
   state: State;
@@ -12,10 +12,52 @@ interface Props {
   dispatch: Dispatch<Action>;
 }
 
-const ROWS: { slot: ConverterSlot; dimension: Dimension; label: string }[] = [
-  { slot: "converterMolar", dimension: "molar", label: "Molar concentration" },
-  { slot: "converterMass", dimension: "massConc", label: "Mass concentration" },
-];
+// What the two menus of the mass line mean when it is not a pair: "% w/v" is g per 100 mL, "ppm" is mg per L.
+const NOT_A_PAIR: Record<string, string> = { pct_wv: "per 100 mL", ppm: "per L" };
+
+/** The mass concentration, as a pair: which mass unit, per which volume unit. */
+function MassUnits({ unitId, dispatch }: { unitId: UnitId; dispatch: Dispatch<Action> }) {
+  const choose = (next: UnitId) => dispatch({ type: "converterUnit", slot: "converterMass", unit: next });
+  const [mass, volume] = isPair(unitId) ? splitPair(unitId) : [unitId as MassUnitId, "mL" as VolumeUnitId];
+  return (
+    <div className="conv-pair">
+      <select
+        aria-label="Mass concentration: mass unit"
+        value={unitId === "pct_wv" || unitId === "ppm" ? unitId : mass}
+        onChange={(e) => {
+          const next = e.target.value as UnitId;
+          choose(next === "pct_wv" || next === "ppm" ? next : pair(next as MassUnitId, volume));
+        }}
+      >
+        {unitsOf("mass").map((u) => (
+          <option key={u.id} value={u.id}>
+            {u.name}
+          </option>
+        ))}
+        <option value="pct_wv">% w/v</option>
+        <option value="ppm">ppm (mg/L)</option>
+      </select>
+      {isPair(unitId) ? (
+        <>
+          <span className="conv-slash" aria-hidden="true">
+            /
+          </span>
+          <select aria-label="Mass concentration: volume unit" value={volume} onChange={(e) => choose(pair(mass, e.target.value as VolumeUnitId))}>
+            {unitsOf("volume").map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name}
+              </option>
+            ))}
+          </select>
+        </>
+      ) : (
+        <select aria-label="Mass concentration: volume unit" disabled value="fixed">
+          <option value="fixed">{NOT_A_PAIR[unitId]}</option>
+        </select>
+      )}
+    </div>
+  );
+}
 
 // Calculator 5: one concentration on two lines, as molar and as mass per volume, each with its own unit menu. The two
 // boxes are views of one stored value, so typing in either fills the other; crossing from one kind to the other goes
@@ -54,11 +96,13 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
         )}
       </div>
 
-      {ROWS.map(({ slot, dimension, label }) => {
+      {(["converterMolar", "converterMass"] as ConverterSlot[]).map((slot) => {
         const unitId: UnitId = state.units[slot];
+        const molar = slot === "converterMolar";
+        const label = molar ? "Molar concentration" : "Mass concentration";
         const invalid = valueIssue !== null && derived.conversion.amount === null;
         return (
-          <div className={`row${valueIssue && dimension === "molar" ? " has-issue" : ""}`} key={slot}>
+          <div className={`row${molar ? "" : " pair"}${valueIssue && molar ? " has-issue" : ""}`} key={slot}>
             <label className="row-label" htmlFor={`${id}-${slot}`}>
               {label}:
             </label>
@@ -76,13 +120,17 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
               onChange={(e) => dispatch({ type: "type", field: "converter", unit: unitId, text: e.target.value })}
               onBlur={() => dispatch({ type: "leave", field: "converter" })}
             />
-            <select aria-label={`${label}: unit`} value={unitId} onChange={(e) => dispatch({ type: "converterUnit", slot, unit: e.target.value as UnitId })}>
-              {unitsOf(dimension).map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
+            {molar ? (
+              <select aria-label={`${label}: unit`} value={unitId} onChange={(e) => dispatch({ type: "converterUnit", slot, unit: e.target.value as UnitId })}>
+                {unitsOf("molar").map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <MassUnits unitId={unitId} dispatch={dispatch} />
+            )}
           </div>
         );
       })}

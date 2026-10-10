@@ -221,30 +221,55 @@ test("Collapse all folds every calculation, then Expand all opens them", async (
   await expect(page.locator(".steps")).toHaveCount(2);
 });
 
-test("5. molecular weight, then one line for molar and one for mass, each with its own unit menu", async ({ page }) => {
+test("5. molecular weight, then one line for molar and one for mass; the mass line has a menu for the mass unit and one for the volume unit", async ({ page }) => {
   await expect(calc(page, "conversion").locator(".row-label")).toHaveText(["Molecular weight (g/mol or Da):", "Molar concentration:", "Mass concentration:"]);
   await expect(unitMenu(page, "conversion", "Molar concentration")).toHaveValue("mM");
-  await expect(unitMenu(page, "conversion", "Mass concentration")).toHaveValue("mg_mL");
+  await expect(calc(page, "conversion").getByLabel("Mass concentration: mass unit")).toHaveValue("mg");
+  await expect(calc(page, "conversion").getByLabel("Mass concentration: volume unit")).toHaveValue("mL");
 });
 
-test("5. the two lines are linked: typing in one fills the other, and the unit menus change only how it is shown", async ({ page }) => {
+test("5. the two lines are linked, and the mass and volume units of the mass line are chosen separately", async ({ page }) => {
+  const massUnit = calc(page, "conversion").getByLabel("Mass concentration: mass unit");
+  const volumeUnit = calc(page, "conversion").getByLabel("Mass concentration: volume unit");
   await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("180.16");
   await box(page, "conversion", "Molar concentration in millimolar").fill("100");
   await expect(box(page, "conversion", "Mass concentration in milligrams/milliliter")).toHaveValue("18.016");
 
-  await unitMenu(page, "conversion", "Mass concentration").selectOption("pct_wv");
-  await expect(box(page, "conversion", "Mass concentration in % w/v")).toHaveValue("1.8016");
-  await unitMenu(page, "conversion", "Mass concentration").selectOption("ppm");
-  await expect(box(page, "conversion", "Mass concentration in ppm (mg/L)")).toHaveValue("18016");
-  await unitMenu(page, "conversion", "Molar concentration").selectOption("uM");
-  await expect(box(page, "conversion", "Molar concentration in micromolar")).toHaveValue("100000");
+  await massUnit.selectOption("g"); // g/mL
+  await expect(box(page, "conversion", "Mass concentration in grams/milliliter")).toHaveValue("0.018016");
+  await volumeUnit.selectOption("L"); // g/L
+  await expect(box(page, "conversion", "Mass concentration in grams/liter")).toHaveValue("18.016");
+  await massUnit.selectOption("ug"); // µg/L
+  await expect(box(page, "conversion", "Mass concentration in micrograms/liter")).toHaveValue("18016000");
+  await volumeUnit.selectOption("uL"); // µg/µL
+  await expect(box(page, "conversion", "Mass concentration in micrograms/microliter")).toHaveValue("18.016");
 
-  await box(page, "conversion", "Mass concentration in ppm (mg/L)").fill("9008"); // half of it, from the other line
+  await massUnit.selectOption("mg");
+  await volumeUnit.selectOption("L"); // mg/L
+  await box(page, "conversion", "Mass concentration in milligrams/liter").fill("9008"); // half of it, typed on the mass line
+  await unitMenu(page, "conversion", "Molar concentration").selectOption("uM");
   await expect(box(page, "conversion", "Molar concentration in micromolar")).toHaveValue("50000");
-  await unitMenu(page, "conversion", "Mass concentration").selectOption("g_L");
-  await box(page, "conversion", "Mass concentration in grams/liter").fill("10");
-  await unitMenu(page, "conversion", "Molar concentration").selectOption("mM");
-  await expect(box(page, "conversion", "Molar concentration in millimolar")).toHaveValue("55.5062");
+});
+
+test("5. % w/v and ppm are in the mass menu, with their fixed volume shown", async ({ page }) => {
+  const massUnit = calc(page, "conversion").getByLabel("Mass concentration: mass unit");
+  const volumeUnit = calc(page, "conversion").getByLabel("Mass concentration: volume unit");
+  await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("180.16");
+  await box(page, "conversion", "Molar concentration in millimolar").fill("100");
+
+  await massUnit.selectOption("pct_wv");
+  await expect(volumeUnit).toBeDisabled();
+  await expect(volumeUnit).toContainText("per 100 mL");
+  await expect(box(page, "conversion", "Mass concentration in % w/v")).toHaveValue("1.8016");
+  await massUnit.selectOption("ppm");
+  await expect(volumeUnit).toContainText("per L");
+  await expect(box(page, "conversion", "Mass concentration in ppm (mg/L)")).toHaveValue("18016");
+
+  await box(page, "conversion", "Mass concentration in ppm (mg/L)").fill("9008");
+  await expect(box(page, "conversion", "Molar concentration in millimolar")).toHaveValue("50");
+  await massUnit.selectOption("g"); // back to a pair: the volume menu is usable again, at its default
+  await expect(volumeUnit).toBeEnabled();
+  await expect(volumeUnit).toHaveValue("mL");
 });
 
 test("5. it asks for a molecular weight to cross between the two lines, and shares the one of the other calculators", async ({ page }) => {

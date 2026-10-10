@@ -113,7 +113,9 @@ Visual changes follow `doc/LLM feed for visual/LLMfeed_VISUAL-IDENTITY.md` and u
 ## 7. Calculator 5 (the converter)
 
 One concentration on two lines, molar and mass per volume, each with its own unit menu (`units.converterMolar`,
-`units.converterMass`, changed by the `converterUnit` action). It is stored once, as typed: `entries.converter` is a
+`units.converterMass`, changed by the `converterUnit` action). The mass line's unit is a *pair*: `units/units.ts` builds `"mg/mL"`-style
+units from a mass unit and a volume unit (`pair`, `splitPair`), so the 4 × 4 combinations need no list, and the line shows
+two menus for them; % w/v and ppm are the two units that are not pairs. It is stored once, as typed: `entries.converter` is a
 canonical value *and its dimension* (`molar` in M, or `massConc` in g/L), which is why `Entry` carries `dimension`.
 `converterValueIn()` shows it in any unit: a change of unit within its dimension, or, across dimensions, ρ = C × MW or
 C = ρ / MW with the molecular weight of calculators 1 to 3 (`null` without one: the box says "needs MW"). Typing in a

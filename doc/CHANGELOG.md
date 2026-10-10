@@ -5,6 +5,15 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-09 · Calculator 5: choose the mass and the volume unit
+
+- **Seen:** the mass concentration line of calculator 5 has two menus, a mass unit (grams, milligrams, micrograms,
+  nanograms) and a volume unit (liter, milliliter, microliter, nanoliter), so any pair can be chosen: µg/mL, mg/L, ng/µL,
+  g/nL… The mass menu still offers % w/v and ppm, and then the volume menu shows "per 100 mL" or "per L" and is fixed.
+- **Inside:** a mass concentration unit is now built from its two parts (`pair("mg", "mL")` is `"mg/mL"`, exponent: mass
+  unit minus volume unit) instead of a fixed list; `g_L`, `mg_mL`, `ug_mL`, `ng_mL` become `"g/L"`, `"mg/mL"`,
+  `"ug/mL"`, `"ng/mL"`. 88 unit tests, 21 end-to-end tests.
+
 ### 2026-10-09 · Calculator 5: mass and molar concentration
 
 - **Seen:** a fifth calculator under the four, in the same style: Molecular weight (g/mol or Da), then two lines, **Molar

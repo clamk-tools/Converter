@@ -94,7 +94,7 @@ const empty: Entry = { kind: "empty" };
 // GraphPad's defaults: millimolar, milliliter, milligrams.
 export const initialState: State = {
   entries: { concentration: empty, molarMass: empty, volume: empty, mass: empty, stock: empty, target: empty, finalVolume: empty, converter: empty },
-  units: { concentration: "mM", volume: "mL", mass: "mg", stock: "mM", target: "mM", finalVolume: "mL", converterMolar: "mM", converterMass: "mg_mL" },
+  units: { concentration: "mM", volume: "mL", mass: "mg", stock: "mM", target: "mM", finalVolume: "mL", converterMolar: "mM", converterMass: "mg/mL" },
   editing: null,
 };
 
