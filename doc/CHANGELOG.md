@@ -5,6 +5,14 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-11 · The dilution's formula, with the numbers in it
+
+- **Seen:** under the formula of the Dilution tab, a second line writes it out with the values as they are typed,
+  each in the unit of its box: V₁ = 10 mM × 100 mL / 1 M = 1 mL. A value not typed yet shows as ?. It follows the
+  value ticked (V₂ = C₁ × V₁ / C₂ = …), and a number never parts from its unit at the end of a line on a phone.
+- **Inside:** `ui/worked.ts` builds the line from the stored values; the answer in it is the engine's, so it cannot
+  disagree with the tile. 106 unit tests, 28 end-to-end tests.
+
 ### 2026-10-11 · Tiles and rows named by their letters: MW, C, V, m; Cm in Convert
 
 - **Seen:** the Solution tiles are named MW, C, V and m, the letters of m = C × V × MW, as the Dilution tiles are named

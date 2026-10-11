@@ -170,6 +170,19 @@ test("the dilution sanity check: 1 M to 10 mM in 100 mL takes 1 mL of stock", as
   await unitMenu(page, "dilution", "V₁, volume of stock").selectOption("uL");
   await expect(answer(page, "dilution")).toHaveText("1000");
   await expect(calc(page, "dilution").locator(".calc-formula")).toHaveText("V₁ = C₂ × V₂ / C₁");
+  await expect(calc(page, "dilution").locator(".calc-worked")).toHaveText("V₁ = 10 mM × 100 mL / 1 M = 1000 µL"); // the numbers, live
+});
+
+test("the dilution's formula fills in with the numbers as they are typed", async ({ page }) => {
+  await open(page, "dilution");
+  const worked = calc(page, "dilution").locator(".calc-worked");
+  await expect(worked).toHaveText("V₁ = ? × ? / ? = ?");
+  await box(page, "dilution", "C₂, final concentration in millimolar").fill("10");
+  await expect(worked).toHaveText("V₁ = 10 mM × ? / ? = ?");
+  await dilute(page);
+  await expect(worked).toHaveText("V₁ = 10 mM × 100 mL / 1 M = 1 mL");
+  await dilutionFind(page, "V₂, final volume").click();
+  await expect(worked).toHaveText("V₂ = 1 M × 1 mL / 10 mM = 100 mL");
 });
 
 test("any of the four can be ticked in the dilution: the answer so far stays as a typed value", async ({ page }) => {

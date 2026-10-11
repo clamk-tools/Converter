@@ -309,10 +309,22 @@ button.tile-find:active:not(:disabled) {
   border-top: 1px solid var(--border);
 }
 
-.calc-formula {
+.calc-lines {
   flex: 1;
   min-width: 0;
+}
+
+.calc-formula {
+  display: block;
   font: 600 0.875rem var(--font-mono);
+}
+
+/* the formula with the numbers in it, under the formula itself; it wraps between terms, never inside "1 mL" */
+.calc-worked {
+  display: block;
+  margin-top: 2px;
+  font: 500 0.875rem var(--font-mono);
+  color: var(--muted);
 }
 
 /* the converter's molecular weight row: grey as its tile in calculator 1 */

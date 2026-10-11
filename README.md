@@ -40,7 +40,8 @@ Volume: the mass box keeps 180.16 mg and the volume shows 10 mL. Switching back 
 C₁V₁ = C₂V₂ as four tiles: the stock on the top row (C₁, its concentration; V₁, the volume of it to take), the final
 solution on the bottom row (C₂, V₂). **Tick any one of the four** (V₁, at first) and type the other three: how much
 stock to take, how much you can make, what concentration you get, or what stock you need. Each value has its own
-unit menu.
+unit menu. Under the tiles, the formula used is written out with your numbers as you type them:
+V₁ = 10 mM × 100 mL / 1 M = 1 mL.
 
 ### Units
 
