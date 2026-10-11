@@ -22,7 +22,7 @@ dependent quantities recalculate on every keystroke with no update loops.
  state/report.ts       the calculation report: each entry a worked calculation (given → base units → formula → substitution → result → check), kept in the browser's storage
  ui/sections.ts        the three calculators as data: titles, boxes in order (calculator 1's four tiles), answers
  ui/formulas.ts       the formulas of each calculator, as text for its "i" bubble (documentation, not computation)
- ui/*.tsx              components: SolutionCard (calculator 1), Calculator (the dilution), ConcentrationConverter (calculator 3),
+ ui/*.tsx              components: TileCard (calculators 1 and 2), ConcentrationConverter (calculator 3),
                        AddToReport, InfoBubble, Report, UnitSelect, ThemeSwitch
  App.tsx               the frame (rail, header, footer) around the three calculators
  styles/               theme.css: tokens and controls (shared with the other tools); app.css: frame; calc.css: the calculator
@@ -39,7 +39,7 @@ A layer imports only from the layers above it. No formula lives in a component; 
               entries.concentration = { kind: "value", value: 0.0001 }
               editing = { field, unit, box, text }     (only for the box being typed in)
    → derive(state): solveSolution(...) × 3 → mass, volume, concentration (calculator 1 shows state.find's);
-                    solveDilution(...) → required volume
+                    solveDilution(state.dilutionFind, ...) → C₁, V₁, C₂ or V₂
    → every input box: boxText(state, derived, field, unit, calculator)
         the box being typed in → its raw text ("1e-" stays "1e-")
         any other box          → formatNumber(valueIn(field, unit), 12 digits)
@@ -58,15 +58,17 @@ Two kinds of relationship, kept apart:
 
 | Field | Holds |
 |---|---|
-| `entries` | the typed quantities: `molarMass`, `concentration`, `volume`, `mass`, `stock`, `target`, `finalVolume`. Each is empty, a canonical value, or invalid (with the reason) |
-| `units` | the unit each quantity is shown in, everywhere it appears. An answer shares its quantity's unit (`SLOT`: `massResult` → `mass`; the required volume → the desired volume). The molecular weight has none: always g/mol. Changing a unit changes nothing else |
+| `entries` | the typed quantities: `molarMass`, `concentration`, `volume`, `mass`, and the dilution's `stock` (C₁), `stockVolume` (V₁), `target` (C₂), `finalVolume` (V₂). Each is empty, a canonical value, or invalid (with the reason) |
+| `units` | the unit each quantity is shown in, everywhere it appears. An answer shares its quantity's unit (`SLOT`: `massResult` → `mass`, `stockVolumeResult` → `stockVolume`). The molecular weight has none: always g/mol. Changing a unit changes nothing else |
 | `find` | the quantity calculator 1 finds: `mass` (at first), `volume` or `concentration`. Changed by the `find` action (ticking a tile) |
+| `dilutionFind` | the quantity calculator 2 finds: `stockVolume` (V₁, at first), `finalVolume`, `stock` or `target`. Changed by the same `find` action |
 | `editing` | the box being typed in (quantity, unit and calculator) and its raw text |
 
 Rules the reducer follows:
 
 - A partial number (`1e-`, `.`) leaves the quantity at its last value; leaving the box with it marks it invalid.
-- Answers have their own ids (`massResult`, `volumeResult`, `concentrationResult`, `stockVolume`) and are never
+- Answers have their own ids (`massResult`, `volumeResult`, `concentrationResult`; `stockResult`, `stockVolumeResult`,
+  `targetResult`, `finalVolumeResult` for the dilution) and are never
   stored while they are the answer.
 - Ticking another tile (`find`) writes the answer shown so far into its quantity as a typed value, or empties it if
   there was none: the box keeps what the user saw. Then the newly ticked quantity is the answer. Ticking the tile
@@ -89,7 +91,7 @@ hides float noise), 6 for a calculated value. Plain notation from 1e-5 to 1e10, 
 | `src/engine/solve.test.ts` | each equation, both sanity checks, every validation rule, tiny and huge values, overflow |
 | `src/state/report.test.ts` | each calculation worked by hand (given, conversions, substitution, result, check), base-unit and tiny values, a snapshot that later edits do not change, the plain-text form, renaming and collapsing |
 | `src/engine/solve.test.ts` also | ρ = C × MW and back, the checks of calculator 3 |
-| `src/state/model.test.ts` | synchronisation (100 µM, 0.25 mM, 2 mL, 5 mg), linked boxes, unit changes, ticking the value to find (the answer kept as a typed value, a round trip without drift, its rules), calculator 3 (two linked lines, each with its unit menu, across kinds through the molecular weight, "needs MW"), typing states, dilution |
+| `src/state/model.test.ts` | synchronisation (100 µM, 0.25 mM, 2 mL, 5 mg), linked boxes, unit changes, ticking the value to find in calculators 1 and 2 (the answer kept as a typed value, a round trip without drift, their rules), calculator 3 (two linked lines, each with its unit menu, across kinds through the molecular weight, "needs MW"), typing states, dilution |
 | `e2e/calculator.spec.ts` | the built page used through the keyboard and mouse, in four browser set-ups; also fails on any request to another host |
 
 ## 5. Making a change
@@ -132,12 +134,18 @@ C = ρ / MW with the molecular weight of calculator 1 (`null` without one: the b
 line replaces the stored value, so the other follows. It is deliberately separate from `entries.concentration`:
 converting a value must not change the mass worked out in calculator 1.
 
-## 8. Calculator 1 (mass, volume or concentration)
+## 8. Calculators 1 and 2: four tiles, tick the one to find
 
-One card for m = C × V × MW, as four tiles two by two (`ui/SolutionCard.tsx`, its tiles listed in `ui/sections.ts`).
+One component draws both (`ui/TileCard.tsx`; their tiles are listed in `ui/sections.ts`). Calculator 1 is
+m = C × V × MW.
 The molecular weight comes first (top left) and is grey (`.tile.fixed`, the `--fixed-*` tokens of `theme.css`): a
 constant of the substance, always typed, never found. The converter's molecular weight row has the same grey. Each of
 the other three tiles has a tick and its name as one button (`aria-pressed`); the ticked tile is blue and shows the
 answer, a number alone, beside the quantity's unit menu. On a laptop the number and its menu sit side by side; below
 560px the menu goes under the number, and the tiles stay two by two. Its report entry is the one of the quantity found
 (`entryFor(state, derived, state.find)`), so the report keeps the three kinds of calculation it had.
+
+Calculator 2 is C₁V₁ = C₂V₂: C₁ and V₁ (the stock) on the first row, C₂ and V₂ (the final solution) on the second,
+each with its own unit menu. Any of the four can be ticked (`State.dilutionFind`, V₁ at first); the same `find`
+action serves both cards, as their quantities have different ids. Its report entry is the one of the quantity found
+(`DILUTION_SPECS` in `state/report.ts`).

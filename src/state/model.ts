@@ -11,31 +11,39 @@
 // The first calculator is one formula, m = C × V × MW, solved for the quantity the user ticks (State.find): mass,
 // volume or concentration. The molecular weight is always typed. The quantity being found is shown as the answer and
 // is never stored while it is the answer, so nothing loops; when another one is ticked, the answer becomes a typed
-// value, as it was shown. The dilution has its own three values; the converter shares only the molecular weight.
+// value, as it was shown. The dilution works the same way on its own four values, C₁V₁ = C₂V₂ (State.dilutionFind);
+// the converter shares only the molecular weight.
 //
 // Only the box being typed in shows the raw text (State.editing), so "1e-" or "0." is never reformatted under the
 // user's fingers. Every other box, and that box once left, shows the formatted value.
 
 import { massConcentrationOf, molarConcentrationOf } from "../engine/equations";
 import { checkConversion, solveDilution, solveSolution } from "../engine/solve";
-import type { ConversionResult, DilutionResult, SolutionResult, SolveFor } from "../engine/solve";
+import type { ConversionResult, DilutionFor, DilutionResult, SolutionResult, SolveFor } from "../engine/solve";
 import { COMPUTED, ENTERED, formatNumber } from "../numbers/format";
 import { parseNumber } from "../numbers/parse";
 import { fromCanonical, toCanonical, unit } from "../units/units";
 import type { Dimension, UnitId } from "../units/units";
 
-export type { SolveFor };
+export type { DilutionFor, SolveFor };
 
 /** The quantities the user can type. */
-export type FieldId = "concentration" | "molarMass" | "volume" | "mass" | "stock" | "target" | "finalVolume";
+export type FieldId = "concentration" | "molarMass" | "volume" | "mass" | "stock" | "stockVolume" | "target" | "finalVolume";
 /** Every box that can be typed in: the quantities above, and the concentration of the converter (calculator 3). */
 export type InputId = FieldId | "converter";
 /** Each calculator's answer: only ever calculated. */
-export type OutputId = "massResult" | "volumeResult" | "concentrationResult" | "stockVolume";
+export type OutputId =
+  | "massResult"
+  | "volumeResult"
+  | "concentrationResult"
+  | "stockResult"
+  | "stockVolumeResult"
+  | "targetResult"
+  | "finalVolumeResult";
 export type QuantityId = FieldId | OutputId;
 
 /** The unit choices. An answer shares its quantity's choice; the molecular weight is always g/mol. */
-export type UnitSlot = "concentration" | "volume" | "mass" | "stock" | "target" | "finalVolume";
+export type UnitSlot = "concentration" | "volume" | "mass" | "stock" | "stockVolume" | "target" | "finalVolume";
 /** The two unit menus of the converter (calculator 3): one for each kind of concentration. */
 export type ConverterSlot = "converterMolar" | "converterMass";
 export const SLOT: Record<QuantityId, UnitSlot | null> = {
@@ -44,12 +52,16 @@ export const SLOT: Record<QuantityId, UnitSlot | null> = {
   volume: "volume",
   mass: "mass",
   stock: "stock",
+  stockVolume: "stockVolume",
   target: "target",
   finalVolume: "finalVolume",
   massResult: "mass",
   volumeResult: "volume",
   concentrationResult: "concentration",
-  stockVolume: "finalVolume", // the required volume is shown in the unit of the desired volume
+  stockResult: "stock",
+  stockVolumeResult: "stockVolume",
+  targetResult: "target",
+  finalVolumeResult: "finalVolume",
 };
 
 export const DIMENSION: Record<QuantityId, Dimension> = {
@@ -58,16 +70,28 @@ export const DIMENSION: Record<QuantityId, Dimension> = {
   volume: "volume",
   mass: "mass",
   stock: "molar",
+  stockVolume: "volume",
   target: "molar",
   finalVolume: "volume",
   massResult: "mass",
   volumeResult: "volume",
   concentrationResult: "molar",
-  stockVolume: "volume",
+  stockResult: "molar",
+  stockVolumeResult: "volume",
+  targetResult: "molar",
+  finalVolumeResult: "volume",
 };
 
 /** Each calculator's answer. */
 export const RESULT_OF: Record<SolveFor, OutputId> = { mass: "massResult", volume: "volumeResult", concentration: "concentrationResult" };
+/** The dilution's answer, for each of the four it can find. */
+export const DILUTION_RESULT_OF: Record<DilutionFor, OutputId> = {
+  stock: "stockResult",
+  stockVolume: "stockVolumeResult",
+  target: "targetResult",
+  finalVolume: "finalVolumeResult",
+};
+const isDilution = (target: SolveFor | DilutionFor): target is DilutionFor => target in DILUTION_RESULT_OF;
 
 /**
  * A typed value, in the canonical unit of its dimension (M, g/L, g/mol, L, g). The dimension is kept because the
@@ -79,6 +103,8 @@ export interface State {
   entries: Record<InputId, Entry>;
   /** the quantity the first calculator finds from the other two and the molecular weight */
   find: SolveFor;
+  /** the quantity the dilution finds from the other three */
+  dilutionFind: DilutionFor;
   /** the unit each quantity is shown in */
   units: Record<UnitSlot | ConverterSlot, UnitId>;
   /** the box being typed in (one quantity can have a box in several calculators), and its raw text */
@@ -90,16 +116,27 @@ export type Action =
   | { type: "leave"; field: InputId }
   | { type: "unit"; quantity: QuantityId; unit: UnitId }
   | { type: "converterUnit"; slot: ConverterSlot; unit: UnitId }
-  | { type: "find"; target: SolveFor }
+  | { type: "find"; target: SolveFor | DilutionFor }
   | { type: "clear" };
 
 const empty: Entry = { kind: "empty" };
 
-// GraphPad's defaults: millimolar, milliliter, milligrams, and the mass to find.
+// GraphPad's defaults: millimolar, milliliter, milligrams; the mass to find, and the volume of stock.
 export const initialState: State = {
-  entries: { concentration: empty, molarMass: empty, volume: empty, mass: empty, stock: empty, target: empty, finalVolume: empty, converter: empty },
+  entries: { concentration: empty, molarMass: empty, volume: empty, mass: empty, stock: empty, stockVolume: empty, target: empty, finalVolume: empty, converter: empty },
   find: "mass",
-  units: { concentration: "mM", volume: "mL", mass: "mg", stock: "mM", target: "mM", finalVolume: "mL", converterMolar: "mM", converterMass: "mg/mL" },
+  dilutionFind: "stockVolume",
+  units: {
+    concentration: "mM",
+    volume: "mL",
+    mass: "mg",
+    stock: "mM",
+    stockVolume: "mL",
+    target: "mM",
+    finalVolume: "mL",
+    converterMolar: "mM",
+    converterMass: "mg/mL",
+  },
   editing: null,
 };
 
@@ -129,11 +166,16 @@ export function reducer(state: State, action: Action): State {
     case "converterUnit":
       return { ...state, units: { ...state.units, [action.slot]: action.unit } };
     case "find": {
-      if (action.target === state.find) return state;
+      const dilution = isDilution(action.target);
+      const old = dilution ? state.dilutionFind : state.find;
+      if (action.target === old) return state;
       // the answer shown so far stays in its box, as a typed value (empty if there was no answer)
-      const answer = derive(state).values[RESULT_OF[state.find]];
-      const kept: Entry = answer === null ? empty : { kind: "value", value: answer, dimension: DIMENSION[state.find] };
-      return { ...state, find: action.target, editing: null, entries: { ...state.entries, [state.find]: kept } };
+      const answer = derive(state).values[dilution ? DILUTION_RESULT_OF[old as DilutionFor] : RESULT_OF[old as SolveFor]];
+      const kept: Entry = answer === null ? empty : { kind: "value", value: answer, dimension: DIMENSION[old] };
+      const entries = { ...state.entries, [old]: kept };
+      return dilution
+        ? { ...state, dilutionFind: action.target as DilutionFor, editing: null, entries }
+        : { ...state, find: action.target as SolveFor, editing: null, entries };
     }
     case "clear":
       return { ...state, entries: initialState.entries, editing: null };
@@ -164,16 +206,19 @@ export function derive(state: State): Derived {
     volume: solveSolution("volume", inputs),
     concentration: solveSolution("concentration", inputs),
   };
-  const dilution = solveDilution({ stock: valueOf(e.stock), target: valueOf(e.target), finalVolume: valueOf(e.finalVolume) });
+  const dilutionInputs = { stock: valueOf(e.stock), stockVolume: valueOf(e.stockVolume), target: valueOf(e.target), finalVolume: valueOf(e.finalVolume) };
+  const dilution = solveDilution(state.dilutionFind, dilutionInputs);
+  const dilutionAnswer = (find: DilutionFor) => (state.dilutionFind === find ? dilution.value : null);
   const values = {
     ...inputs,
-    stock: valueOf(e.stock),
-    target: valueOf(e.target),
-    finalVolume: valueOf(e.finalVolume),
+    ...dilutionInputs,
     massResult: solutions.mass.value,
     volumeResult: solutions.volume.value,
     concentrationResult: solutions.concentration.value,
-    stockVolume: dilution.stockVolume,
+    stockResult: dilutionAnswer("stock"),
+    stockVolumeResult: dilutionAnswer("stockVolume"),
+    targetResult: dilutionAnswer("target"),
+    finalVolumeResult: dilutionAnswer("finalVolume"),
   };
 
   // the converter: a value with issues (a negative concentration) is not converted

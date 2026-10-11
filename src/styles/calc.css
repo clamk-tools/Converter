@@ -1,5 +1,5 @@
-/* The calculators: three stacked panels. The first is four tiles, two by two; the dilution and the converter are
-   columns of "Label: [box] [unit]" rows, as on GraphPad's molarity page. Clamk construction: surface + 1px border, 7px
+/* The calculators: three stacked panels. The first two are four tiles, two by two; the converter is a column of
+   "Label: [box] [unit]" rows, as on GraphPad's molarity page. Clamk construction: surface + 1px border, 7px
    controls, 9px panels, mono for numbers, blue for the answer, grey for a constant. */
 
 .calc {
@@ -72,53 +72,6 @@
   color: var(--coral-text);
 }
 
-/* "Mass =" then the answer: GraphPad's orange button becomes the Clamk accent, as a label (answers follow typing) */
-.row.result {
-  grid-template-columns: 13rem minmax(0, 1fr);
-  margin-top: 4px;
-}
-
-.result-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  padding: 0 12px;
-  border-radius: var(--radius-control);
-  background: var(--accent-tint);
-  color: var(--accent);
-  font-size: 1rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.row.result.ready .result-label {
-  background: var(--accent);
-  color: var(--on-accent);
-}
-
-.result-value {
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  height: 40px;
-  padding: 0 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  background: var(--bg);
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  user-select: all;
-  overflow-x: auto;
-  white-space: nowrap;
-}
-
-.row.result.ready .result-value {
-  border-color: var(--accent);
-  background: var(--accent-tint);
-}
 
 .calc-note {
   margin: 0;
@@ -144,9 +97,6 @@
     grid-column: 1 / -1;
   }
 
-  .row.result {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
 }
 
 @media (pointer: coarse) {
@@ -155,14 +105,12 @@
     height: 44px !important;
   }
 
-  .row select,
-  .result-label,
-  .result-value {
+  .row select {
     height: 44px;
   }
 }
 
-/* ---------- calculator 1: four tiles, two by two, the one being found in blue ---------- */
+/* ---------- calculators 1 and 2: four tiles, two by two, the one being found in blue ---------- */
 
 .calc-hint {
   margin: -10px 0 0;
@@ -259,6 +207,12 @@ button.tile-find:active:not(:disabled) {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text);
+}
+
+/* a symbol (C₁, V₂) reads larger than a word in capitals */
+.tile-name.symbol {
+  font-size: 0.95rem;
+  letter-spacing: 0;
 }
 
 .tile.found .tile-name,
@@ -452,12 +406,7 @@ button.tile-find:active:not(:disabled) {
   padding-top: 4px;
 }
 
-/* ---------- the add-to-report icon, beside the answer ---------- */
-
-.row.result {
-  grid-template-columns: 13rem minmax(0, 1fr) 40px;
-  max-width: calc(40rem + 50px);
-}
+/* ---------- the add-to-report icon, beside the formula ---------- */
 
 button.add-report {
   width: 40px;
@@ -624,10 +573,6 @@ button.add-report.added {
 }
 
 @media (max-width: 560px) {
-  .row.result {
-    grid-template-columns: auto minmax(0, 1fr) 44px;
-  }
-
   .sheet-kind {
     display: block;
     margin: 0;

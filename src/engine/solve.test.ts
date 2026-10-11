@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { concentrationFrom, massConcentrationOf, massFrom, molarConcentrationOf, moles, stockVolumeFrom, volumeFrom } from "./equations";
-import { HIGHER_THAN_STOCK, checkConversion, solveDilution, solveSolution } from "./solve";
+import { concentrationFrom, finalVolumeFrom, massConcentrationOf, massFrom, molarConcentrationOf, moles, stockFrom, stockVolumeFrom, targetFrom, volumeFrom } from "./equations";
+import { HIGHER_THAN_STOCK, LARGER_THAN_FINAL, checkConversion, solveDilution, solveSolution } from "./solve";
 
 // Glucose: MW 180.16 g/mol. 100 mM in 10 mL needs 180.16 mg (doc/CALCULATIONS.md, worked example).
 const MW = 180.16;
@@ -21,6 +21,9 @@ describe("equations", () => {
   });
   it("V1 = C2 × V2 / C1", () => {
     expect(stockVolumeFrom(1, 0.01, 0.1)).toBeCloseTo(0.001, 15);
+    expect(finalVolumeFrom(1, 0.001, 0.01)).toBeCloseTo(0.1, 15);
+    expect(stockFrom(0.01, 0.1, 0.001)).toBeCloseTo(1, 15);
+    expect(targetFrom(1, 0.001, 0.1)).toBeCloseTo(0.01, 15);
   });
 });
 
@@ -93,36 +96,60 @@ describe("solveSolution", () => {
   });
 });
 
-describe("solveDilution", () => {
-  it("solves the sanity check: 1 M stock, 10 mM target, 100 mL → 1 mL of stock", () => {
-    const r = solveDilution({ stock: 1, target: 0.01, finalVolume: 0.1 });
-    expect(r.stockVolume).toBeCloseTo(0.001, 15);
+describe("solveDilution: C₁V₁ = C₂V₂, any one from the other three", () => {
+  const sanity = { stock: 1, stockVolume: 0.001, target: 0.01, finalVolume: 0.1 }; // 1 M, 1 mL, 10 mM, 100 mL
+  const without = (k: keyof typeof sanity) => ({ ...sanity, [k]: null });
+
+  it("finds V₁: 1 M stock to 10 mM in 100 mL takes 1 mL of stock", () => {
+    const r = solveDilution("stockVolume", without("stockVolume"));
+    expect(r.value).toBeCloseTo(0.001, 15);
     expect(r.diluentVolume).toBeCloseTo(0.099, 15);
     expect(r.factor).toBe(100);
     expect(r.issues).toEqual([]);
   });
 
-  it("refuses a target above the stock, and says why", () => {
-    const r = solveDilution({ stock: 0.01, target: 0.1, finalVolume: 0.1 }); // 10 mM stock, 100 mM target
-    expect(r.stockVolume).toBeNull();
+  it("finds V₂, C₁ and C₂ from the same solution", () => {
+    expect(solveDilution("finalVolume", without("finalVolume")).value).toBeCloseTo(0.1, 15);
+    expect(solveDilution("stock", without("stock")).value).toBeCloseTo(1, 15);
+    expect(solveDilution("target", without("target")).value).toBeCloseTo(0.01, 15);
+    expect(solveDilution("target", without("target")).factor).toBeCloseTo(100, 10);
+  });
+
+  it("ignores the value of the quantity it finds", () => {
+    expect(solveDilution("stockVolume", { ...sanity, stockVolume: 42 }).value).toBeCloseTo(0.001, 15);
+  });
+
+  it("refuses C₂ above C₁ when finding a volume, and says why", () => {
+    const r = solveDilution("stockVolume", { stock: 0.01, stockVolume: null, target: 0.1, finalVolume: 0.1 }); // 10 mM stock, 100 mM final
+    expect(r.value).toBeNull();
     expect(r.issues).toEqual([{ input: "target", message: HIGHER_THAN_STOCK }]);
+    expect(solveDilution("finalVolume", { stock: 0.01, stockVolume: 0.001, target: 0.1, finalVolume: null }).issues).toEqual([{ input: "target", message: HIGHER_THAN_STOCK }]);
   });
 
-  it("takes a target equal to the stock as no dilution", () => {
-    const r = solveDilution({ stock: 0.001, target: 0.001, finalVolume: 0.05 });
-    expect(r.stockVolume).toBe(0.05);
+  it("refuses V₁ above V₂ when finding a concentration, and says why", () => {
+    const r = solveDilution("target", { stock: 1, stockVolume: 0.2, target: null, finalVolume: 0.1 });
+    expect(r.value).toBeNull();
+    expect(r.issues).toEqual([{ input: "stockVolume", message: LARGER_THAN_FINAL }]);
+    expect(solveDilution("stock", { stock: null, stockVolume: 0.2, target: 0.01, finalVolume: 0.1 }).issues[0].input).toBe("stockVolume");
+  });
+
+  it("takes equal concentrations, or equal volumes, as no dilution", () => {
+    const r = solveDilution("stockVolume", { stock: 0.001, stockVolume: null, target: 0.001, finalVolume: 0.05 });
+    expect(r.value).toBe(0.05);
     expect(r.diluentVolume).toBe(0);
-    expect(r.note).toMatch(/equals the stock/);
+    expect(r.note).toMatch(/equals C₁/);
+    expect(solveDilution("target", { stock: 0.5, stockVolume: 0.01, target: null, finalVolume: 0.01 }).value).toBe(0.5);
   });
 
-  it("refuses zero or negative inputs (a zero stock would divide by zero)", () => {
-    expect(solveDilution({ stock: 0, target: 0.01, finalVolume: 0.1 }).issues[0]).toEqual({ input: "stock", message: "Stock concentration must be greater than zero." });
-    expect(solveDilution({ stock: 1, target: 0, finalVolume: 0.1 }).issues[0].input).toBe("target");
-    expect(solveDilution({ stock: 1, target: 0.1, finalVolume: -1 }).issues[0].input).toBe("finalVolume");
-    expect(solveDilution({ stock: 1, target: 0.1, finalVolume: 0 }).stockVolume).toBeNull();
+  it("refuses zero or negative inputs (a zero would divide by zero)", () => {
+    expect(solveDilution("stockVolume", { ...without("stockVolume"), stock: 0 }).issues[0]).toEqual({ input: "stock", message: "C₁ must be greater than zero." });
+    expect(solveDilution("stockVolume", { ...without("stockVolume"), target: 0 }).issues[0].input).toBe("target");
+    expect(solveDilution("stockVolume", { ...without("stockVolume"), finalVolume: -1 }).issues[0].input).toBe("finalVolume");
+    expect(solveDilution("stock", { ...without("stock"), stockVolume: 0 }).value).toBeNull();
   });
 
-  it("lists what is missing", () => {
-    expect(solveDilution({ stock: null, target: 0.01, finalVolume: null }).missing).toEqual(["stock", "finalVolume"]);
+  it("lists what is missing, in the order of the page", () => {
+    expect(solveDilution("stockVolume", { stock: null, stockVolume: null, target: 0.01, finalVolume: null }).missing).toEqual(["stock", "finalVolume"]);
+    expect(solveDilution("target", { stock: 1, stockVolume: null, target: null, finalVolume: null }).missing).toEqual(["stockVolume", "finalVolume"]);
   });
 });

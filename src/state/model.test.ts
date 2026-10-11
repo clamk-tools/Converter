@@ -208,33 +208,66 @@ describe("validation", () => {
   });
 });
 
-describe("2. dilution", () => {
+describe("2. dilution: C₁V₁ = C₂V₂, any one ticked", () => {
   const dilute = (stock: [UnitId, string], target: [UnitId, string], volume: [UnitId, string]) =>
     run([...typed("stock", ...stock), ...typed("target", ...target), ...typed("finalVolume", ...volume)]);
+  const find = (target: "stock" | "stockVolume" | "target" | "finalVolume"): Action => ({ type: "find", target });
 
-  it("solves the sanity check: 1 M to 10 mM in 100 mL takes 1 mL of stock", () => {
+  it("finds V₁ at first: 1 M to 10 mM in 100 mL takes 1 mL of stock", () => {
+    expect(initialState.dilutionFind).toBe("stockVolume");
     const s = dilute(["M", "1"], ["mM", "10"], ["mL", "100"]);
-    expect(resultText(s, derive(s), "stockVolume")).toBe("1 mL");
-    expect(resultText(reducer(s, unitTo("finalVolume", "uL")), derive(s), "stockVolume")).toBe("1000 µL");
+    expect(resultText(s, derive(s), "stockVolumeResult")).toBe("1 mL");
+  });
+
+  it("V₁ has its own unit menu, starting at milliliter", () => {
+    const s = reducer(dilute(["M", "1"], ["mM", "10"], ["mL", "100"]), unitTo("stockVolume", "uL"));
+    expect(unitOf(s, "stockVolume")).toBe("uL");
+    expect(unitOf(s, "finalVolume")).toBe("mL");
+    expect(resultText(s, derive(s), "stockVolumeResult")).toBe("1000 µL");
+  });
+
+  it("ticking V₂ keeps V₁ as a typed value and finds V₂ back", () => {
+    const s = run([find("finalVolume")], dilute(["M", "1"], ["mM", "10"], ["mL", "100"]));
+    expect(s.dilutionFind).toBe("finalVolume");
+    expect(s.entries.stockVolume).toEqual({ kind: "value", value: 0.001, dimension: "volume" });
+    expect(resultText(s, derive(s), "finalVolumeResult")).toBe("100 mL");
+    const t = run([...typed("stockVolume", "mL", "2")], s);
+    expect(resultText(t, derive(t), "finalVolumeResult")).toBe("200 mL");
+  });
+
+  it("finds C₁ and C₂ too, and goes round all four without drifting", () => {
+    let s = run([find("stock")], dilute(["M", "1"], ["mM", "10"], ["mL", "100"]));
+    expect(resultText(s, derive(s), "stockResult")).toBe("1000 mM"); // C₁ in its own unit, millimolar at first
+    s = run([find("target")], s);
+    expect(resultText(s, derive(s), "targetResult")).toBe("10 mM");
+    s = run([find("finalVolume"), find("stockVolume")], s);
+    expect(resultText(s, derive(s), "stockVolumeResult")).toBe("1 mL");
   });
 
   it("keeps its values apart from the other calculators", () => {
     const s = run([...glucose, ...typed("stock", "M", "1")]);
     expect(s.entries.concentration).toEqual({ kind: "value", value: 0.1, dimension: "molar" });
     expect(s.entries.stock).toEqual({ kind: "value", value: 1, dimension: "molar" });
+    expect(run([find("target")], s).find).toBe("mass"); // ticking in the dilution leaves calculator 1 alone
   });
 
-  it("refuses a desired concentration above the stock", () => {
+  it("refuses C₂ above C₁", () => {
     const s = dilute(["mM", "10"], ["mM", "100"], ["mL", "10"]);
     const d = derive(s);
-    expect(d.dilution.stockVolume).toBeNull();
-    expect(issueAt(s, d, "dilution", "target")).toMatch(/higher than the stock/);
+    expect(d.dilution.value).toBeNull();
+    expect(issueAt(s, d, "dilution", "target")).toMatch(/C₂ is higher than C₁/);
+  });
+
+  it("refuses V₁ above V₂ when finding a concentration", () => {
+    const s = run([find("target"), ...typed("stock", "M", "1"), ...typed("stockVolume", "mL", "20"), ...typed("finalVolume", "mL", "10")]);
+    expect(issueAt(s, derive(s), "dilution", "stockVolume")).toMatch(/V₁ is larger than V₂/);
+    expect(resultText(s, derive(s), "targetResult")).toBe("");
   });
 
   it("equal concentrations in different units are no dilution", () => {
     const s = dilute(["mM", "1"], ["uM", "1000"], ["mL", "5"]);
-    expect(derive(s).dilution.note).toMatch(/equals the stock/);
-    expect(resultText(s, derive(s), "stockVolume")).toBe("5 mL");
+    expect(derive(s).dilution.note).toMatch(/equals C₁/);
+    expect(resultText(s, derive(s), "stockVolumeResult")).toBe("5 mL");
   });
 });
 
