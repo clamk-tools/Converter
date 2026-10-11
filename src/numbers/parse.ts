@@ -21,8 +21,9 @@ export function parseNumber(raw: string): Parsed {
   const text = raw.trim().replace(/−/g, "-"); // the typographic minus, as pasted from a document
   if (text === "") return { kind: "empty" };
   if (COMPLETE.test(text)) {
-    // "1,500" is 1.5 with a decimal comma but 1500 with a thousands comma: refuse to guess. "0,500" is clear.
-    if (/^[+-]?[1-9]\d{0,2},\d{3}$/.test(text)) {
+    // "1,500" is 1.5 with a decimal comma but 1500 with a thousands comma: refuse to guess, with an exponent too
+    // ("1,500e3": 1500 or 1.5 million). "0,500" is clear.
+    if (/^[+-]?[1-9]\d{0,2},\d{3}(e[+-]?\d+)?$/i.test(text)) {
       return { kind: "invalid", reason: "Ambiguous: write 1.5 for a decimal, or 1500 with no thousands separator." };
     }
     const value = Number(text.replace(",", "."));

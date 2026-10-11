@@ -102,7 +102,7 @@ In the report you can:
 
 - **Rename** an entry (pencil icon), for example "Glucose stock".
 - **Fold** an entry to its title and result (arrow icon), or fold them all at once.
-- **Remove** an entry, or clear the whole report.
+- **Remove** an entry, or clear the whole report (it asks once more: **Delete all** or **Keep**).
 - **Copy as text** to paste the whole report into a document.
 
 An entry keeps the values it had when you added it. The report stays in your browser after you close the page. It is
@@ -116,8 +116,10 @@ never sent anywhere. Calculator 3 cannot add to the report yet.
 - **Powers of ten:** `1e-6` means 0.000001 (on a computer keyboard).
 - **On a phone** the number keypad opens, as in a phone app. It has no `e` key, so for very small or large values pick a
   better unit instead (nM rather than M).
-- **Refused:** `1,500`, because it could mean 1.5 or 1500. Write `1500`.
+- **Refused:** `1,500` (and `1,500e3`), because it could mean 1.5 or 1500. Write `1500`.
 - **Precision:** answers show 6 significant figures. A number you typed keeps up to 12.
+- **Range:** an answer beyond about 10³⁰⁸, or below about 10⁻³⁰⁸, cannot be calculated; the page says so (usually
+  a mistyped exponent or unit).
 
 ## When there is no answer
 
@@ -169,8 +171,8 @@ On a machine that already has Chromium (a cloud container, say), skip the other 
 |---|---|
 | [`doc/ARCHITECTURE.md`](doc/ARCHITECTURE.md) | How the tool is built, and the steps for making a change |
 | [`doc/CALCULATIONS.md`](doc/CALCULATIONS.md) | Every formula, unit and rule, with the worked examples the tests check |
-| [`doc/DESIGN-ASSESSMENT.md`](doc/DESIGN-ASSESSMENT.md) | What was reused from the other Clamk tools, and why |
 | [`doc/CHANGELOG.md`](doc/CHANGELOG.md) | What changed, newest first |
+| [`doc/archive/`](doc/archive/) | Notes kept for their history only, no longer describing the tool (the first design assessment) |
 | [`doc/LLM feed for visual/`](doc/LLM%20feed%20for%20visual/LLMfeed_VISUAL-IDENTITY.md) | The Clamk Tools visual identity, which the page follows |
 
 ### Publishing safely

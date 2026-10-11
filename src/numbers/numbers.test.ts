@@ -46,6 +46,9 @@ describe("parseNumber", () => {
 
   it("refuses an ambiguous comma and an overflow", () => {
     expect(parseNumber("1,500").kind).toBe("invalid");
+    expect(parseNumber("1,500e3").kind).toBe("invalid"); // 1500 or 1.5 million
+    expect(parseNumber("-2,250E-3").kind).toBe("invalid");
+    expect(value("0,500e3")).toBe(500);
     expect(value("0,500")).toBe(0.5);
     expect(value("1,5")).toBe(1.5);
     expect(parseNumber("1e400").kind).toBe("invalid");

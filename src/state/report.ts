@@ -248,7 +248,21 @@ export function entryText(e: ReportEntry, n: number): string {
 // the entries changed shape when the report became a calculation report, so earlier ones are not read
 const KEY = "molarity-calculator:report-v2";
 
-const isEntry = (x: unknown): x is ReportEntry => typeof x === "object" && x !== null && Array.isArray((x as ReportEntry).given) && Array.isArray((x as ReportEntry).substitution);
+// every field the Report view reads, so an entry stored in another shape is left out rather than breaking the view
+const isEntry = (x: unknown): x is ReportEntry => {
+  if (typeof x !== "object" || x === null) return false;
+  const e = x as ReportEntry;
+  return (
+    typeof e.id === "string" &&
+    typeof e.title === "string" &&
+    typeof e.formula === "string" &&
+    [e.given, e.convert, e.substitution, e.result].every(Array.isArray) &&
+    e.result.length > 0 &&
+    typeof e.check === "object" &&
+    e.check !== null &&
+    typeof e.check.text === "string"
+  );
+};
 
 export function loadReport(): ReportEntry[] {
   try {

@@ -18,7 +18,7 @@
 // user's fingers. Every other box, and that box once left, shows the formatted value.
 
 import { massConcentrationOf, molarConcentrationOf } from "../engine/equations";
-import { checkConversion, solveDilution, solveSolution } from "../engine/solve";
+import { checkConversion, outOfRange, solveDilution, solveSolution } from "../engine/solve";
 import type { ConversionResult, DilutionFor, DilutionResult, SolutionResult, SolveFor } from "../engine/solve";
 import { COMPUTED, ENTERED, formatNumber } from "../numbers/format";
 import { parseNumber } from "../numbers/parse";
@@ -294,12 +294,19 @@ export function converterValueIn(derived: Derived, unitId: UnitId): number | nul
   return fromCanonical(molarConcentrationOf(amount.value, molarMass), unitId);
 }
 
+/** Why a box of the converter cannot be filled although its value is fine: too large or too small in that unit. */
+export function converterOutOfRange(derived: Derived, unitId: UnitId): string | null {
+  const value = converterValueIn(derived, unitId);
+  const { amount, molarMass } = derived.conversion;
+  return value === null || !amount ? null : outOfRange(value, [amount.value, molarMass ?? 1]);
+}
+
 /** What a box of the converter shows: the raw text while typed in, else the value; the typed kind keeps 12 digits. */
 export function converterText(state: State, derived: Derived, unitId: UnitId): string {
   const editing = state.editing;
   if (editing && editing.field === "converter" && editing.unit === unitId) return editing.text;
   const value = converterValueIn(derived, unitId);
-  if (value === null) return "";
+  if (value === null || converterOutOfRange(derived, unitId)) return "";
   return formatNumber(value, derived.conversion.amount?.dimension === unit(unitId).dimension ? ENTERED : COMPUTED);
 }
 

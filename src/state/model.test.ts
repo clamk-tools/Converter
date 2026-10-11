@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { UnitId } from "../units/units";
-import { boxText, converterNeedsMolarMass, converterText, derive, initialState, issueAt, reducer, resultText, unitOf } from "./model";
+import { TOO_LARGE } from "../engine/solve";
+import { boxText, converterNeedsMolarMass, converterOutOfRange, converterText, derive, initialState, issueAt, reducer, resultText, unitOf } from "./model";
 import type { Action, FieldId, InputId, State } from "./model";
 
 // Drives the state the way the page does: typing in a box, leaving it, choosing a unit.
@@ -293,6 +294,14 @@ describe("3. converting between mass and molar concentration", () => {
     expect(convert(s, ["g/L", "mg/mL", "ug/mL", "ppm"])).toEqual({ "g/L": "10", "mg/mL": "10", "ug/mL": "10000", ppm: "10000" });
     const p = run(typed("converter", "ppm", "1"));
     expect(convert(p, ["g/L", "mg/mL", "ug/mL", "pct_wv"])).toEqual({ "g/L": "0.001", "mg/mL": "0.001", "ug/mL": "1", pct_wv: "0.0001" });
+  });
+
+  it("a box beyond what a double holds stays empty, and says why", () => {
+    const s = run([...typed("molarMass", "g_mol", "1e300"), ...typed("converter", "M", "1e300")]); // Cm = 1e600 g/L
+    expect(converterText(s, derive(s), "g/L")).toBe("");
+    expect(converterOutOfRange(derive(s), "g/L")).toBe(TOO_LARGE);
+    expect(converterOutOfRange(derive(s), "M")).toBeNull(); // the typed line is fine
+    expect(converterText(s, derive(s), "M")).toBe("1e300");
   });
 
   it("within one kind it needs no molecular weight; across kinds it asks for one", () => {

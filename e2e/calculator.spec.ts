@@ -146,6 +146,16 @@ test("invalid values are explained at the box, in each calculator", async ({ pag
   await expect(box(page, "solution", "Volume in milliliter")).toHaveAttribute("aria-invalid", "true");
 });
 
+test("an answer too large to calculate says so, instead of staying blank", async ({ page }) => {
+  await box(page, "solution", "Molecular weight (g/mol or Da)").fill("1e300");
+  await box(page, "solution", "Concentration in millimolar").fill("1e300");
+  await box(page, "solution", "Volume in milliliter").fill("1");
+  await expect(calc(page, "solution").getByText("The answer is too large to calculate", { exact: false })).toBeVisible();
+  await expect(answer(page, "solution")).toHaveText("");
+  await box(page, "solution", "Concentration in millimolar").fill("100"); // back in range: the message goes
+  await expect(calc(page, "solution").getByText("too large", { exact: false })).toHaveCount(0);
+});
+
 test("a zero mass is fine to find a concentration, not to find a volume", async ({ page }) => {
   await glucose(page);
   await findButton(page, "concentration").click();
@@ -284,6 +294,21 @@ test("a calculation in the report can be renamed and collapsed", async ({ page }
   await page.reload();
   await page.getByRole("tab", { name: "Report (1)" }).click();
   await expect(sheet.getByRole("heading")).toContainText("Buffer A, 10 mL"); // the name survives a reload
+});
+
+test("clearing the report asks once more, and keeping them is the choice in focus", async ({ page }) => {
+  await glucose(page);
+  await calc(page, "solution").getByRole("button", { name: "Add mass to report" }).click();
+  await page.getByRole("tab", { name: "Report (1)" }).click();
+
+  await page.getByRole("button", { name: "Clear report" }).click();
+  await expect(page.getByRole("button", { name: "Keep" })).toBeFocused();
+  await page.keyboard.press("Enter"); // a second Enter keeps them
+  await expect(page.locator(".calc-sheet")).toHaveCount(1);
+
+  await page.getByRole("button", { name: "Clear report" }).click();
+  await page.getByRole("button", { name: "Delete all" }).click();
+  await expect(page.getByText("Nothing in the report yet.", { exact: false })).toBeVisible();
 });
 
 test("Collapse all folds every calculation, then Expand all opens them", async ({ page }) => {
