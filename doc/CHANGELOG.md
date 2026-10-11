@@ -5,6 +5,18 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-11 · Fixes from a code review
+
+- **Seen:** **Clear report** now asks once more, **Delete all** or **Keep**, with Keep in focus so a second Enter
+  does not delete; one tap no longer loses every kept calculation. **Copied** turns back into **Copy as text** after
+  two seconds. On a phone the report's buttons wrap to a second line rather than breaking their words.
+- **Screen readers:** the formula line under each calculator is no longer read out at every keystroke (the answer
+  still is); the converter's error message is read with its boxes, as in the other two calculators.
+- **Inside:** `loadReport()` checks every field the Report view reads, so an entry stored in another shape is left out
+  instead of breaking the view (unit tests for it, and an end-to-end test for the two-step clear).
+- **Docs:** `doc/DESIGN-ASSESSMENT.md` moved to `doc/archive/`: it described the first layout. The unit menu keeps
+  its behaviour (a change of unit never changes the value), as decided.
+
 ### 2026-10-11 · Every calculator's formula, with the numbers in it
 
 - **Seen:** under the formula of each calculator, a second line writes it out with the values as they are typed,

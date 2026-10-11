@@ -652,7 +652,12 @@ button.add-report.added {
 
 .report-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+}
+
+.report-actions button {
+  white-space: nowrap;
 }
 
 @media (max-width: 560px) {

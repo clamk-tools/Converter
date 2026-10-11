@@ -102,7 +102,7 @@ In the report you can:
 
 - **Rename** an entry (pencil icon), for example "Glucose stock".
 - **Fold** an entry to its title and result (arrow icon), or fold them all at once.
-- **Remove** an entry, or clear the whole report.
+- **Remove** an entry, or clear the whole report (it asks once more: **Delete all** or **Keep**).
 - **Copy as text** to paste the whole report into a document.
 
 An entry keeps the values it had when you added it. The report stays in your browser after you close the page. It is
@@ -169,8 +169,8 @@ On a machine that already has Chromium (a cloud container, say), skip the other 
 |---|---|
 | [`doc/ARCHITECTURE.md`](doc/ARCHITECTURE.md) | How the tool is built, and the steps for making a change |
 | [`doc/CALCULATIONS.md`](doc/CALCULATIONS.md) | Every formula, unit and rule, with the worked examples the tests check |
-| [`doc/DESIGN-ASSESSMENT.md`](doc/DESIGN-ASSESSMENT.md) | What was reused from the other Clamk tools, and why |
 | [`doc/CHANGELOG.md`](doc/CHANGELOG.md) | What changed, newest first |
+| [`doc/archive/`](doc/archive/) | Notes kept for their history only, no longer describing the tool (the first design assessment) |
 | [`doc/LLM feed for visual/`](doc/LLM%20feed%20for%20visual/LLMfeed_VISUAL-IDENTITY.md) | The Clamk Tools visual identity, which the page follows |
 
 ### Publishing safely

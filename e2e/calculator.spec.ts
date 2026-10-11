@@ -286,6 +286,21 @@ test("a calculation in the report can be renamed and collapsed", async ({ page }
   await expect(sheet.getByRole("heading")).toContainText("Buffer A, 10 mL"); // the name survives a reload
 });
 
+test("clearing the report asks once more, and keeping them is the choice in focus", async ({ page }) => {
+  await glucose(page);
+  await calc(page, "solution").getByRole("button", { name: "Add mass to report" }).click();
+  await page.getByRole("tab", { name: "Report (1)" }).click();
+
+  await page.getByRole("button", { name: "Clear report" }).click();
+  await expect(page.getByRole("button", { name: "Keep" })).toBeFocused();
+  await page.keyboard.press("Enter"); // a second Enter keeps them
+  await expect(page.locator(".calc-sheet")).toHaveCount(1);
+
+  await page.getByRole("button", { name: "Clear report" }).click();
+  await page.getByRole("button", { name: "Delete all" }).click();
+  await expect(page.getByText("Nothing in the report yet.", { exact: false })).toBeVisible();
+});
+
 test("Collapse all folds every calculation, then Expand all opens them", async ({ page }) => {
   await glucose(page);
   await calc(page, "solution").getByRole("button", { name: "Add mass to report" }).click();

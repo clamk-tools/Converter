@@ -127,6 +127,7 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
               spellCheck={false}
               aria-label={`${label} in ${unit(unitId).name}`}
               aria-invalid={invalid ? true : undefined}
+              aria-describedby={valueIssue ? `${id}-value-issue` : undefined}
               placeholder={converterNeedsMolarMass(derived, unitId) ? "needs MW" : ""}
               value={converterText(state, derived, unitId)}
               onChange={(e) => dispatch({ type: "type", field: "converter", unit: unitId, text: e.target.value })}
@@ -147,14 +148,16 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
         );
       })}
 
-      {valueIssue && <p className="row-issue conv-issue">{valueIssue}</p>}
+      {valueIssue && (
+        <p className="row-issue conv-issue" id={`${id}-value-issue`}>
+          {valueIssue}
+        </p>
+      )}
 
       <div className="calc-foot">
         <div className="calc-lines">
           <span className="calc-formula">{converterFromMass(state) ? "C = Cm / MW" : "Cm = C × MW"}</span>
-          <span className="calc-worked" aria-live="polite">
-            {converterWorked(state, derived)}
-          </span>
+          <span className="calc-worked">{converterWorked(state, derived)}</span>
         </div>
       </div>
       {!mwIssue && derived.conversion.amount && derived.conversion.molarMass === null && (
