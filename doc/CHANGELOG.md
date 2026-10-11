@@ -15,11 +15,32 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 - **Fixed:** the check wrote the result to twelve digits (50775.174144); it is now rounded as the result is shown
   (50775.2). Very large or small numbers read 9.98 × 10¹¹ instead of 9.98e11, on the page and in the copied text.
 - **Inside:** `ui/Report.tsx` and the report styles in `calc.css` rewritten; `answerOf()` and `readable()` in
-  `state/report.ts`. The stored entries keep their shape, so reports already kept still open. 114 unit tests, 28
+  `state/report.ts`. The stored entries keep their shape, so reports already kept still open. 120 unit tests, 30
   end-to-end tests (updated for the new layout; one checks that the header folds the card).
 - **Decided** (from ten report designs, then six variations of the numbered steps): labelled rows, as they read like a
   printed protocol, with folding. The warning for an unusually large amount (above 1 kg, say) is left for later: it
   needs a limit chosen.
+
+### 2026-10-11 · The last three review items
+
+- **Seen:** an answer too large or too small to calculate (beyond about 10^±308, from a mistyped exponent, say) now
+  says so in red under the formula, in all three calculators, instead of staying blank or showing 0. `1,500e3` is
+  refused like `1,500`: it could be 1500 or 1.5 million.
+- **Inside:** `outOfRange()` in `engine/solve.ts`, `outOfRange` on each result, `converterOutOfRange()` in
+  `state/model.ts`; unit and end-to-end tests for both.
+- **Privacy guard:** `.githooks/check-privacy.sh` also blocks a Linux home folder path; `CLAUDE.md` says so.
+
+### 2026-10-11 · Fixes from a code review
+
+- **Seen:** **Clear report** now asks once more, **Delete all** or **Keep**, with Keep in focus so a second Enter
+  does not delete; one tap no longer loses every kept calculation. **Copied** turns back into **Copy as text** after
+  two seconds. On a phone the report's buttons wrap to a second line rather than breaking their words.
+- **Screen readers:** the formula line under each calculator is no longer read out at every keystroke (the answer
+  still is); the converter's error message is read with its boxes, as in the other two calculators.
+- **Inside:** `loadReport()` checks every field the Report view reads, so an entry stored in another shape is left out
+  instead of breaking the view (unit tests for it, and an end-to-end test for the two-step clear).
+- **Docs:** `doc/DESIGN-ASSESSMENT.md` moved to `doc/archive/`: it described the first layout. The unit menu keeps
+  its behaviour (a change of unit never changes the value), as decided.
 
 ### 2026-10-11 · Every calculator's formula, with the numbers in it
 

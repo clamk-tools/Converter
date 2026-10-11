@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { ReportEntry } from "../state/report";
 import { answerOf, displayName, entryText, readable } from "../state/report";
@@ -34,10 +34,18 @@ const lines = (texts: string[]) => texts.map((t) => <p key={t}>{readable(t)}</p>
 // The calculation report: each calculation kept, written out as numbered steps (given, convert, apply, result) and a
 // check, so a client can follow it. Values are as they were when added. The answer stays in a calculation's header,
 // so a folded report reads as a list of results; the whole header folds it. An open calculation can be renamed or
-// removed from its foot; the whole report can be folded, copied as text or cleared from the bar above it.
+// removed from its foot; the whole report can be folded, copied as text or cleared from the bar above it. Clearing asks
+// once more first: it cannot be undone.
 export function Report({ entries, onRename, onToggle, onToggleAll, onRemove, onClear }: Props) {
   const [copied, setCopied] = useState<"yes" | "no" | null>(null);
   const [renaming, setRenaming] = useState<{ id: string; draft: string } | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  // "Copied" is said for a moment, then the button reads "Copy as text" again
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(null), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
 
   if (!entries.length) {
     return <p className="report-empty">Nothing in the report yet. Use the report icon next to an answer to add its calculation here.</p>;
@@ -61,9 +69,28 @@ export function Report({ entries, onRename, onToggle, onToggleAll, onRemove, onC
           <button type="button" className="quiet compact" onClick={copyAll}>
             {copied === "yes" ? "Copied" : copied === "no" ? "Select and copy" : "Copy as text"}
           </button>
-          <button type="button" className="quiet compact" onClick={onClear}>
-            Clear report
-          </button>
+          {confirming ? (
+            <>
+              <button
+                type="button"
+                className="danger compact"
+                onClick={() => {
+                  setConfirming(false);
+                  onClear();
+                }}
+              >
+                Delete all
+              </button>
+              {/* focus lands on the safe choice, so a second Enter does not delete */}
+              <button type="button" className="quiet compact" autoFocus onClick={() => setConfirming(false)}>
+                Keep
+              </button>
+            </>
+          ) : (
+            <button type="button" className="quiet compact" onClick={() => setConfirming(true)}>
+              Clear report
+            </button>
+          )}
         </div>
       </div>
 

@@ -2,7 +2,7 @@ import type { Dispatch } from "react";
 import { useId } from "react";
 
 import type { Action, ConverterSlot, Derived, State } from "../state/model";
-import { boxText, converterNeedsMolarMass, converterText, issueAt } from "../state/model";
+import { boxText, converterNeedsMolarMass, converterOutOfRange, converterText, issueAt } from "../state/model";
 import type { MassUnitId, UnitId, VolumeUnitId } from "../units/units";
 import { isPair, pair, splitPair, unit, unitsOf } from "../units/units";
 import { InfoBubble } from "./InfoBubble";
@@ -70,6 +70,7 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
   const id = useId();
   const mwIssue = issueAt(state, derived, "conversion", "molarMass");
   const valueIssue = issueAt(state, derived, "conversion", "converter");
+  const range = converterOutOfRange(derived, state.units.converterMolar) ?? converterOutOfRange(derived, state.units.converterMass);
 
   return (
     <section className="calc conv" aria-labelledby={`${id}-title`} data-calculator="conversion">
@@ -127,6 +128,7 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
               spellCheck={false}
               aria-label={`${label} in ${unit(unitId).name}`}
               aria-invalid={invalid ? true : undefined}
+              aria-describedby={valueIssue ? `${id}-value-issue` : undefined}
               placeholder={converterNeedsMolarMass(derived, unitId) ? "needs MW" : ""}
               value={converterText(state, derived, unitId)}
               onChange={(e) => dispatch({ type: "type", field: "converter", unit: unitId, text: e.target.value })}
@@ -147,14 +149,17 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
         );
       })}
 
-      {valueIssue && <p className="row-issue conv-issue">{valueIssue}</p>}
+      {range && <p className="row-issue conv-issue">{range}</p>}
+      {valueIssue && (
+        <p className="row-issue conv-issue" id={`${id}-value-issue`}>
+          {valueIssue}
+        </p>
+      )}
 
       <div className="calc-foot">
         <div className="calc-lines">
           <span className="calc-formula">{converterFromMass(state) ? "C = Cm / MW" : "Cm = C × MW"}</span>
-          <span className="calc-worked" aria-live="polite">
-            {converterWorked(state, derived)}
-          </span>
+          <span className="calc-worked">{converterWorked(state, derived)}</span>
         </div>
       </div>
       {!mwIssue && derived.conversion.amount && derived.conversion.molarMass === null && (

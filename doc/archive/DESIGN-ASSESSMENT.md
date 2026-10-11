@@ -1,4 +1,8 @@
-# Design assessment
+# Design assessment (archived)
+
+> **Archived 2026-10-11.** Kept for its history only: it describes the first layout (GraphPad-style rows, no tabs),
+> which the tiles and the four views have since replaced. For the tool as it is now, read `doc/ARCHITECTURE.md`; for
+> its look, `doc/LLM feed for visual/LLMfeed_VISUAL-IDENTITY.md`.
 
 What was looked at before building this tool, and what was taken from it. Written 2026-10-03.
 

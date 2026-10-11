@@ -68,3 +68,7 @@ in 10 mL: V₁ is larger than V₂, so no concentration is given.
 
 Calculations use double precision (about 16 significant digits) and are not rounded. Display: a typed value keeps
 up to 12 significant digits in every unit; a calculated value is shown to 6.
+
+A double holds values from about 10⁻³⁰⁸ to 10³⁰⁸. An answer beyond that (1e300 g/mol × 1e300 M, say) is not shown; the
+calculator says it is too large or too small to calculate (`outOfRange` in `engine/solve.ts`). A result of exactly 0
+from a factor of 0 (0 M needs 0 g) is a true zero, not out of range.

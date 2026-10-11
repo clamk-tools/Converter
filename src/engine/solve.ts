@@ -30,6 +30,8 @@ export interface SolutionResult {
   issues: Issue<SolutionInput>[];
   /** inputs still to fill in, in the order the page shows them */
   missing: SolutionInput[];
+  /** why there is no answer although every input is fine: it is beyond what a double can hold */
+  outOfRange: string | null;
 }
 
 /** Which inputs each calculation needs: the other three quantities. */
@@ -55,6 +57,20 @@ function rule(input: SolutionInput, target: SolveFor): Rule {
   return "nonNegative";
 }
 
+// A double holds about 10^-308 to 10^308. Beyond that an answer overflows (Infinity) or underflows (0, or a value
+// with few digits left): no lab value comes near, but a mistyped exponent can, and the page says so rather than
+// showing nothing, or 0.
+const MIN_NORMAL = 2 ** -1022;
+export const TOO_LARGE = "The answer is too large to calculate (above about 10³⁰⁸). Check the values and their units.";
+export const TOO_SMALL = "The answer is too small to calculate (below about 10⁻³⁰⁸). Check the values and their units.";
+
+/** Why a result cannot be shown, or null: too large, or too small although none of its factors is zero. */
+export function outOfRange(value: number, factors: number[]): string | null {
+  if (!Number.isFinite(value)) return TOO_LARGE;
+  if (Math.abs(value) < MIN_NORMAL && factors.every((f) => f !== 0)) return TOO_SMALL;
+  return null;
+}
+
 export function check(name: string, value: number, r: Rule, why = ""): string | null {
   if (value < 0) return `${name} cannot be negative.`;
   if (r === "positive" && value === 0) return `${name} must be greater than zero${why}.`;
@@ -76,18 +92,21 @@ export function solveSolution(target: SolveFor, inputs: SolutionInputs): Solutio
   }
 
   let value: number | null = null;
+  let range: string | null = null;
   if (!issues.length && !missing.length) {
     const { molarMass, concentration, volume, mass } = inputs as Record<SolutionInput, number>;
-    if (target === "mass") value = massFrom(concentration, volume, molarMass);
-    if (target === "concentration") value = concentrationFrom(mass, molarMass, volume);
-    if (target === "volume") value = volumeFrom(mass, concentration, molarMass);
-    if (!Number.isFinite(value)) value = null; // overflow: 1e300 × 1e300
+    let found = 0;
+    if (target === "mass") found = massFrom(concentration, volume, molarMass);
+    if (target === "concentration") found = concentrationFrom(mass, molarMass, volume);
+    if (target === "volume") found = volumeFrom(mass, concentration, molarMass);
+    range = outOfRange(found, NEEDS[target].map((input) => inputs[input] as number)); // 1e300 × 1e300, 1e-300 × 1e-300
+    if (!range) value = found;
   }
 
   const mass = target === "mass" ? value : inputs.mass;
   const molarMassOk = inputs.molarMass !== null && inputs.molarMass > 0;
   const moles = mass !== null && mass >= 0 && molarMassOk && !issues.length ? molesOf(mass, inputs.molarMass as number) : null;
-  return { value, moles: moles !== null && Number.isFinite(moles) ? moles : null, issues, missing };
+  return { value, moles: moles !== null && Number.isFinite(moles) ? moles : null, issues, missing, outOfRange: range };
 }
 
 /** C1 × V1 = C2 × V2: the dilution finds any one of the four from the other three. */
@@ -113,6 +132,8 @@ export interface DilutionResult {
   missing: DilutionInput[];
   /** a remark that is not a problem, e.g. the final concentration equals the stock */
   note: string | null;
+  /** why there is no answer although every input is fine: too large or too small to calculate */
+  outOfRange: string | null;
 }
 
 /** The order the page shows them in: the stock on the first row, the final solution on the second. */
@@ -140,7 +161,7 @@ export function solveDilution(find: DilutionFor, inputs: DilutionInputs): Diluti
       if (message) issues.push({ input, message });
     }
   }
-  const none = { value: null, diluentVolume: null, factor: null, issues, missing, note: null };
+  const none = { value: null, diluentVolume: null, factor: null, issues, missing, note: null, outOfRange: null };
   if (issues.length || missing.length) return none;
 
   const { stock, stockVolume, target, finalVolume } = inputs as Record<DilutionInput, number>;
@@ -156,7 +177,8 @@ export function solveDilution(find: DilutionFor, inputs: DilutionInputs): Diluti
   else if (find === "finalVolume") value = noDilution ? stockVolume : finalVolumeFrom(stock, stockVolume, target);
   else if (find === "stock") value = noDilution ? target : stockFrom(target, finalVolume, stockVolume);
   else value = noDilution ? stock : targetFrom(stock, stockVolume, finalVolume);
-  if (!Number.isFinite(value)) return none;
+  const range = outOfRange(value, DILUTION_ORDER.filter((input) => input !== find).map((input) => inputs[input] as number));
+  if (range) return { ...none, outOfRange: range };
 
   const all = { stock, stockVolume, target, finalVolume, [find]: value };
   return {
@@ -166,6 +188,7 @@ export function solveDilution(find: DilutionFor, inputs: DilutionInputs): Diluti
     issues,
     missing,
     note: noDilution ? NO_DILUTION : null,
+    outOfRange: null,
   };
 }
 

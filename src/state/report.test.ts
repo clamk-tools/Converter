@@ -1,9 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { UnitId } from "../units/units";
+import type { ReportEntry } from "./report";
 import { derive, initialState, reducer } from "./model";
 import type { Action, FieldId, State } from "./model";
-import { answerOf, displayName, entryFor, entryText, readable, rename, toggleAll, toggleCollapsed } from "./report";
+import { answerOf, displayName, entryFor, entryText, loadReport, readable, rename, saveReport, toggleAll, toggleCollapsed } from "./report";
 
 const typed = (field: FieldId, unit: UnitId, text: string): Action[] => [{ type: "type", field, unit, text }, { type: "leave", field }];
 const run = (actions: Action[]): State => actions.reduce(reducer, initialState);
@@ -166,5 +167,29 @@ describe("the check", () => {
     const s = run([{ type: "unit", quantity: "concentration", unit: "pM" }, ...typed("concentration", "pM", "9.98e11"), ...typed("molarMass", "g_mol", "5856"), ...typed("volume", "mL", "8688")]);
     const e = entry(s, "mass")!;
     expect(e.check).toEqual({ text: "C = m / (MW × V) = 50775.2 / (5856 × 8.688) = 0.998 mol/L", ok: true });
+  });
+});
+
+describe("the report in the browser's storage", () => {
+  // a stand-in for the browser's storage: the tests run outside a browser
+  const stored = new Map<string, string>();
+  vi.stubGlobal("localStorage", { getItem: (k: string) => stored.get(k) ?? null, setItem: (k: string, v: string) => void stored.set(k, v) });
+  afterEach(() => stored.clear());
+  const a = entryFor(glucose, derive(glucose), "mass", "a")!;
+
+  it("reads back what was saved", () => {
+    saveReport([a]);
+    expect(loadReport()).toEqual([a]);
+  });
+
+  it("leaves out an entry in another shape, instead of breaking the Report view", () => {
+    const without = (field: keyof ReportEntry) => Object.fromEntries(Object.entries(a).filter(([k]) => k !== field));
+    saveReport([a, without("result"), without("check"), { ...a, result: [] }, null] as unknown as ReportEntry[]);
+    expect(loadReport()).toEqual([a]);
+  });
+
+  it("reads nothing from text that is not a report", () => {
+    stored.set("molarity-calculator:report-v2", "not json");
+    expect(loadReport()).toEqual([]);
   });
 });

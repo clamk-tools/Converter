@@ -538,6 +538,10 @@ button.add-report.added {
   gap: 2px;
 }
 
+.report-actions button {
+  white-space: nowrap;
+}
+
 .calc-sheet {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);

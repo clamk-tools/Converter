@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { concentrationFrom, finalVolumeFrom, massConcentrationOf, massFrom, molarConcentrationOf, moles, stockFrom, stockVolumeFrom, targetFrom, volumeFrom } from "./equations";
-import { HIGHER_THAN_STOCK, LARGER_THAN_FINAL, checkConversion, solveDilution, solveSolution } from "./solve";
+import { HIGHER_THAN_STOCK, LARGER_THAN_FINAL, TOO_LARGE, TOO_SMALL, checkConversion, solveDilution, solveSolution } from "./solve";
 
 // Glucose: MW 180.16 g/mol. 100 mM in 10 mL needs 180.16 mg (doc/CALCULATIONS.md, worked example).
 const MW = 180.16;
@@ -92,7 +92,21 @@ describe("solveSolution", () => {
     expect(tiny.value! / 1.8016e-19).toBeCloseTo(1, 12);
     const huge = solveSolution("mass", { molarMass: 1e6, concentration: 10, volume: 1e3, mass: null });
     expect(huge.value).toBe(1e10);
-    expect(solveSolution("mass", { molarMass: 1e300, concentration: 1e300, volume: 1, mass: null }).value).toBeNull(); // overflow
+    expect(huge.outOfRange).toBeNull();
+  });
+
+  it("says why there is no answer when it is beyond what a double holds (about 10^±308)", () => {
+    const over = solveSolution("mass", { molarMass: 1e300, concentration: 1e300, volume: 1, mass: null });
+    expect(over.value).toBeNull();
+    expect(over.outOfRange).toBe(TOO_LARGE);
+    const under = solveSolution("mass", { molarMass: 1e-200, concentration: 1e-200, volume: 1, mass: null }); // 1e-400: rounds to 0
+    expect(under.value).toBeNull();
+    expect(under.outOfRange).toBe(TOO_SMALL);
+    expect(solveSolution("volume", { molarMass: 1e-300, concentration: 1e-300, volume: null, mass: 1 }).outOfRange).toBe(TOO_LARGE);
+    // a zero factor is a true zero, not an underflow: 0 M needs 0 g
+    const zero = solveSolution("mass", { molarMass: MW, concentration: 0, volume: 1e-300, mass: null });
+    expect(zero.value).toBe(0);
+    expect(zero.outOfRange).toBeNull();
   });
 });
 
@@ -146,6 +160,14 @@ describe("solveDilution: C₁V₁ = C₂V₂, any one from the other three", () 
     expect(solveDilution("stockVolume", { ...without("stockVolume"), target: 0 }).issues[0].input).toBe("target");
     expect(solveDilution("stockVolume", { ...without("stockVolume"), finalVolume: -1 }).issues[0].input).toBe("finalVolume");
     expect(solveDilution("stock", { ...without("stock"), stockVolume: 0 }).value).toBeNull();
+  });
+
+  it("says why there is no answer when it is too large or too small to calculate", () => {
+    const over = solveDilution("finalVolume", { stock: 1e300, stockVolume: 1e300, target: 1, finalVolume: null });
+    expect(over.value).toBeNull();
+    expect(over.outOfRange).toBe(TOO_LARGE);
+    expect(solveDilution("stockVolume", { stock: 1e300, stockVolume: null, target: 1e-10, finalVolume: 1e-10 }).outOfRange).toBe(TOO_SMALL);
+    expect(solveDilution("stockVolume", { stock: 1, stockVolume: null, target: 0.01, finalVolume: 0.1 }).outOfRange).toBeNull();
   });
 
   it("lists what is missing, in the order of the page", () => {

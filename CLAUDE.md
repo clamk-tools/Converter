@@ -5,7 +5,7 @@ Public tool repo in the `clamk-tools` org, published on GitHub Pages. Everything
 ## Privacy: publish nothing personal
 
 Never let any of these reach a commit, a commit message, a PR, a log or a reply:
-a personal email address, an absolute path on the owner's machine (a Windows drive path or a macOS home folder path),
+a personal email address, an absolute path on the owner's machine (a Windows drive path, or a macOS or Linux home folder path),
 the owner's OS user name or machine name, the name of a private project, a token or key.
 
 - Identity: commits are authored **and** committed as `Clément R <64958567+Clamk@users.noreply.github.com>`.
