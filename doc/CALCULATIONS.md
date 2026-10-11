@@ -24,11 +24,14 @@ n = m / MW                       amount of substance
 C = n / V = m / (MW × V)         concentration
 m = C × V × MW                   mass
 V = m / (C × MW)                 volume
-C₁ × V₁ = C₂ × V₂  →  V₁ = C₂ × V₂ / C₁        dilution: the required volume of stock
+C₁ × V₁ = C₂ × V₂  →  V₁ = C₂ × V₂ / C₁        dilution: the volume of stock to take
+                   →  V₂ = C₁ × V₁ / C₂        the final volume
+                   →  C₁ = C₂ × V₂ / V₁        the stock concentration needed
+                   →  C₂ = C₁ × V₁ / V₂        the final concentration
 ρ = C × MW   and   C = ρ / MW                  mass concentration ρ (g/L) and molar concentration C (mol/L)
 ```
 
-The first four are the equations of GraphPad's molarity calculator. Mass, concentration and volume are one formula solved three ways: calculator 1 on the page, which solves it for the quantity ticked; the dilution is calculator 2; the last is calculator 3. The mass-concentration units are exact: g/L and mg/mL are the same thing; 1 % w/v is 1 g per 100 mL = 10 g/L; 1 ppm is taken as 1 mg/L (right for a dilute aqueous solution, where 1 L weighs 1 kg). n = m / MW is used only
+The first four are the equations of GraphPad's molarity calculator. Mass, concentration and volume are one formula solved three ways: calculator 1 on the page, which solves it for the quantity ticked; the dilution is calculator 2, which solves C₁V₁ = C₂V₂ for any one of its four; the last is calculator 3. The mass-concentration units are exact: g/L and mg/mL are the same thing; 1 % w/v is 1 g per 100 mL = 10 g/L; 1 ppm is taken as 1 mg/L (right for a dilute aqueous solution, where 1 L weighs 1 kg). n = m / MW is used only
 by the tests. In a dilution C₁ and C₂ are compared in the same unit, whichever ones were chosen for them.
 
 ## Rules
@@ -36,15 +39,16 @@ by the tests. In a dilution C₁ and C₂ are compared in the same unit, whichev
 | Input | Allowed | Why |
 |---|---|---|
 | Molecular weight | > 0 | divides every formula |
-| Volume, desired volume | > 0 | a volume of 0 holds nothing; divides C |
+| Volume, V₁, V₂ | > 0 | a volume of 0 holds nothing; divides C |
 | Concentration (solving for mass) | ≥ 0 | 0 M needs 0 g |
 | Mass (solving for concentration) | ≥ 0 | 0 g gives 0 M |
 | Concentration and mass (solving for volume) | > 0 | C = 0 divides by zero; m = 0 gives a volume of 0 |
 | Concentration to convert (calculator 3) | ≥ 0 | 0 converts to 0; negative has no meaning. The molecular weight is needed only to cross between molar and mass |
-| Stock and desired concentration | > 0 | C₁ = 0 divides by zero; C₂ = 0 is not a dilution |
-| Desired vs stock | C₂ ≤ C₁ | a dilution can only lower a concentration |
+| C₁ and C₂ | > 0 | C₁ = 0 divides by zero; C₂ = 0 is not a dilution |
+| C₂ against C₁ (finding V₁ or V₂) | C₂ ≤ C₁ | a dilution can only lower a concentration |
+| V₁ against V₂ (finding C₁ or C₂) | V₁ ≤ V₂ | the stock taken cannot be more than the final volume; this is the same rule, as C₂ = C₁ × V₁ / V₂ |
 
-C₂ = C₁ (within float noise, e.g. 1 mM against 1000 µM) is accepted: take the final volume of stock, no diluent.
+C₂ = C₁ (within float noise, e.g. 1 mM against 1000 µM), or V₁ = V₂, is accepted: no dilution, no diluent.
 
 ## Worked examples
 
@@ -53,10 +57,12 @@ C₂ = C₁ (within float noise, e.g. 1 mM against 1000 µM) is accepted: take t
 
 **Conversion.** 100 mM, MW 180.16 g/mol: ρ = 0.1 mol/L × 180.16 g/mol = 18.016 g/L = 18.016 mg/mL = 1.8016 % w/v = 18 016 µg/mL = 18 016 ppm. Back: 1 % w/v = 10 g/L; C = 10 g/L / 180.16 g/mol = 0.0555062 mol/L = 55.5062 mM.
 
-**Dilution.** 1 M stock, 10 mM desired, 100 mL desired volume:
-V₁ = 0.01 × 0.1 / 1 = 0.001 L = **1 mL** of stock (made up to 100 mL).
+**Dilution.** C₁ = 1 M stock, C₂ = 10 mM, V₂ = 100 mL:
+V₁ = 0.01 × 0.1 / 1 = 0.001 L = **1 mL** of stock (made up to 100 mL). The other three from the same solution:
+V₂ = 1 × 0.001 / 0.01 = 0.1 L = 100 mL; C₁ = 0.01 × 0.1 / 0.001 = 1 M; C₂ = 1 × 0.001 / 0.1 = 0.01 M = 10 mM.
 
-**Refused dilution.** 10 mM stock, 100 mM desired: the desired concentration is above the stock, so no volume is given.
+**Refused dilution.** 10 mM stock, C₂ = 100 mM: above the stock, so no volume is given. Finding C₂ from 20 mL of stock
+in 10 mL: V₁ is larger than V₂, so no concentration is given.
 
 ## Precision
 

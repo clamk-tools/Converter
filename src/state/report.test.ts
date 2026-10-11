@@ -39,6 +39,7 @@ describe("a worked calculation", () => {
   it("dilution: 1 M to 10 mM in 100 mL takes 1 mL of stock", () => {
     const s = run([{ type: "unit", quantity: "stock", unit: "M" }, ...typed("stock", "M", "1"), ...typed("target", "mM", "10"), ...typed("finalVolume", "mL", "100")]);
     const e = entry(s, "dilution")!;
+    expect(e.title).toBe("Dilution: volume of stock");
     expect(e.convert).toEqual(["C₂ = 10 mM × 10⁻³ = 0.01 mol/L", "V₂ = 100 mL × 10⁻³ = 0.1 L"]);
     expect(e.formula).toBe("V₁ = C₂ × V₂ / C₁");
     expect(e.substitution).toEqual(["V₁ = 0.01 mol/L × 0.1 L / 1 mol/L", "= 0.001 L"]);
@@ -46,7 +47,22 @@ describe("a worked calculation", () => {
     expect(e.check).toEqual({ text: "C₁ × V₁ = 1 × 0.001 = 0.001 mol, and C₂ × V₂ = 0.01 × 0.1 = 0.001 mol", ok: true });
   });
 
-  it("shows only the base-unit result, and no conversion, when the units chosen are the base units", () => {
+  it("dilution, the other way: 1 mL of 1 M stock makes 100 mL at 10 mM", () => {
+    const tick = (target: "finalVolume" | "target"): Action => ({ type: "find", target });
+    const base = [{ type: "unit", quantity: "stock", unit: "M" } as Action, ...typed("stock", "M", "1"), ...typed("target", "mM", "10")];
+    const e = entry(run([tick("finalVolume"), ...base, ...typed("stockVolume", "mL", "1")]), "dilution")!;
+    expect(e.title).toBe("Dilution: final volume");
+    expect(e.formula).toBe("V₂ = C₁ × V₁ / C₂");
+    expect(e.substitution).toEqual(["V₂ = 1 mol/L × 0.001 L / 0.01 mol/L", "= 0.1 L"]);
+    expect(e.result).toEqual(["V₂ = 0.1 L", "V₂ = 100 mL"]);
+    expect(e.check.ok).toBe(true);
+    const c = entry(run([tick("target"), ...typed("stock", "M", "1"), ...typed("stockVolume", "mL", "1"), ...typed("finalVolume", "mL", "100")]), "dilution")!;
+    expect(c.formula).toBe("C₂ = C₁ × V₁ / V₂");
+    expect(c.result).toEqual(["C₂ = 0.01 mol/L", "C₂ = 10 mM"]);
+    expect(c.check.ok).toBe(true);
+  });
+
+    it("shows only the base-unit result, and no conversion, when the units chosen are the base units", () => {
     const s = run([{ type: "unit", quantity: "mass", unit: "g" } as Action, { type: "unit", quantity: "volume", unit: "L" }, { type: "unit", quantity: "concentration", unit: "M" }, ...typed("concentration", "M", "0.1"), ...typed("molarMass", "g_mol", "180.16"), ...typed("volume", "L", "0.01")]);
     const e = entry(s, "mass")!;
     expect(e.convert).toEqual([]);

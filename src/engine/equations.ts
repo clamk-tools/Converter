@@ -16,6 +16,15 @@ export const volumeFrom = (massG: number, concentrationM: number, molarMassGPerM
 /** C1 × V1 = C2 × V2, so V1 = C2 × V2 / C1. C1 and C2 in the same unit, whichever it is. */
 export const stockVolumeFrom = (stock: number, target: number, finalVolumeL: number) => (target * finalVolumeL) / stock;
 
+/** C1 × V1 = C2 × V2, so V2 = C1 × V1 / C2. */
+export const finalVolumeFrom = (stock: number, stockVolumeL: number, target: number) => (stock * stockVolumeL) / target;
+
+/** C1 × V1 = C2 × V2, so C1 = C2 × V2 / V1. */
+export const stockFrom = (target: number, finalVolumeL: number, stockVolumeL: number) => (target * finalVolumeL) / stockVolumeL;
+
+/** C1 × V1 = C2 × V2, so C2 = C1 × V1 / V2. */
+export const targetFrom = (stock: number, stockVolumeL: number, finalVolumeL: number) => (stock * stockVolumeL) / finalVolumeL;
+
 /** ρ = C × MW: the mass concentration (g/L) of a molar concentration (M) */
 export const massConcentrationOf = (concentrationM: number, molarMassGPerMol: number) => concentrationM * molarMassGPerMol;
 

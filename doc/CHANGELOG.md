@@ -5,6 +5,20 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-11 · The dilution as tiles: C₁, V₁, C₂, V₂, any one found
+
+- **Seen:** calculator 2, "Dilute a stock solution", is now four tiles like calculator 1: C₁ and V₁ (the stock) on the
+  top row, C₂ and V₂ (the final solution) on the bottom row, each with its own unit menu. Tick any of the four (V₁ at
+  first) and type the other three. The formula used shows under the tiles, and the report writes out the calculation
+  for whichever was found. A new message: finding a concentration with V₁ larger than V₂ is refused.
+- **Inside:** `solveDilution(find, …)` in `engine/solve.ts` and three new equations; V₁ is now a typed quantity
+  (`stockVolume`) with its own unit; `State.dilutionFind`; `ui/TileCard.tsx` draws calculators 1 and 2 (it replaces
+  `SolutionCard.tsx`, and the GraphPad-style `Calculator.tsx` is removed, with its answer-row styles). 103 unit tests,
+  26 end-to-end tests.
+- **Decided:** names C₁, V₁, C₂, V₂ alone on the tiles (design A of two compared on the design canvas; screen readers
+  hear "C₁, stock concentration" and so on). The concentrations are not grey: unlike the molecular weight, they are not
+  constants of the substance. In the report, "desired" became "final" to match.
+
 ### 2026-10-10 · Calculators 1, 2 and 3 become one card
 
 - **Seen:** mass, volume and concentration are one formula (m = C × V × MW), so they are now one card,

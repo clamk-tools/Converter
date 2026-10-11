@@ -15,6 +15,14 @@ export const SOLVED_BY: Record<"mass" | "volume" | "concentration", string> = {
   concentration: "C = m / (MW × V)",
 };
 
+/** The formula calculator 2 uses for each quantity it can find. */
+export const DILUTED_BY: Record<"stock" | "stockVolume" | "target" | "finalVolume", string> = {
+  stock: "C₁ = C₂ × V₂ / V₁",
+  stockVolume: "V₁ = C₂ × V₂ / C₁",
+  target: "C₂ = C₁ × V₁ / V₂",
+  finalVolume: "V₂ = C₁ × V₁ / C₂",
+};
+
 export interface CalculatorInfo {
   formulas: Formula[];
   /** conventions and checks that apply to the whole calculator */
@@ -35,9 +43,12 @@ export const INFO: Record<"solution" | "dilution" | "conversion", CalculatorInfo
     formulas: [
       { equation: "C₁V₁ = C₂V₂", meaning: "" },
       { equation: "V₁ = C₂ × V₂ / C₁", meaning: "stock to take" },
+      { equation: "V₂ = C₁ × V₁ / C₂", meaning: "final volume" },
+      { equation: "C₁ = C₂ × V₂ / V₁", meaning: "stock concentration" },
+      { equation: "C₂ = C₁ × V₁ / V₂", meaning: "final concentration" },
       { equation: "V₂ − V₁", meaning: "diluent to add" },
     ],
-    notes: ["C₁^{mol/L}, C₂^{mol/L}, V₁^{L}, V₂^{L}. 1 = stock, 2 = desired.", "C₂ ≤ C₁."],
+    notes: ["C₁^{mol/L}, C₂^{mol/L}, V₁^{L}, V₂^{L}. 1 = stock, 2 = final.", "C₂ ≤ C₁ and V₁ ≤ V₂."],
   },
   conversion: {
     formulas: [

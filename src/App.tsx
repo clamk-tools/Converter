@@ -1,15 +1,15 @@
 import type { KeyboardEvent } from "react";
 import { useEffect, useMemo, useReducer, useState } from "react";
 
-import { derive, initialState, reducer } from "./state/model";
+import { DILUTION_RESULT_OF, RESULT_OF, derive, initialState, reducer } from "./state/model";
 import type { Section } from "./state/model";
 import { entryFor, loadReport, rename, saveReport, toggleAll, toggleCollapsed } from "./state/report";
 import type { ReportEntry } from "./state/report";
-import { Calculator } from "./ui/Calculator";
 import { ConcentrationConverter } from "./ui/ConcentrationConverter";
 import { Report } from "./ui/Report";
-import { DILUTION } from "./ui/sections";
-import { SolutionCard } from "./ui/SolutionCard";
+import { DILUTED_BY, SOLVED_BY } from "./ui/formulas";
+import { DILUTION, SOLUTION } from "./ui/sections";
+import { TileCard } from "./ui/TileCard";
 import { ThemeSwitch } from "./ui/ThemeSwitch";
 
 // The page: the frame every Clamk tool has (rail, header with the name and the theme switch, footer) around the three
@@ -76,8 +76,29 @@ export function App() {
         <div className="panel" role="tabpanel" id="panel" aria-labelledby={`tab-${tab}`}>
           {tab === "calculators" ? (
             <>
-              <SolutionCard state={state} derived={derived} dispatch={dispatch} onAdd={() => addToReport(state.find)} />
-              <Calculator spec={DILUTION} state={state} derived={derived} dispatch={dispatch} onAdd={() => addToReport("dilution")} />
+              <TileCard
+                spec={SOLUTION}
+                find={state.find}
+                result={RESULT_OF[state.find]}
+                formula={SOLVED_BY[state.find]}
+                reportWhat={state.find}
+                state={state}
+                derived={derived}
+                dispatch={dispatch}
+                onAdd={() => addToReport(state.find)}
+              />
+              <TileCard
+                spec={DILUTION}
+                find={state.dilutionFind}
+                result={DILUTION_RESULT_OF[state.dilutionFind]}
+                formula={DILUTED_BY[state.dilutionFind]}
+                note={derived.dilution.note}
+                reportWhat="the dilution"
+                state={state}
+                derived={derived}
+                dispatch={dispatch}
+                onAdd={() => addToReport("dilution")}
+              />
               <ConcentrationConverter state={state} derived={derived} dispatch={dispatch} />
             </>
           ) : (

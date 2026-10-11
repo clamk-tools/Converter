@@ -16,7 +16,7 @@ Type your numbers; the answer appears as you type. There is no Calculate button.
 | # | Calculator | You enter | You get | Example |
 |---|---|---|---|---|
 | 1 | Mass, volume or concentration | the molecular weight, and two of mass, volume, concentration | the third one | 100 mM, 180.16 g/mol, 10 mL → **180.16 mg** |
-| 2 | Dilution | stock concentration, desired concentration, desired volume | the volume of stock to take | 1 M, 10 mM, 100 mL → **1 mL** |
+| 2 | Dilution | three of C₁, V₁ (the stock) and C₂, V₂ (the final solution) | the fourth | C₁ 1 M, C₂ 10 mM, V₂ 100 mL → V₁ **1 mL** |
 | 3 | Converter | molecular weight, and a molar or mass concentration | the other one | 100 mM at 180.16 g/mol → **18.016 mg/mL** |
 
 The molecular weight is in g/mol, which is the same number as daltons (Da).
@@ -29,6 +29,13 @@ Type the other two. The molecular weight tile, top left and grey, is the substan
 
 When you tick another value, the answer you had stays in its box as a typed number. Found 180.16 mg, then ticked
 Volume: the mass box keeps 180.16 mg and the volume shows 10 mL. Switching back and forth is a quick check.
+
+### Calculator 2: the dilution, the same way
+
+C₁V₁ = C₂V₂ as four tiles: the stock on the top row (C₁, its concentration; V₁, the volume of it to take), the final
+solution on the bottom row (C₂, V₂). **Tick any one of the four** (V₁, at first) and type the other three: how much
+stock to take, how much you can make, what concentration you get, or what stock you need. Each value has its own
+unit menu.
 
 ### Units
 
@@ -51,7 +58,7 @@ the unit of each symbol. Press it again to close it.
 | Calculator | Formula |
 |---|---|
 | 1. Mass, volume or concentration | m = C × V × MW, so V = m / (C × MW) and C = m / (MW × V) |
-| 2. Dilution | C₁V₁ = C₂V₂, so V₁ = C₂ × V₂ / C₁ |
+| 2. Dilution | C₁V₁ = C₂V₂, so V₁ = C₂ × V₂ / C₁, V₂ = C₁ × V₁ / C₂, C₁ = C₂ × V₂ / V₁, C₂ = C₁ × V₁ / V₂ |
 | 3. Converter | mass concentration = C × MW |
 
 m = mass (g), C = concentration (mol/L), V = volume (L), MW = molecular weight (g/mol). Every value is converted to
@@ -104,7 +111,8 @@ The answer stays empty, and a short message under the box says why, when:
 - a molecular weight or volume is zero or negative;
 - a mass or concentration is negative;
 - a zero would mean dividing by zero (for example a concentration of 0 when solving for a volume);
-- the desired concentration is higher than the stock: a dilution can only lower a concentration.
+- in a dilution, C₂ is higher than C₁, or V₁ is larger than V₂: a dilution can only lower a concentration, and the
+  stock you take cannot be more than the final volume.
 
 ## Light or dark
 

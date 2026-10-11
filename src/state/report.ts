@@ -13,7 +13,7 @@ import { COMPUTED, ENTERED, formatNumber } from "../numbers/format";
 import { CANONICAL, unit } from "../units/units";
 import type { Dimension, UnitId } from "../units/units";
 import { DIMENSION } from "./model";
-import type { Derived, FieldId, OutputId, Section, State } from "./model";
+import type { Derived, DilutionFor, FieldId, OutputId, Section, SolveFor, State } from "./model";
 import { resultText, unitOf, valueIn } from "./model";
 
 export interface ReportEntry {
@@ -49,12 +49,16 @@ const SYMBOL: Record<FieldId | OutputId, string> = {
   volume: "V",
   mass: "m",
   stock: "C₁",
+  stockVolume: "V₁",
   target: "C₂",
   finalVolume: "V₂",
   massResult: "m",
   volumeResult: "V",
   concentrationResult: "C",
-  stockVolume: "V₁",
+  stockResult: "C₁",
+  stockVolumeResult: "V₁",
+  targetResult: "C₂",
+  finalVolumeResult: "V₂",
 };
 
 const NAME: Record<FieldId | OutputId, string> = {
@@ -63,12 +67,16 @@ const NAME: Record<FieldId | OutputId, string> = {
   volume: "Volume",
   mass: "Mass",
   stock: "Stock concentration",
-  target: "Desired concentration",
-  finalVolume: "Desired volume",
+  stockVolume: "Volume of stock",
+  target: "Final concentration",
+  finalVolume: "Final volume",
   massResult: "Mass",
   volumeResult: "Volume",
   concentrationResult: "Molarity",
-  stockVolume: "Volume of stock",
+  stockResult: "Stock concentration",
+  stockVolumeResult: "Volume of stock",
+  targetResult: "Final concentration",
+  finalVolumeResult: "Final volume",
 };
 
 const SUPERSCRIPT: Record<string, string> = { "-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹" };
@@ -85,7 +93,7 @@ interface Spec {
   check: (v: Record<string, number>, out: number, f: (n: number) => string) => { text: string; got: number; want: number };
 }
 
-const SPECS: Record<Section, Spec> = {
+const SPECS: Record<SolveFor, Spec> = {
   mass: {
     title: "Mass from volume & concentration",
     inputs: ["concentration", "molarMass", "volume"],
@@ -119,16 +127,48 @@ const SPECS: Record<Section, Spec> = {
       return { text: `m = C × V × MW = ${f(c)} × ${f(v.volume)} × ${f(v.molarMass)} = ${f(got)} g`, got, want: v.mass };
     },
   },
-  dilution: {
-    title: "Dilute a stock solution",
+};
+
+// C₁V₁ = C₂V₂, solved for each of the four. The check is the same for all: both sides, in mol.
+const dilutionCheck = (v: Record<string, number>, out: number, find: DilutionFor, f: (n: number) => string) => {
+  const all = { ...v, [find]: out };
+  const got = all.stock * all.stockVolume;
+  const want = all.target * all.finalVolume;
+  return { text: `C₁ × V₁ = ${f(all.stock)} × ${f(all.stockVolume)} = ${f(got)} mol, and C₂ × V₂ = ${f(all.target)} × ${f(all.finalVolume)} = ${f(want)} mol`, got, want };
+};
+
+const DILUTION_SPECS: Record<DilutionFor, Spec> = {
+  stockVolume: {
+    title: "Dilution: volume of stock",
     inputs: ["stock", "target", "finalVolume"],
-    output: "stockVolume",
+    output: "stockVolumeResult",
     formula: "V₁ = C₂ × V₂ / C₁",
     substitute: (v) => `V₁ = ${v.target} mol/L × ${v.finalVolume} L / ${v.stock} mol/L`,
-    check: (v, v1, f) => {
-      const got = v.stock * v1;
-      return { text: `C₁ × V₁ = ${f(v.stock)} × ${f(v1)} = ${f(got)} mol, and C₂ × V₂ = ${f(v.target)} × ${f(v.finalVolume)} = ${f(v.target * v.finalVolume)} mol`, got, want: v.target * v.finalVolume };
-    },
+    check: (v, out, f) => dilutionCheck(v, out, "stockVolume", f),
+  },
+  finalVolume: {
+    title: "Dilution: final volume",
+    inputs: ["stock", "stockVolume", "target"],
+    output: "finalVolumeResult",
+    formula: "V₂ = C₁ × V₁ / C₂",
+    substitute: (v) => `V₂ = ${v.stock} mol/L × ${v.stockVolume} L / ${v.target} mol/L`,
+    check: (v, out, f) => dilutionCheck(v, out, "finalVolume", f),
+  },
+  stock: {
+    title: "Dilution: stock concentration",
+    inputs: ["stockVolume", "target", "finalVolume"],
+    output: "stockResult",
+    formula: "C₁ = C₂ × V₂ / V₁",
+    substitute: (v) => `C₁ = ${v.target} mol/L × ${v.finalVolume} L / ${v.stockVolume} L`,
+    check: (v, out, f) => dilutionCheck(v, out, "stock", f),
+  },
+  target: {
+    title: "Dilution: final concentration",
+    inputs: ["stock", "stockVolume", "finalVolume"],
+    output: "targetResult",
+    formula: "C₂ = C₁ × V₁ / V₂",
+    substitute: (v) => `C₂ = ${v.stock} mol/L × ${v.stockVolume} L / ${v.finalVolume} L`,
+    check: (v, out, f) => dilutionCheck(v, out, "target", f),
   },
 };
 
@@ -137,7 +177,7 @@ const close = (a: number, b: number) => Math.abs(a - b) <= 1e-9 * Math.max(Math.
 
 /** The worked calculation for one calculator as it stands now, or null when it has no answer yet. */
 export function entryFor(state: State, derived: Derived, section: Section, id: string): ReportEntry | null {
-  const spec = SPECS[section];
+  const spec = section === "dilution" ? DILUTION_SPECS[state.dilutionFind] : SPECS[section];
   const out = derived.values[spec.output];
   if (out === null) return null;
   const f = (n: number) => formatNumber(n, ENTERED);

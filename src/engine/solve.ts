@@ -1,9 +1,9 @@
-// The two calculators: checks their inputs, then applies the equations. Canonical units in, canonical units out.
+// The calculators: checks their inputs, then applies the equations. Canonical units in, canonical units out.
 //
 // An input is a number, or null when it is not there (empty, or not a valid number: the state layer has already
 // said why at the box). A missing input is not an error, just a result that cannot be given yet.
 
-import { concentrationFrom, massFrom, moles as molesOf, stockVolumeFrom, volumeFrom } from "./equations";
+import { concentrationFrom, finalVolumeFrom, massFrom, moles as molesOf, stockFrom, stockVolumeFrom, targetFrom, volumeFrom } from "./equations";
 
 export type SolveFor = "mass" | "concentration" | "volume";
 
@@ -90,8 +90,12 @@ export function solveSolution(target: SolveFor, inputs: SolutionInputs): Solutio
   return { value, moles: moles !== null && Number.isFinite(moles) ? moles : null, issues, missing };
 }
 
+/** C1 × V1 = C2 × V2: the dilution finds any one of the four from the other three. */
+export type DilutionFor = "stock" | "stockVolume" | "target" | "finalVolume";
+
 export interface DilutionInputs {
   stock: number | null; // C1, any concentration unit
+  stockVolume: number | null; // V1, L
   target: number | null; // C2, the same unit as C1
   finalVolume: number | null; // V2, L
 }
@@ -99,31 +103,36 @@ export interface DilutionInputs {
 export type DilutionInput = keyof DilutionInputs;
 
 export interface DilutionResult {
-  /** V1, L: the volume of stock to take */
-  stockVolume: number | null;
+  /** the quantity found: C1 or C2 in the unit of the other, V1 or V2 in L; null when it cannot be calculated */
+  value: number | null;
   /** V2 − V1, L: the volume of diluent to add */
   diluentVolume: number | null;
   /** C1 / C2: "a 100-fold dilution" */
   factor: number | null;
   issues: Issue<DilutionInput>[];
   missing: DilutionInput[];
-  /** a remark that is not a problem, e.g. the target equals the stock */
+  /** a remark that is not a problem, e.g. the final concentration equals the stock */
   note: string | null;
 }
 
-const DILUTION_NAMES: Record<DilutionInput, string> = {
-  stock: "Stock concentration",
-  target: "Desired concentration",
-  finalVolume: "Desired volume",
-};
+/** The order the page shows them in: the stock on the first row, the final solution on the second. */
+const DILUTION_ORDER: DilutionInput[] = ["stock", "stockVolume", "target", "finalVolume"];
+
+const DILUTION_NAMES: Record<DilutionInput, string> = { stock: "C₁", stockVolume: "V₁", target: "C₂", finalVolume: "V₂" };
 
 export const HIGHER_THAN_STOCK =
-  "The desired concentration is higher than the stock. A dilution can only lower the concentration: use a more concentrated stock or a lower desired concentration.";
+  "C₂ is higher than C₁. A dilution can only lower the concentration: use a more concentrated stock or a lower final concentration.";
+export const LARGER_THAN_FINAL = "V₁ is larger than V₂. The volume of stock cannot be more than the final volume.";
+const NO_DILUTION = "C₂ equals C₁: use the stock as it is, with no diluent.";
 
-export function solveDilution(inputs: DilutionInputs): DilutionResult {
+// equal within float noise: 1 mM against 1000 µM
+const same = (a: number, b: number) => Math.abs(a - b) <= 1e-12 * Math.max(a, b);
+
+export function solveDilution(find: DilutionFor, inputs: DilutionInputs): DilutionResult {
   const issues: Issue<DilutionInput>[] = [];
   const missing: DilutionInput[] = [];
-  for (const input of ["stock", "target", "finalVolume"] as const) {
+  for (const input of DILUTION_ORDER) {
+    if (input === find) continue;
     const value = inputs[input];
     if (value === null) missing.push(input);
     else {
@@ -131,24 +140,32 @@ export function solveDilution(inputs: DilutionInputs): DilutionResult {
       if (message) issues.push({ input, message });
     }
   }
-  const none = { stockVolume: null, diluentVolume: null, factor: null, issues, missing, note: null };
+  const none = { value: null, diluentVolume: null, factor: null, issues, missing, note: null };
   if (issues.length || missing.length) return none;
 
-  const { stock, target, finalVolume } = inputs as Record<DilutionInput, number>;
-  // equal within float noise: 1 mM against 1000 µM
-  const same = Math.abs(target - stock) <= 1e-12 * stock;
-  if (target > stock && !same) return { ...none, issues: [{ input: "target", message: HIGHER_THAN_STOCK }] };
+  const { stock, stockVolume, target, finalVolume } = inputs as Record<DilutionInput, number>;
+  // the rule given by the typed values: C2 ≤ C1 when both concentrations are typed, else V1 ≤ V2
+  const findsVolume = find === "stockVolume" || find === "finalVolume";
+  if (findsVolume && target > stock && !same(target, stock)) return { ...none, issues: [{ input: "target", message: HIGHER_THAN_STOCK }] };
+  if (!findsVolume && stockVolume > finalVolume && !same(stockVolume, finalVolume))
+    return { ...none, issues: [{ input: "stockVolume", message: LARGER_THAN_FINAL }] };
 
-  const stockVolume = stockVolumeFrom(stock, target, finalVolume);
-  const factor = stock / target;
-  if (!Number.isFinite(stockVolume) || !Number.isFinite(factor)) return none;
+  const noDilution = findsVolume ? same(target, stock) : same(stockVolume, finalVolume);
+  let value: number;
+  if (find === "stockVolume") value = noDilution ? finalVolume : stockVolumeFrom(stock, target, finalVolume);
+  else if (find === "finalVolume") value = noDilution ? stockVolume : finalVolumeFrom(stock, stockVolume, target);
+  else if (find === "stock") value = noDilution ? target : stockFrom(target, finalVolume, stockVolume);
+  else value = noDilution ? stock : targetFrom(stock, stockVolume, finalVolume);
+  if (!Number.isFinite(value)) return none;
+
+  const all = { stock, stockVolume, target, finalVolume, [find]: value };
   return {
-    stockVolume: same ? finalVolume : stockVolume,
-    diluentVolume: same ? 0 : Math.max(0, finalVolume - stockVolume),
-    factor: same ? 1 : factor,
+    value,
+    diluentVolume: noDilution ? 0 : Math.max(0, all.finalVolume - all.stockVolume),
+    factor: noDilution ? 1 : all.stock / all.target,
     issues,
     missing,
-    note: same ? "The desired concentration equals the stock: use the stock as it is, with no diluent." : null,
+    note: noDilution ? NO_DILUTION : null,
   };
 }
 

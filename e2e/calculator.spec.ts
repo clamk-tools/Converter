@@ -35,8 +35,9 @@ const glucose = async (page: Page) => {
   await box(page, "solution", "Volume in milliliter").fill("10");
 };
 const findButton = (page: Page, what: string) => calc(page, "solution").getByRole("button", { name: `Find ${what}` });
+const dilutionFind = (page: Page, what: string) => calc(page, "dilution").getByRole("button", { name: `Find ${what}` });
 
-test("three calculators; the first is four tiles, the molecular weight first", async ({ page }) => {
+test("three calculators; the first two are four tiles, the molecular weight first in calculator 1", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 2 })).toHaveText([
     "1. Mass, volume or concentration",
     "2. Dilute a stock solution",
@@ -44,8 +45,8 @@ test("three calculators; the first is four tiles, the molecular weight first", a
   ]);
   await expect(calc(page, "solution").locator(".tile-name")).toHaveText(["Molecular weight", "Concentration", "Volume", "Mass"]);
   await expect(calc(page, "solution").locator(".tile.fixed")).toContainText("constant");
-  await expect(calc(page, "dilution").locator(".row-label")).toHaveText(["Stock concentration:", "Desired concentration:", "Desired volume:"]);
-  await expect(page.locator(".result-label")).toHaveText(["Required volume ="]);
+  await expect(calc(page, "dilution").locator(".tile-name")).toHaveText(["C₁", "V₁", "C₂", "V₂"]);
+  await expect(dilutionFind(page, "V₁, volume of stock")).toHaveAttribute("aria-pressed", "true");
 });
 
 test("the sanity check: 100 mM, 180.16 g/mol, 10 mL give 180.16 mg, and follow each change", async ({ page }) => {
@@ -86,8 +87,8 @@ test("a unit chosen for a quantity applies to its answer too, and keeps the valu
 
 test("the dilution keeps its own values", async ({ page }) => {
   await glucose(page);
-  await expect(box(page, "dilution", "Stock concentration in millimolar")).toHaveValue("");
-  await expect(box(page, "dilution", "Desired volume in milliliter")).toHaveValue("");
+  await expect(box(page, "dilution", "C₁, stock concentration in millimolar")).toHaveValue("");
+  await expect(box(page, "dilution", "V₂, final volume in milliliter")).toHaveValue("");
 });
 
 test("typing is not fought: an incomplete number stays as typed, and is flagged only on leaving", async ({ page }) => {
@@ -134,21 +135,51 @@ test("a zero mass is fine to find a concentration, not to find a volume", async 
   await expect(answer(page, "solution")).toHaveText("");
 });
 
+const dilute = async (page: Page) => {
+  await unitMenu(page, "dilution", "C₁, stock concentration").selectOption("M");
+  await box(page, "dilution", "C₁, stock concentration in molar").fill("1");
+  await box(page, "dilution", "C₂, final concentration in millimolar").fill("10");
+  await box(page, "dilution", "V₂, final volume in milliliter").fill("100");
+};
+
 test("the dilution sanity check: 1 M to 10 mM in 100 mL takes 1 mL of stock", async ({ page }) => {
-  await unitMenu(page, "dilution", "Stock concentration").selectOption("M");
-  await box(page, "dilution", "Stock concentration in molar").fill("1");
-  await box(page, "dilution", "Desired concentration in millimolar").fill("10");
-  await box(page, "dilution", "Desired volume in milliliter").fill("100");
-  await expect(answer(page, "dilution")).toHaveText("1 mL");
-  await unitMenu(page, "dilution", "Desired volume").selectOption("uL");
-  await expect(answer(page, "dilution")).toHaveText("1000 µL");
+  await dilute(page);
+  await expect(answer(page, "dilution")).toHaveText("1");
+  await expect(unitMenu(page, "dilution", "V₁, volume of stock")).toHaveValue("mL");
+  await unitMenu(page, "dilution", "V₁, volume of stock").selectOption("uL");
+  await expect(answer(page, "dilution")).toHaveText("1000");
+  await expect(calc(page, "dilution").locator(".calc-formula")).toHaveText("V₁ = C₂ × V₂ / C₁");
 });
 
-test("a desired concentration above the stock is refused, with the reason", async ({ page }) => {
-  await box(page, "dilution", "Stock concentration in millimolar").fill("10");
-  await box(page, "dilution", "Desired concentration in millimolar").fill("100");
-  await box(page, "dilution", "Desired volume in milliliter").fill("10");
-  await expect(calc(page, "dilution").getByText(/higher than the stock/)).toBeVisible();
+test("any of the four can be ticked in the dilution: the answer so far stays as a typed value", async ({ page }) => {
+  await dilute(page);
+  await dilutionFind(page, "V₂, final volume").click();
+  await expect(box(page, "dilution", "V₁, volume of stock in milliliter")).toHaveValue("1");
+  await expect(answer(page, "dilution")).toHaveText("100");
+  await box(page, "dilution", "V₁, volume of stock in milliliter").fill("2");
+  await expect(answer(page, "dilution")).toHaveText("200");
+
+  await dilutionFind(page, "C₂, final concentration").click();
+  await expect(answer(page, "dilution")).toHaveText("10"); // 1 M × 2 mL / 200 mL, in mM
+  await expect(calc(page, "dilution").locator(".calc-formula")).toHaveText("C₂ = C₁ × V₁ / V₂");
+  await dilutionFind(page, "C₁, stock concentration").click();
+  await expect(answer(page, "dilution")).toHaveText("1"); // in M, the unit chosen for C₁
+});
+
+test("a V₁ larger than V₂ is refused when finding a concentration, with the reason", async ({ page }) => {
+  await dilutionFind(page, "C₂, final concentration").click();
+  await box(page, "dilution", "C₁, stock concentration in millimolar").fill("10");
+  await box(page, "dilution", "V₁, volume of stock in milliliter").fill("20");
+  await box(page, "dilution", "V₂, final volume in milliliter").fill("10");
+  await expect(calc(page, "dilution").getByText(/V₁ is larger than V₂/)).toBeVisible();
+  await expect(answer(page, "dilution")).toHaveText("");
+});
+
+test("a final concentration above the stock is refused, with the reason", async ({ page }) => {
+  await box(page, "dilution", "C₁, stock concentration in millimolar").fill("10");
+  await box(page, "dilution", "C₂, final concentration in millimolar").fill("100");
+  await box(page, "dilution", "V₂, final volume in milliliter").fill("10");
+  await expect(calc(page, "dilution").getByText(/C₂ is higher than C₁/)).toBeVisible();
   await expect(answer(page, "dilution")).toHaveText("");
 });
 
@@ -331,6 +362,6 @@ test("each calculator has an i that opens a bubble with the formulas it uses", a
 test("every number box asks a phone for the numeric keypad", async ({ page }) => {
   const boxes = page.locator('main input[type="text"]');
   const count = await boxes.count();
-  expect(count).toBeGreaterThanOrEqual(9); // 3 in calculator 1 (the fourth is the answer), 3 in each of the others
+  expect(count).toBeGreaterThanOrEqual(9); // 3 in calculators 1 and 2 (the fourth tile is the answer), 3 in the converter
   for (let i = 0; i < count; i++) await expect(boxes.nth(i)).toHaveAttribute("inputmode", "decimal");
 });
