@@ -5,6 +5,13 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-11 · Calculator 1's tiles named by their letters
+
+- **Seen:** the Solution tiles are named MW, C, V and m, the letters of m = C × V × MW, as the Dilution tiles are named
+  C₁, V₁, C₂, V₂. A letter keeps its case (m is a mass; an M would read as molar) and is set larger than a word.
+- **Inside:** the labels in `ui/sections.ts`; `.tile-name.symbol` no longer turns letters into capitals. Screen
+  readers still hear the words ("Concentration in millimolar").
+
 ### 2026-10-11 · One calculator at a time: a bar at the bottom of a phone, a rail on a laptop
 
 - **Seen:** the calculators are no longer stacked. Four views, **Solution**, **Dilution**, **Convert** and **Report**,

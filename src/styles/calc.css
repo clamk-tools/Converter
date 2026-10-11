@@ -210,10 +210,11 @@ button.tile-find:active:not(:disabled) {
   color: var(--text);
 }
 
-/* a symbol (C₁, V₂) reads larger than a word in capitals */
+/* a symbol (m, C, MW, C₁) reads larger than a word in capitals, and keeps its case: m is a mass, M would be molar */
 .tile-name.symbol {
   font-size: 0.95rem;
   letter-spacing: 0;
+  text-transform: none;
 }
 
 .tile.found .tile-name,

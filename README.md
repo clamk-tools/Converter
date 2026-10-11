@@ -27,9 +27,10 @@ The molecular weight is in g/mol, which is the same number as daltons (Da).
 
 ### Calculator 1: tick what you want to find
 
-Mass, volume and concentration are one formula, mass = concentration × volume × molecular weight, so they share one
-card of four tiles. **Tick the name of the value you want** (mass, at first): its tile turns blue and shows the answer.
-Type the other two. The molecular weight tile, top left and grey, is the substance's constant: it is always typed.
+Mass, volume and concentration are one formula, m = C × V × MW (mass = concentration × volume × molecular weight),
+so they share one card of four tiles, each named by its letter: **MW**, **C**, **V**, **m**. **Tick the letter of the
+value you want** (m, at first): its tile turns blue and shows the answer. Type the other two. The MW tile, top left
+and grey, is the substance's constant: it is always typed.
 
 When you tick another value, the answer you had stays in its box as a typed number. Found 180.16 mg, then ticked
 Volume: the mass box keeps 180.16 mg and the volume shows 10 mL. Switching back and forth is a quick check.

@@ -44,7 +44,7 @@ test("four views, one at a time: the three calculators and the report; the solut
   await expect(page.getByRole("tab")).toHaveText(["Solution", "Dilution", "Convert", "Report"]);
   await expect(page.getByRole("tab", { name: "Solution" })).toHaveAttribute("aria-selected", "true");
   await expect(page.getByRole("heading", { level: 2 })).toHaveText(["Mass, volume or concentration"]);
-  await expect(calc(page, "solution").locator(".tile-name")).toHaveText(["Molecular weight", "Concentration", "Volume", "Mass"]);
+  await expect(calc(page, "solution").locator(".tile-name")).toHaveText(["MW", "C", "V", "m"]);
   await expect(calc(page, "solution").locator(".tile.fixed")).toContainText("constant");
 
   await open(page, "dilution");
