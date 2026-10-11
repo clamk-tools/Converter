@@ -28,7 +28,7 @@ C₁ × V₁ = C₂ × V₂  →  V₁ = C₂ × V₂ / C₁        dilution: th
                    →  V₂ = C₁ × V₁ / C₂        the final volume
                    →  C₁ = C₂ × V₂ / V₁        the stock concentration needed
                    →  C₂ = C₁ × V₁ / V₂        the final concentration
-ρ = C × MW   and   C = ρ / MW                  mass concentration ρ (g/L) and molar concentration C (mol/L)
+Cm = C × MW   and   C = Cm / MW                mass concentration Cm (g/L) and molar concentration C (mol/L)
 ```
 
 The first four are the equations of GraphPad's molarity calculator. Mass, concentration and volume are one formula solved three ways: calculator 1 on the page, which solves it for the quantity ticked; the dilution is calculator 2, which solves C₁V₁ = C₂V₂ for any one of its four; the last is calculator 3. The mass-concentration units are exact: g/L and mg/mL are the same thing; 1 % w/v is 1 g per 100 mL = 10 g/L; 1 ppm is taken as 1 mg/L (right for a dilute aqueous solution, where 1 L weighs 1 kg). n = m / MW is used only
@@ -55,7 +55,7 @@ C₂ = C₁ (within float noise, e.g. 1 mM against 1000 µM), or V₁ = V₂, is
 **Mass.** Glucose, MW 180.16 g/mol, 100 mM in 10 mL:
 100 mM = 0.1 M; 10 mL = 0.01 L; m = 0.1 × 0.01 × 180.16 = 0.18016 g = **180.16 mg**; n = 1 mmol.
 
-**Conversion.** 100 mM, MW 180.16 g/mol: ρ = 0.1 mol/L × 180.16 g/mol = 18.016 g/L = 18.016 mg/mL = 1.8016 % w/v = 18 016 µg/mL = 18 016 ppm. Back: 1 % w/v = 10 g/L; C = 10 g/L / 180.16 g/mol = 0.0555062 mol/L = 55.5062 mM.
+**Conversion.** 100 mM, MW 180.16 g/mol: Cm = 0.1 mol/L × 180.16 g/mol = 18.016 g/L = 18.016 mg/mL = 1.8016 % w/v = 18 016 µg/mL = 18 016 ppm. Back: 1 % w/v = 10 g/L; C = 10 g/L / 180.16 g/mol = 0.0555062 mol/L = 55.5062 mM.
 
 **Dilution.** C₁ = 1 M stock, C₂ = 10 mM, V₂ = 100 mL:
 V₁ = 0.01 × 0.1 / 1 = 0.001 L = **1 mL** of stock (made up to 100 mL). The other three from the same solution:

@@ -5,6 +5,15 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-11 · Tiles and rows named by their letters: MW, C, V, m; Cm in Convert
+
+- **Seen:** the Solution tiles are named MW, C, V and m, the letters of m = C × V × MW, as the Dilution tiles are named
+  C₁, V₁, C₂, V₂. A letter keeps its case (m is a mass; an M would read as molar) and is set larger than a word.
+- **Inside:** the labels in `ui/sections.ts`; `.tile-name.symbol` no longer turns letters into capitals. Screen
+  readers still hear the words ("Concentration in millimolar").
+- **Also in Convert:** its rows are named MW, C and **Cm** for the mass concentration (the MW row reads "g/mol or Da
+  · constant" beside its box), and the "i" bubble and the docs write Cm = C × MW and C = Cm / MW where they had ρ.
+
 ### 2026-10-11 · One calculator at a time: a bar at the bottom of a phone, a rail on a laptop
 
 - **Seen:** the calculators are no longer stacked. Four views, **Solution**, **Dilution**, **Convert** and **Report**,

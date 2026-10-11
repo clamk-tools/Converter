@@ -21,15 +21,16 @@ keeps everything you typed.
 |---|---|---|---|---|
 | 1 | Mass, volume or concentration (Solution) | the molecular weight, and two of mass, volume, concentration | the third one | 100 mM, 180.16 g/mol, 10 mL → **180.16 mg** |
 | 2 | Dilution (Dilution) | three of C₁, V₁ (the stock) and C₂, V₂ (the final solution) | the fourth | C₁ 1 M, C₂ 10 mM, V₂ 100 mL → V₁ **1 mL** |
-| 3 | Converter (Convert) | molecular weight, and a molar or mass concentration | the other one | 100 mM at 180.16 g/mol → **18.016 mg/mL** |
+| 3 | Converter (Convert) | MW, and a molar concentration C or a mass concentration Cm | the other one | 100 mM at 180.16 g/mol → **18.016 mg/mL** |
 
 The molecular weight is in g/mol, which is the same number as daltons (Da).
 
 ### Calculator 1: tick what you want to find
 
-Mass, volume and concentration are one formula, mass = concentration × volume × molecular weight, so they share one
-card of four tiles. **Tick the name of the value you want** (mass, at first): its tile turns blue and shows the answer.
-Type the other two. The molecular weight tile, top left and grey, is the substance's constant: it is always typed.
+Mass, volume and concentration are one formula, m = C × V × MW (mass = concentration × volume × molecular weight),
+so they share one card of four tiles, each named by its letter: **MW**, **C**, **V**, **m**. **Tick the letter of the
+value you want** (m, at first): its tile turns blue and shows the answer. Type the other two. The MW tile, top left
+and grey, is the substance's constant: it is always typed.
 
 When you tick another value, the answer you had stays in its box as a typed number. Found 180.16 mg, then ticked
 Volume: the mass box keeps 180.16 mg and the volume shows 10 mL. Switching back and forth is a quick check.
@@ -46,7 +47,7 @@ unit menu.
 Each box has a unit menu: molar to picomolar, liter to nanoliter, grams to nanograms.
 
 - **Changing a unit never changes the value.** 100 µM switched to mM shows 0.1.
-- **Calculator 3's mass line has two menus**, one for the mass and one for the volume, so you can build any pair:
+- **Calculator 3's mass concentration line (Cm) has two menus**, one for the mass and one for the volume, so you can build any pair:
   µg/mL, mg/L, ng/µL… It also offers **% w/v** (grams per 100 mL) and **ppm** (milligrams per liter).
 
 ### Boxes that are linked
@@ -64,7 +65,7 @@ the unit of each symbol. Press it again to close it.
 |---|---|
 | 1. Mass, volume or concentration | m = C × V × MW, so V = m / (C × MW) and C = m / (MW × V) |
 | 2. Dilution | C₁V₁ = C₂V₂, so V₁ = C₂ × V₂ / C₁, V₂ = C₁ × V₁ / C₂, C₁ = C₂ × V₂ / V₁, C₂ = C₁ × V₁ / V₂ |
-| 3. Converter | mass concentration = C × MW |
+| 3. Converter | Cm = C × MW, so C = Cm / MW (Cm: mass concentration) |
 
 m = mass (g), C = concentration (mol/L), V = volume (L), MW = molecular weight (g/mol). Every value is converted to
 these units before calculating. [`doc/CALCULATIONS.md`](doc/CALCULATIONS.md) has every formula and rule in full.

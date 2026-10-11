@@ -90,7 +90,7 @@ hides float noise), 6 for a calculated value. Plain notation from 1e-5 to 1e10, 
 | `src/numbers/numbers.test.ts` | parsing (decimals, `e`, comma, partial, invalid, overflow), formatting (noise, notation, round trip) |
 | `src/engine/solve.test.ts` | each equation, both sanity checks, every validation rule, tiny and huge values, overflow |
 | `src/state/report.test.ts` | each calculation worked by hand (given, conversions, substitution, result, check), base-unit and tiny values, a snapshot that later edits do not change, the plain-text form, renaming and collapsing |
-| `src/engine/solve.test.ts` also | ρ = C × MW and back, the checks of calculator 3 |
+| `src/engine/solve.test.ts` also | Cm = C × MW and back, the checks of calculator 3 |
 | `src/state/model.test.ts` | synchronisation (100 µM, 0.25 mM, 2 mL, 5 mg), linked boxes, unit changes, ticking the value to find in calculators 1 and 2 (the answer kept as a typed value, a round trip without drift, their rules), calculator 3 (two linked lines, each with its unit menu, across kinds through the molecular weight, "needs MW"), typing states, dilution |
 | `e2e/calculator.spec.ts` | the built page used through the keyboard and mouse, in four browser set-ups; also fails on any request to another host |
 
@@ -129,8 +129,8 @@ One concentration on two lines, molar and mass per volume, each with its own uni
 units from a mass unit and a volume unit (`pair`, `splitPair`), so the 4 × 4 combinations need no list, and the line shows
 two menus for them; % w/v and ppm are the two units that are not pairs. It is stored once, as typed: `entries.converter` is a
 canonical value *and its dimension* (`molar` in M, or `massConc` in g/L), which is why `Entry` carries `dimension`.
-`converterValueIn()` shows it in any unit: a change of unit within its dimension, or, across dimensions, ρ = C × MW or
-C = ρ / MW with the molecular weight of calculator 1 (`null` without one: the box says "needs MW"). Typing in a
+`converterValueIn()` shows it in any unit: a change of unit within its dimension, or, across dimensions, Cm = C × MW or
+C = Cm / MW with the molecular weight of calculator 1 (`null` without one: the box says "needs MW"). Typing in a
 line replaces the stored value, so the other follows. It is deliberately separate from `entries.concentration`:
 converting a value must not change the mass worked out in calculator 1.
 

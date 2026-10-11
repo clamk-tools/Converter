@@ -5,9 +5,9 @@ import type { FieldId } from "../state/model";
 
 export interface TileSpec {
   field: FieldId;
-  /** the tile's name on the page: "Concentration", "C₁" */
+  /** the tile's name on the page, its symbol in the formula: "C", "C₁" */
   label: string;
-  /** the name a screen reader says for its box and menu: "Concentration", "C₁, stock concentration" */
+  /** the name a screen reader says for its box and menu, in words: "Concentration", "C₁, stock concentration" */
   spoken: string;
   /** what its tick button says: "Find mass" */
   findName: string;
@@ -29,10 +29,10 @@ export const SOLUTION: TileCardSpec = {
   title: "Mass, volume or concentration",
   hint: "Tick the value to find, type the other two.",
   tiles: [
-    { field: "molarMass", label: "Molecular weight", spoken: "Molecular weight (g/mol or Da)", findName: "", fixed: true },
-    { field: "concentration", label: "Concentration", spoken: "Concentration", findName: "concentration" },
-    { field: "volume", label: "Volume", spoken: "Volume", findName: "volume" },
-    { field: "mass", label: "Mass", spoken: "Mass", findName: "mass" },
+    { field: "molarMass", label: "MW", spoken: "Molecular weight (g/mol or Da)", findName: "", fixed: true },
+    { field: "concentration", label: "C", spoken: "Concentration", findName: "concentration" },
+    { field: "volume", label: "V", spoken: "Volume", findName: "volume" },
+    { field: "mass", label: "m", spoken: "Mass", findName: "mass" },
   ],
 };
 

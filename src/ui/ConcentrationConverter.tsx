@@ -63,7 +63,8 @@ function MassUnits({ unitId, dispatch }: { unitId: UnitId; dispatch: Dispatch<Ac
 
 // Calculator 3: one concentration on two lines, as molar and as mass per volume, each with its own unit menu. The two
 // boxes are views of one stored value, so typing in either fills the other; crossing from one kind to the other goes
-// through the molecular weight, the one calculator 1 uses (state/model.ts). Its row is grey, as there: a constant.
+// through the molecular weight, the one calculator 1 uses (state/model.ts). Its row is grey, as there: a constant. The
+// rows are named by their letters, MW, C and Cm (the mass concentration), as the tiles of calculators 1 and 2.
 export function ConcentrationConverter({ state, derived, dispatch }: Props) {
   const id = useId();
   const mwIssue = issueAt(state, derived, "conversion", "molarMass");
@@ -77,8 +78,8 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
       </div>
 
       <div className={`row fixed${mwIssue ? " has-issue" : ""}`}>
-        <label className="row-label" htmlFor={`${id}-mw`}>
-          Molecular weight (g/mol or Da):
+        <label className="row-label symbol" htmlFor={`${id}-mw`}>
+          MW
         </label>
         <input
           id={`${id}-mw`}
@@ -95,7 +96,7 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
           onChange={(e) => dispatch({ type: "type", field: "molarMass", unit: "g_mol", text: e.target.value, box: "conversion" })}
           onBlur={() => dispatch({ type: "leave", field: "molarMass" })}
         />
-        <span className="row-note">constant</span>
+        <span className="row-note">g/mol or Da · constant</span>
         {mwIssue && (
           <p className="row-issue" id={`${id}-mw-issue`}>
             {mwIssue}
@@ -107,11 +108,13 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
         const unitId: UnitId = state.units[slot];
         const molar = slot === "converterMolar";
         const label = molar ? "Molar concentration" : "Mass concentration";
+        // the letter shown, as in calculators 1 and 2: C, and Cm for the mass concentration; the words stay for a screen reader
+        const symbol = molar ? "C" : "Cm";
         const invalid = valueIssue !== null && derived.conversion.amount === null;
         return (
           <div className={`row${molar ? "" : " pair"}${valueIssue && molar ? " has-issue" : ""}`} key={slot}>
-            <label className="row-label" htmlFor={`${id}-${slot}`}>
-              {label}:
+            <label className="row-label symbol" htmlFor={`${id}-${slot}`}>
+              {symbol}
             </label>
             <input
               id={`${id}-${slot}`}

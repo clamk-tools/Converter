@@ -48,11 +48,13 @@ export function TileCard({ spec, find, result, formula, note, reportWhat, state,
           const issue = found ? null : issueAt(state, derived, spec.id, field);
           const shown = unitOf(state, field);
           const boxId = `${id}-${field}`;
+          // a symbol (m, MW, C₁) is set larger and keeps its case: m is a mass, M would be molar
+          const nameClass = `tile-name${label.length <= 2 ? " symbol" : ""}`;
           return (
             <div className={`tile${fixed ? " fixed" : ""}${found ? " found" : ""}${issue ? " has-issue" : ""}`} key={field}>
               {fixed ? (
                 <div className="tile-head">
-                  <label className="tile-name" htmlFor={boxId}>
+                  <label className={nameClass} htmlFor={boxId}>
                     {label}
                   </label>
                   <span className="tile-note">constant</span>
@@ -72,7 +74,7 @@ export function TileCard({ spec, find, result, formula, note, reportWhat, state,
                       </svg>
                     )}
                   </span>
-                  <span className={`tile-name${label.length <= 2 ? " symbol" : ""}`}>{label}</span>
+                  <span className={nameClass}>{label}</span>
                   {found && <span className="tile-note">Finding</span>}
                 </button>
               )}
