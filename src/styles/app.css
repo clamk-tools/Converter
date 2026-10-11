@@ -112,6 +112,20 @@
   padding-bottom: 44px;
 }
 
+/* a laptop: the rail of views on the left, the view beside it (calc.css, "views") */
+@media (min-width: 760px) {
+  .wrap {
+    max-width: calc(var(--container) + 204px);
+  }
+
+  .page {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+  }
+}
+
 .foot p {
   margin: 0;
   padding: 18px 0 28px;

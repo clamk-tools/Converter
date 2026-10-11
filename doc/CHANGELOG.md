@@ -5,6 +5,18 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-11 · One calculator at a time: a bar at the bottom of a phone, a rail on a laptop
+
+- **Seen:** the calculators are no longer stacked. Four views, **Solution**, **Dilution**, **Convert** and **Report**,
+  each an icon and a word: in a bar along the bottom of a phone, as in a phone app, and in a rail down the left of a
+  laptop. Everything typed is kept when moving between them. The card titles lose their numbers. The molecular weight
+  box is now white inside its grey tile (and in the converter's grey row), like every box typed in.
+- **Inside:** `ui/ViewNav.tsx`; the old Calculators | Report tabs and their styles are replaced; the `--fixed-box`
+  colour token is removed. 27 end-to-end tests: each opens the view it needs, and one checks the bar's place on a
+  phone and on a laptop, and the arrow keys.
+- **Decided** (from four phone designs and two laptop designs on the design canvas): a bottom bar on a phone, where a
+  thumb reaches it; on a laptop, where a bottom bar looks out of place, the same four in a side rail.
+
 ### 2026-10-11 · The dilution as tiles: C₁, V₁, C₂, V₂, any one found
 
 - **Seen:** calculator 2, "Dilute a stock solution", is now four tiles like calculator 1: C₁ and V₁ (the stock) on the

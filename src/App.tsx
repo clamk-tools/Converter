@@ -1,4 +1,3 @@
-import type { KeyboardEvent } from "react";
 import { useEffect, useMemo, useReducer, useState } from "react";
 
 import { DILUTION_RESULT_OF, RESULT_OF, derive, initialState, reducer } from "./state/model";
@@ -11,34 +10,25 @@ import { DILUTED_BY, SOLVED_BY } from "./ui/formulas";
 import { DILUTION, SOLUTION } from "./ui/sections";
 import { TileCard } from "./ui/TileCard";
 import { ThemeSwitch } from "./ui/ThemeSwitch";
+import { ViewNav } from "./ui/ViewNav";
+import type { View } from "./ui/ViewNav";
 
-// The page: the frame every Clamk tool has (rail, header with the name and the theme switch, footer) around the three
-// calculators, stacked: mass, volume or concentration; dilution; conversion. All values live in one state (state/model.ts), so a quantity typed in
-// one calculator is the same in the others, and a unit chosen for it shows everywhere. A second tab holds the report:
-// the calculations added to it with the icon beside each answer.
-type Tab = "calculators" | "report";
+// The page: the frame every Clamk tool has (rail, header with the name and the theme switch, footer) around four
+// views, one at a time: the three calculators (solution, dilution, conversion) and the report, chosen in a bar at the
+// bottom of a phone or a rail on the left of a laptop (ui/ViewNav.tsx). All values live in one state
+// (state/model.ts), kept while moving between views: the molecular weight typed in one calculator is the same in the
+// others, and a unit chosen for a quantity shows everywhere. The report holds the calculations added to it with the
+// icon beside each answer.
 
 export function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const derived = useMemo(() => derive(state), [state]);
-  const [tab, setTab] = useState<Tab>("calculators");
+  const [view, setView] = useState<View>("solution");
   const [report, setReport] = useState<ReportEntry[]>(loadReport);
   useEffect(() => saveReport(report), [report]);
   const addToReport = (section: Section) => {
     const entry = entryFor(state, derived, section, `${Date.now()}-${Math.random()}`);
     if (entry) setReport((r) => [...r, entry]);
-  };
-
-  const tabs: { id: Tab; label: string }[] = [
-    { id: "calculators", label: "Calculators" },
-    { id: "report", label: `Report${report.length ? ` (${report.length})` : ""}` },
-  ];
-  // arrow keys move between the two tabs, as in any tab list
-  const onTabKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-    const next = tab === "calculators" ? "report" : "calculators";
-    setTab(next);
-    document.getElementById(`tab-${next}`)?.focus();
   };
 
   return (
@@ -57,51 +47,37 @@ export function App() {
       </header>
 
       <main className="wrap page">
-        <div className="tabs" role="tablist" aria-label="View" onKeyDown={onTabKey}>
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              id={`tab-${t.id}`}
-              aria-selected={tab === t.id}
-              aria-controls="panel"
-              tabIndex={tab === t.id ? 0 : -1}
-              onClick={() => setTab(t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-        <div className="panel" role="tabpanel" id="panel" aria-labelledby={`tab-${tab}`}>
-          {tab === "calculators" ? (
-            <>
-              <TileCard
-                spec={SOLUTION}
-                find={state.find}
-                result={RESULT_OF[state.find]}
-                formula={SOLVED_BY[state.find]}
-                reportWhat={state.find}
-                state={state}
-                derived={derived}
-                dispatch={dispatch}
-                onAdd={() => addToReport(state.find)}
-              />
-              <TileCard
-                spec={DILUTION}
-                find={state.dilutionFind}
-                result={DILUTION_RESULT_OF[state.dilutionFind]}
-                formula={DILUTED_BY[state.dilutionFind]}
-                note={derived.dilution.note}
-                reportWhat="the dilution"
-                state={state}
-                derived={derived}
-                dispatch={dispatch}
-                onAdd={() => addToReport("dilution")}
-              />
-              <ConcentrationConverter state={state} derived={derived} dispatch={dispatch} />
-            </>
-          ) : (
+        <ViewNav view={view} onView={setView} reportCount={report.length} />
+        <div className="panel" role="tabpanel" id="panel" aria-labelledby={`tab-${view}`}>
+          {view === "solution" && (
+            <TileCard
+              spec={SOLUTION}
+              find={state.find}
+              result={RESULT_OF[state.find]}
+              formula={SOLVED_BY[state.find]}
+              reportWhat={state.find}
+              state={state}
+              derived={derived}
+              dispatch={dispatch}
+              onAdd={() => addToReport(state.find)}
+            />
+          )}
+          {view === "dilution" && (
+            <TileCard
+              spec={DILUTION}
+              find={state.dilutionFind}
+              result={DILUTION_RESULT_OF[state.dilutionFind]}
+              formula={DILUTED_BY[state.dilutionFind]}
+              note={derived.dilution.note}
+              reportWhat="the dilution"
+              state={state}
+              derived={derived}
+              dispatch={dispatch}
+              onAdd={() => addToReport("dilution")}
+            />
+          )}
+          {view === "convert" && <ConcentrationConverter state={state} derived={derived} dispatch={dispatch} />}
+          {view === "report" && (
             <Report
               entries={report}
               onRename={(id, name) => setReport((r) => rename(r, id, name))}

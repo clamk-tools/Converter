@@ -22,9 +22,9 @@ dependent quantities recalculate on every keystroke with no update loops.
  state/report.ts       the calculation report: each entry a worked calculation (given → base units → formula → substitution → result → check), kept in the browser's storage
  ui/sections.ts        the three calculators as data: titles, boxes in order (calculator 1's four tiles), answers
  ui/formulas.ts       the formulas of each calculator, as text for its "i" bubble (documentation, not computation)
- ui/*.tsx              components: TileCard (calculators 1 and 2), ConcentrationConverter (calculator 3),
+ ui/*.tsx              components: ViewNav (the four views), TileCard (calculators 1 and 2), ConcentrationConverter (calculator 3),
                        AddToReport, InfoBubble, Report, UnitSelect, ThemeSwitch
- App.tsx               the frame (rail, header, footer) around the three calculators
+ App.tsx               the frame (rail, header, footer) around four views, one at a time: the three calculators, the report
  styles/               theme.css: tokens and controls (shared with the other tools); app.css: frame; calc.css: the calculator
 ```
 
@@ -138,8 +138,9 @@ converting a value must not change the mass worked out in calculator 1.
 
 One component draws both (`ui/TileCard.tsx`; their tiles are listed in `ui/sections.ts`). Calculator 1 is
 m = C × V × MW.
-The molecular weight comes first (top left) and is grey (`.tile.fixed`, the `--fixed-*` tokens of `theme.css`): a
-constant of the substance, always typed, never found. The converter's molecular weight row has the same grey. Each of
+The molecular weight comes first (top left) and its tile is grey (`.tile.fixed`, the `--fixed-*` tokens of
+`theme.css`): a constant of the substance, always typed, never found; its box stays white, as every box typed in. The
+converter's molecular weight row has the same grey. Each of
 the other three tiles has a tick and its name as one button (`aria-pressed`); the ticked tile is blue and shows the
 answer, a number alone, beside the quantity's unit menu. On a laptop the number and its menu sit side by side; below
 560px the menu goes under the number, and the tiles stay two by two. Its report entry is the one of the quantity found
@@ -149,3 +150,12 @@ Calculator 2 is C₁V₁ = C₂V₂: C₁ and V₁ (the stock) on the first row,
 each with its own unit menu. Any of the four can be ticked (`State.dilutionFind`, V₁ at first); the same `find`
 action serves both cards, as their quantities have different ids. Its report entry is the one of the quantity found
 (`DILUTION_SPECS` in `state/report.ts`).
+
+## 9. The four views
+
+The page shows one view at a time (`App.tsx`, `view`): the three calculators, Solution, Dilution and Convert, and the
+report. `ui/ViewNav.tsx` lists them as tabs, each an icon and a word; `calc.css` ("views") places that one list as a
+bar fixed along the bottom of a phone and, from 760px, a rail down the left of a laptop (`app.css` widens the page
+for it). Arrow keys move between the tabs either way. The state lives in `App`, above the views, so what is typed in
+one calculator is kept when another is shown, and the molecular weight is the same in Solution and Convert. The card
+titles carry no number any more: only one shows at a time.

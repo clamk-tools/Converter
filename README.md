@@ -13,11 +13,15 @@ your device. It is one of the [Clamk Tools](https://clamk-tools.github.io/).
 
 Type your numbers; the answer appears as you type. There is no Calculate button.
 
-| # | Calculator | You enter | You get | Example |
+Each calculator has its own view, chosen with **Solution**, **Dilution** and **Convert**: in a bar at the bottom of a
+phone, in a rail on the left of a laptop. The fourth, **Report**, holds the calculations you keep. Moving between them
+keeps everything you typed.
+
+| # | Calculator (view) | You enter | You get | Example |
 |---|---|---|---|---|
-| 1 | Mass, volume or concentration | the molecular weight, and two of mass, volume, concentration | the third one | 100 mM, 180.16 g/mol, 10 mL → **180.16 mg** |
-| 2 | Dilution | three of C₁, V₁ (the stock) and C₂, V₂ (the final solution) | the fourth | C₁ 1 M, C₂ 10 mM, V₂ 100 mL → V₁ **1 mL** |
-| 3 | Converter | molecular weight, and a molar or mass concentration | the other one | 100 mM at 180.16 g/mol → **18.016 mg/mL** |
+| 1 | Mass, volume or concentration (Solution) | the molecular weight, and two of mass, volume, concentration | the third one | 100 mM, 180.16 g/mol, 10 mL → **180.16 mg** |
+| 2 | Dilution (Dilution) | three of C₁, V₁ (the stock) and C₂, V₂ (the final solution) | the fourth | C₁ 1 M, C₂ 10 mM, V₂ 100 mL → V₁ **1 mL** |
+| 3 | Converter (Convert) | molecular weight, and a molar or mass concentration | the other one | 100 mM at 180.16 g/mol → **18.016 mg/mL** |
 
 The molecular weight is in g/mol, which is the same number as daltons (Da).
 
@@ -47,8 +51,9 @@ Each box has a unit menu: molar to picomolar, liter to nanoliter, grams to nanog
 
 ### Boxes that are linked
 
-Calculator 2 (dilution) keeps its own values. Calculator 3 shares only the molecular weight with calculator 1 (grey in
-both, as a constant), so converting a concentration never changes calculator 1.
+Calculator 2 (dilution) keeps its own values. Calculator 3 shares only the molecular weight with calculator 1 (a grey
+tile or row in both, as a constant; its box is white like the others), so converting a concentration never changes
+calculator 1.
 
 ### The "i" button: the formulas
 
@@ -68,7 +73,7 @@ these units before calculating. [`doc/CALCULATIONS.md`](doc/CALCULATIONS.md) has
 
 ## The report
 
-Beside each answer is an icon that adds the calculation to the **Report** tab. Each entry is written out step by step,
+Beside each answer is an icon that adds the calculation to the **Report** view. Each entry is written out step by step,
 so that someone else (a client, a colleague) can check it:
 
 ```

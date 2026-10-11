@@ -1,4 +1,4 @@
-// The page's three calculators as data: their titles and their tiles in order. The layout lives in TileCard.tsx and
+// The page's three calculators as data: their titles and their tiles in order. Each is a view of its own (App.tsx). The layout lives in TileCard.tsx and
 // ConcentrationConverter.tsx; the science in engine/ and state/.
 
 import type { FieldId } from "../state/model";
@@ -26,7 +26,7 @@ export interface TileCardSpec {
 /** Calculator 1: m = C × V × MW. The molecular weight comes first: it is the substance's constant, always typed. */
 export const SOLUTION: TileCardSpec = {
   id: "solution",
-  title: "1. Mass, volume or concentration",
+  title: "Mass, volume or concentration",
   hint: "Tick the value to find, type the other two.",
   tiles: [
     { field: "molarMass", label: "Molecular weight", spoken: "Molecular weight (g/mol or Da)", findName: "", fixed: true },
@@ -39,7 +39,7 @@ export const SOLUTION: TileCardSpec = {
 /** Calculator 2: C₁V₁ = C₂V₂, the stock on the first row and the final solution on the second. Any one is found. */
 export const DILUTION: TileCardSpec = {
   id: "dilution",
-  title: "2. Dilute a stock solution",
+  title: "Dilute a stock solution",
   hint: "Tick the value to find, type the other three.",
   tiles: [
     { field: "stock", label: "C₁", spoken: "C₁, stock concentration", findName: "C₁, stock concentration" },
@@ -49,4 +49,4 @@ export const DILUTION: TileCardSpec = {
   ],
 };
 
-export const CONVERTER_TITLE = "3. Convert between mass & molar concentration";
+export const CONVERTER_TITLE = "Convert between mass & molar concentration";
