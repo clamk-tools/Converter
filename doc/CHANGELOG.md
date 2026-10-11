@@ -5,6 +5,22 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-11 · The report as numbered steps that fold
+
+- **Seen:** each calculation in the report is a card of labelled rows: 1 Given, 2 Convert, 3 Apply, 4 Result, ✓ Check.
+  The result sits in a blue band, in the unit chosen and, smaller, in base units. The answer stays in the card's
+  header whether the card is open or folded; a tap anywhere on the header folds it. Rename and Remove moved to the
+  foot of an open card, beside a green "✓ checked" (or "✗ check failed"). Collapse all, Copy as text and Clear report
+  moved to a bar above the cards, which also counts them.
+- **Fixed:** the check wrote the result to twelve digits (50775.174144); it is now rounded as the result is shown
+  (50775.2). Very large or small numbers read 9.98 × 10¹¹ instead of 9.98e11, on the page and in the copied text.
+- **Inside:** `ui/Report.tsx` and the report styles in `calc.css` rewritten; `answerOf()` and `readable()` in
+  `state/report.ts`. The stored entries keep their shape, so reports already kept still open. 120 unit tests, 30
+  end-to-end tests (updated for the new layout; one checks that the header folds the card).
+- **Decided** (from ten report designs, then six variations of the numbered steps): labelled rows, as they read like a
+  printed protocol, with folding. The warning for an unusually large amount (above 1 kg, say) is left for later: it
+  needs a limit chosen.
+
 ### 2026-10-11 · The last three review items
 
 - **Seen:** an answer too large or too small to calculate (beyond about 10^±308, from a mistyped exponent, say) now

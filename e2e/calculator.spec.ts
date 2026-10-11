@@ -253,7 +253,10 @@ test("an answer can be added to the report, which writes the calculation out ste
   await expect(sheet.getByText("m = C × V × MW")).toBeVisible();
   await expect(sheet.getByText("m = 0.1 mol/L × 0.01 L × 180.16 g/mol")).toBeVisible();
   await expect(sheet.getByText("m = 180.16 mg")).toBeVisible();
-  await expect(sheet.getByText("C = m / (MW × V) = 0.18016 / (180.16 × 0.01) = 0.1 mol/L ✓")).toBeVisible();
+  await expect(sheet.getByText("C = m / (MW × V) = 0.18016 / (180.16 × 0.01) = 0.1 mol/L")).toBeVisible();
+  await expect(sheet.locator(".step dt")).toHaveText(["1 Given", "2 Convert", "3 Apply", "4 Result", "✓ Check"]);
+  await expect(sheet.locator(".sheet-answer")).toHaveText("180.16 mg");
+  await expect(sheet.getByText("✓ checked")).toBeVisible();
 
   await page.getByRole("button", { name: "Remove calculation 1" }).click();
   await expect(page.getByText("Nothing in the report yet.", { exact: false })).toBeVisible();
@@ -282,9 +285,10 @@ test("a calculation in the report can be renamed and collapsed", async ({ page }
 
   await page.getByRole("button", { name: "Collapse calculation 1" }).click();
   await expect(sheet.getByText("m = C × V × MW")).toHaveCount(0);
-  await expect(sheet.locator(".sheet-summary")).toHaveText("m = 180.16 mg"); // the result stays in view
-  await page.getByRole("button", { name: "Expand calculation 1" }).click();
+  await expect(sheet.locator(".sheet-answer")).toHaveText("180.16 mg"); // the answer stays in view
+  await sheet.locator(".sheet-head").click(); // the whole header folds and opens it, not only the arrow
   await expect(sheet.getByText("m = C × V × MW")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Collapse calculation 1" })).toHaveAttribute("aria-expanded", "true");
 
   await page.getByRole("button", { name: "Rename calculation 1" }).click();
   await page.getByLabel("Name for calculation 1").fill("never saved");
@@ -319,7 +323,7 @@ test("Collapse all folds every calculation, then Expand all opens them", async (
   await page.getByRole("tab", { name: "Report (2)" }).click();
   await page.getByRole("button", { name: "Collapse all" }).click();
   await expect(page.locator(".steps")).toHaveCount(0);
-  await expect(page.locator(".sheet-summary")).toHaveCount(2);
+  await expect(page.locator(".sheet-answer")).toHaveText(["180.16 mg", "10 mL"]); // a folded report: a list of answers
   await page.getByRole("button", { name: "Expand all" }).click();
   await expect(page.locator(".steps")).toHaveCount(2);
 });

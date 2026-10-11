@@ -83,27 +83,31 @@ these units before calculating. [`doc/CALCULATIONS.md`](doc/CALCULATIONS.md) has
 
 ## The report
 
-Beside each answer is an icon that adds the calculation to the **Report** view. Each entry is written out step by step,
-so that someone else (a client, a colleague) can check it:
+Beside each answer is an icon that adds the calculation to the **Report** view. Each entry is written out as numbered
+steps, so that someone else (a client, a colleague) can check it:
 
 ```
-1  Mass from volume & concentration
-   GIVEN         C = 100 mM · MW = 180.16 g/mol · V = 10 mL
-   IN BASE UNITS C = 100 mM × 10⁻³ = 0.1 mol/L · V = 10 mL × 10⁻³ = 0.01 L
-   FORMULA       m = C × V × MW
-   SUBSTITUTION  m = 0.1 mol/L × 0.01 L × 180.16 g/mol = 0.18016 g
-   RESULT        m = 0.18016 g = 180.16 mg
-   CHECK         C = m / (MW × V) = 0.18016 / (180.16 × 0.01) = 0.1 mol/L ✓
+1  Mass from volume & concentration                    180.16 mg
+   1 GIVEN    C = 100 mM · MW = 180.16 g/mol · V = 10 mL
+   2 CONVERT  C = 100 mM × 10⁻³ = 0.1 mol/L · V = 10 mL × 10⁻³ = 0.01 L
+   3 APPLY    m = C × V × MW
+              m = 0.1 mol/L × 0.01 L × 180.16 g/mol = 0.18016 g
+   4 RESULT   m = 180.16 mg  (0.18016 g)
+   ✓ CHECK    C = m / (MW × V) = 0.18016 / (180.16 × 0.01) = 0.1 mol/L
+   ✓ checked                                      Rename   Remove
 ```
 
-The last line, **CHECK**, works backwards from the answer to make sure it gives back what you entered.
+The **CONVERT** step appears only when a value was not already in base units. The **CHECK** works backwards from the
+answer to make sure it gives back what you entered; a passed check shows a green "✓ checked", a failed one "✗ check
+failed". Very large or small numbers are written as a person writes them: 9.98 × 10¹¹ pM, not 9.98e11 pM.
 
 In the report you can:
 
-- **Rename** an entry (pencil icon), for example "Glucose stock".
-- **Fold** an entry to its title and result (arrow icon), or fold them all at once.
-- **Remove** an entry, or clear the whole report (it asks once more: **Delete all** or **Keep**).
-- **Copy as text** to paste the whole report into a document.
+- **Fold** an entry by tapping its header (or the arrow), or fold them all at once with **Collapse all**. The answer
+  stays in the header, so a folded report reads as a list of results.
+- **Rename** an entry, for example "Glucose stock", or **Remove** it, from the foot of an open entry.
+- **Copy as text** to paste the whole report into a document, or **Clear report**, which asks once more
+  (**Delete all** or **Keep**). These sit above the entries.
 
 An entry keeps the values it had when you added it. The report stays in your browser after you close the page. It is
 never sent anywhere. Calculator 3 cannot add to the report yet.
