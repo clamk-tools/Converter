@@ -116,8 +116,10 @@ never sent anywhere. Calculator 3 cannot add to the report yet.
 - **Powers of ten:** `1e-6` means 0.000001 (on a computer keyboard).
 - **On a phone** the number keypad opens, as in a phone app. It has no `e` key, so for very small or large values pick a
   better unit instead (nM rather than M).
-- **Refused:** `1,500`, because it could mean 1.5 or 1500. Write `1500`.
+- **Refused:** `1,500` (and `1,500e3`), because it could mean 1.5 or 1500. Write `1500`.
 - **Precision:** answers show 6 significant figures. A number you typed keeps up to 12.
+- **Range:** an answer beyond about 10³⁰⁸, or below about 10⁻³⁰⁸, cannot be calculated; the page says so (usually
+  a mistyped exponent or unit).
 
 ## When there is no answer
 

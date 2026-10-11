@@ -120,7 +120,7 @@ Visual changes follow `doc/LLM feed for visual/LLMfeed_VISUAL-IDENTITY.md` and u
   decimal separator, as in a phone app. That keypad has no `e` and no minus, so on a phone a very small or large value
   is typed in a better unit (nM, µL…) rather than in scientific notation; a keyboard still accepts `1e-6`. The keypad's
   separator follows the phone's language (a comma in many), which is why the decimal comma is accepted.
-- **A decimal comma is accepted**, but `1,500` is refused: it could mean either.
+- **A decimal comma is accepted**, but `1,500` is refused, with or without an exponent (`1,500e3`): it could mean either.
 - **Fonts and code served by the site**, under a Content-Security-Policy: no third party sees who uses the tool.
 
 ## 7. Calculator 3 (the converter)

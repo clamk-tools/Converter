@@ -56,6 +56,7 @@ export function App() {
               find={state.find}
               result={RESULT_OF[state.find]}
               formula={SOLVED_BY[state.find]}
+              problem={derived.solutions[state.find].outOfRange}
               worked={solutionWorked(state, derived)}
               reportWhat={state.find}
               state={state}
@@ -71,6 +72,7 @@ export function App() {
               result={DILUTION_RESULT_OF[state.dilutionFind]}
               formula={DILUTED_BY[state.dilutionFind]}
               note={derived.dilution.note}
+              problem={derived.dilution.outOfRange}
               worked={dilutionWorked(state, derived)}
               reportWhat="the dilution"
               state={state}

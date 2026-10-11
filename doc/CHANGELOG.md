@@ -5,6 +5,15 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-11 · The last three review items
+
+- **Seen:** an answer too large or too small to calculate (beyond about 10^±308, from a mistyped exponent, say) now
+  says so in red under the formula, in all three calculators, instead of staying blank or showing 0. `1,500e3` is
+  refused like `1,500`: it could be 1500 or 1.5 million.
+- **Inside:** `outOfRange()` in `engine/solve.ts`, `outOfRange` on each result, `converterOutOfRange()` in
+  `state/model.ts`; unit and end-to-end tests for both.
+- **Privacy guard:** `.githooks/check-privacy.sh` also blocks a Linux home folder path; `CLAUDE.md` says so.
+
 ### 2026-10-11 · Fixes from a code review
 
 - **Seen:** **Clear report** now asks once more, **Delete all** or **Keep**, with Keep in focus so a second Enter

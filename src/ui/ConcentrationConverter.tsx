@@ -2,7 +2,7 @@ import type { Dispatch } from "react";
 import { useId } from "react";
 
 import type { Action, ConverterSlot, Derived, State } from "../state/model";
-import { boxText, converterNeedsMolarMass, converterText, issueAt } from "../state/model";
+import { boxText, converterNeedsMolarMass, converterOutOfRange, converterText, issueAt } from "../state/model";
 import type { MassUnitId, UnitId, VolumeUnitId } from "../units/units";
 import { isPair, pair, splitPair, unit, unitsOf } from "../units/units";
 import { InfoBubble } from "./InfoBubble";
@@ -70,6 +70,7 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
   const id = useId();
   const mwIssue = issueAt(state, derived, "conversion", "molarMass");
   const valueIssue = issueAt(state, derived, "conversion", "converter");
+  const range = converterOutOfRange(derived, state.units.converterMolar) ?? converterOutOfRange(derived, state.units.converterMass);
 
   return (
     <section className="calc conv" aria-labelledby={`${id}-title`} data-calculator="conversion">
@@ -148,6 +149,7 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
         );
       })}
 
+      {range && <p className="row-issue conv-issue">{range}</p>}
       {valueIssue && (
         <p className="row-issue conv-issue" id={`${id}-value-issue`}>
           {valueIssue}

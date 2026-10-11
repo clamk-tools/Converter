@@ -146,6 +146,16 @@ test("invalid values are explained at the box, in each calculator", async ({ pag
   await expect(box(page, "solution", "Volume in milliliter")).toHaveAttribute("aria-invalid", "true");
 });
 
+test("an answer too large to calculate says so, instead of staying blank", async ({ page }) => {
+  await box(page, "solution", "Molecular weight (g/mol or Da)").fill("1e300");
+  await box(page, "solution", "Concentration in millimolar").fill("1e300");
+  await box(page, "solution", "Volume in milliliter").fill("1");
+  await expect(calc(page, "solution").getByText("The answer is too large to calculate", { exact: false })).toBeVisible();
+  await expect(answer(page, "solution")).toHaveText("");
+  await box(page, "solution", "Concentration in millimolar").fill("100"); // back in range: the message goes
+  await expect(calc(page, "solution").getByText("too large", { exact: false })).toHaveCount(0);
+});
+
 test("a zero mass is fine to find a concentration, not to find a volume", async ({ page }) => {
   await glucose(page);
   await findButton(page, "concentration").click();

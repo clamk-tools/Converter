@@ -58,6 +58,7 @@ scan() {
     if (match(s, /[A-Za-z]:\\+[A-Za-z0-9_.-]/) && standalone(s, "[A-Za-z0-9]")) report("local Windows path")
     else if (match(s, /[A-Za-z]:\/[A-Za-z0-9_.-]/) && standalone(s, "[A-Za-z0-9]")) report("local Windows path")
     if (match(s, /\/Users\/[A-Za-z0-9_.-]+\//) && standalone(s, "[A-Za-z0-9.]")) report("local user path")
+    if (match(s, /\/home\/[A-Za-z0-9_.-]+\//) && standalone(s, "[A-Za-z0-9.]")) report("local user path")   # Linux
     if (match(s, /(ghp|gho|ghs|ghu|ghr)_[A-Za-z0-9]+/) && RLENGTH >= 36) report("GitHub token")
     if (match(s, /github_pat_[A-Za-z0-9_]+/) && RLENGTH >= 40) report("GitHub token")
     if (match(s, /AKIA[0-9A-Z]+/) && RLENGTH >= 20) report("AWS key")
