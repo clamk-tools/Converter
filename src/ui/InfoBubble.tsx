@@ -3,9 +3,9 @@ import { useId, useState } from "react";
 
 import { INFO } from "./formulas";
 
-// The symbols (C, V, m, n, MW, ρ and their numbered forms) are written in bold; units and words stay regular. A unit
+// The symbols (C, V, m, n, MW, Cm and their numbered forms) are written in bold; units and words stay regular. A unit
 // written after a symbol as ^{mol/L} is set as its superscript: "C^{mol/L}" shows C with mol/L above it.
-const SYMBOL = /(?<![A-Za-z])(MW|ρ|[CVmn][₁₂]?)(?:\^\{([^}]*)\})?(?![A-Za-z])/g;
+const SYMBOL = /(?<![A-Za-z])(MW|Cm|[CVmn][₁₂]?)(?:\^\{([^}]*)\})?(?![A-Za-z])/g;
 
 function symbols(text: string) {
   const parts = text.split(SYMBOL);

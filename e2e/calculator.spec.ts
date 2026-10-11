@@ -287,7 +287,7 @@ test("Collapse all folds every calculation, then Expand all opens them", async (
 
 test("3. molecular weight, then one line for molar and one for mass; the mass line has a menu for the mass unit and one for the volume unit", async ({ page }) => {
   await open(page, "conversion");
-  await expect(calc(page, "conversion").locator(".row-label")).toHaveText(["Molecular weight (g/mol or Da):", "Molar concentration:", "Mass concentration:"]);
+  await expect(calc(page, "conversion").locator(".row-label")).toHaveText(["MW", "C", "Cm"]);
   await expect(unitMenu(page, "conversion", "Molar concentration")).toHaveValue("mM");
   await expect(calc(page, "conversion").getByLabel("Mass concentration: mass unit")).toHaveValue("mg");
   await expect(calc(page, "conversion").getByLabel("Mass concentration: volume unit")).toHaveValue("mL");
@@ -377,7 +377,7 @@ test("each calculator has an i that opens a bubble with the formulas it uses", a
   const expected: [Id, string][] = [
     ["solution", "n = C × V = m / MW"],
     ["dilution", "C₁V₁ = C₂V₂"],
-    ["conversion", "ρ = C × MW"],
+    ["conversion", "Cm = C × MW"],
   ];
   for (const [id, formula] of expected) {
     await open(page, id);

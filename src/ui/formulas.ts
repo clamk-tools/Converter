@@ -52,11 +52,11 @@ export const INFO: Record<"solution" | "dilution" | "conversion", CalculatorInfo
   },
   conversion: {
     formulas: [
-      { equation: "ρ = C × MW", meaning: "mol/L → g/L" },
-      { equation: "C = ρ / MW", meaning: "g/L → mol/L" },
+      { equation: "Cm = C × MW", meaning: "mol/L → g/L" },
+      { equation: "C = Cm / MW", meaning: "g/L → mol/L" },
       { equation: "1 % w/v = 10 g/L", meaning: "" },
       { equation: "1 ppm = 1 mg/L", meaning: "" },
     ],
-    notes: ["ρ^{g/L}, C^{mol/L}, MW^{g/mol}.", "mg/mL = 1 g/L, µg/mL = 10⁻³ g/L. MW is needed only to cross between molar and mass."],
+    notes: ["Cm^{g/L} (mass concentration), C^{mol/L}, MW^{g/mol}.", "mg/mL = 1 g/L, µg/mL = 10⁻³ g/L. MW is needed only to cross between molar and mass."],
   },
 };

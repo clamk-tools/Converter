@@ -28,7 +28,7 @@ describe("equations", () => {
 });
 
 describe("converting a concentration", () => {
-  it("ρ = C × MW and C = ρ / MW", () => {
+  it("Cm = C × MW and C = Cm / MW", () => {
     expect(massConcentrationOf(0.1, MW)).toBeCloseTo(18.016, 12); // 0.1 mol/L × 180.16 g/mol
     expect(molarConcentrationOf(18.016, MW)).toBeCloseTo(0.1, 15);
     expect(molarConcentrationOf(massConcentrationOf(0.0123, 58.44), 58.44)).toBeCloseTo(0.0123, 15);

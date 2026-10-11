@@ -232,6 +232,13 @@ button.tile-find:active:not(:disabled) {
 .tile.fixed .tile-name,
 .tile.fixed .tile-note,
 .tile.fixed .tile-unit,
+/* the converter's rows are named by their letters (MW, C, Cm), as the tiles */
+.row-label.symbol {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
 .row.fixed .row-label,
 .row.fixed .row-note {
   color: var(--muted-on-tint);
@@ -674,10 +681,11 @@ button.add-report.added {
   margin: 0;
 }
 
-/* the mass concentration has two menus, the mass unit and the volume unit, with a slash between: they get the room */
+/* the rows are named by a letter (a narrow first column); the mass concentration has two menus, the mass unit and the
+   volume unit, with a slash between: they get the room */
 .conv .row {
-  grid-template-columns: 13rem minmax(0, 12rem) 16rem;
-  max-width: 44rem;
+  grid-template-columns: 3.5rem minmax(0, 12rem) 16rem;
+  max-width: 33rem;
 }
 
 .conv-pair {

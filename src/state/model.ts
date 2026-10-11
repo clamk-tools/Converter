@@ -282,7 +282,7 @@ export function resultNumber(state: State, derived: Derived, quantity: OutputId)
 
 /**
  * The converter's concentration in one unit. Within its own kind (molar, or mass per volume) this is only a change
- * of unit; across kinds it goes through the molecular weight (ρ = C × MW, C = ρ / MW) and is null without one.
+ * of unit; across kinds it goes through the molecular weight (Cm = C × MW, C = Cm / MW) and is null without one.
  */
 export function converterValueIn(derived: Derived, unitId: UnitId): number | null {
   const { amount, molarMass } = derived.conversion;
