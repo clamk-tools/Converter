@@ -36,17 +36,34 @@ const glucose = async (page: Page) => {
 };
 const findButton = (page: Page, what: string) => calc(page, "solution").getByRole("button", { name: `Find ${what}` });
 const dilutionFind = (page: Page, what: string) => calc(page, "dilution").getByRole("button", { name: `Find ${what}` });
+// one view at a time: a calculator is opened from the bar at the bottom (phone) or the rail on the left (laptop)
+const VIEW: Record<Id, string> = { solution: "Solution", dilution: "Dilution", conversion: "Convert" };
+const open = (page: Page, id: Id) => page.getByRole("tab", { name: VIEW[id], exact: true }).click();
 
-test("three calculators; the first two are four tiles, the molecular weight first in calculator 1", async ({ page }) => {
-  await expect(page.getByRole("heading", { level: 2 })).toHaveText([
-    "1. Mass, volume or concentration",
-    "2. Dilute a stock solution",
-    "3. Convert between mass & molar concentration",
-  ]);
+test("four views, one at a time: the three calculators and the report; the solution first", async ({ page }) => {
+  await expect(page.getByRole("tab")).toHaveText(["Solution", "Dilution", "Convert", "Report"]);
+  await expect(page.getByRole("tab", { name: "Solution" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("heading", { level: 2 })).toHaveText(["Mass, volume or concentration"]);
   await expect(calc(page, "solution").locator(".tile-name")).toHaveText(["Molecular weight", "Concentration", "Volume", "Mass"]);
   await expect(calc(page, "solution").locator(".tile.fixed")).toContainText("constant");
+
+  await open(page, "dilution");
+  await expect(page.getByRole("heading", { level: 2 })).toHaveText(["Dilute a stock solution"]);
   await expect(calc(page, "dilution").locator(".tile-name")).toHaveText(["C₁", "V₁", "C₂", "V₂"]);
   await expect(dilutionFind(page, "V₁, volume of stock")).toHaveAttribute("aria-pressed", "true");
+});
+
+test("the views sit in a bar at the bottom of a phone and a rail on the left of a laptop; arrow keys move between them", async ({ page }) => {
+  const bar = await page.getByRole("tablist", { name: "View" }).boundingBox();
+  const viewport = page.viewportSize()!;
+  if (test.info().project.name === "mobile") expect(bar!.y + bar!.height).toBeGreaterThan(viewport.height - 2);
+  else expect(bar!.height).toBeGreaterThan(bar!.width); // a column
+  await page.getByRole("tab", { name: "Solution" }).focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("tab", { name: "Dilution" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("tab", { name: "Dilution" })).toBeFocused();
+  await page.keyboard.press("ArrowUp");
+  await expect(page.getByRole("tab", { name: "Solution" })).toHaveAttribute("aria-selected", "true");
 });
 
 test("the sanity check: 100 mM, 180.16 g/mol, 10 mL give 180.16 mg, and follow each change", async ({ page }) => {
@@ -87,6 +104,7 @@ test("a unit chosen for a quantity applies to its answer too, and keeps the valu
 
 test("the dilution keeps its own values", async ({ page }) => {
   await glucose(page);
+  await open(page, "dilution");
   await expect(box(page, "dilution", "C₁, stock concentration in millimolar")).toHaveValue("");
   await expect(box(page, "dilution", "V₂, final volume in milliliter")).toHaveValue("");
 });
@@ -120,7 +138,9 @@ test("scientific notation and a decimal comma are read", async ({ page }) => {
 test("invalid values are explained at the box, in each calculator", async ({ page }) => {
   await box(page, "solution", "Molecular weight (g/mol or Da)").fill("-5");
   await expect(calc(page, "solution").getByText("Molecular weight cannot be negative.")).toBeVisible();
+  await open(page, "conversion"); // the molecular weight is the same in the converter
   await expect(calc(page, "conversion").getByText("Molecular weight cannot be negative.")).toBeVisible();
+  await open(page, "solution");
   await box(page, "solution", "Volume in milliliter").fill("abc");
   await expect(box(page, "solution", "Volume in milliliter")).toHaveAttribute("aria-invalid", "true");
 });
@@ -136,6 +156,7 @@ test("a zero mass is fine to find a concentration, not to find a volume", async 
 });
 
 const dilute = async (page: Page) => {
+  await open(page, "dilution");
   await unitMenu(page, "dilution", "C₁, stock concentration").selectOption("M");
   await box(page, "dilution", "C₁, stock concentration in molar").fill("1");
   await box(page, "dilution", "C₂, final concentration in millimolar").fill("10");
@@ -167,6 +188,7 @@ test("any of the four can be ticked in the dilution: the answer so far stays as 
 });
 
 test("a V₁ larger than V₂ is refused when finding a concentration, with the reason", async ({ page }) => {
+  await open(page, "dilution");
   await dilutionFind(page, "C₂, final concentration").click();
   await box(page, "dilution", "C₁, stock concentration in millimolar").fill("10");
   await box(page, "dilution", "V₁, volume of stock in milliliter").fill("20");
@@ -176,6 +198,7 @@ test("a V₁ larger than V₂ is refused when finding a concentration, with the 
 });
 
 test("a final concentration above the stock is refused, with the reason", async ({ page }) => {
+  await open(page, "dilution");
   await box(page, "dilution", "C₁, stock concentration in millimolar").fill("10");
   await box(page, "dilution", "C₂, final concentration in millimolar").fill("100");
   await box(page, "dilution", "V₂, final volume in milliliter").fill("10");
@@ -263,6 +286,7 @@ test("Collapse all folds every calculation, then Expand all opens them", async (
 });
 
 test("3. molecular weight, then one line for molar and one for mass; the mass line has a menu for the mass unit and one for the volume unit", async ({ page }) => {
+  await open(page, "conversion");
   await expect(calc(page, "conversion").locator(".row-label")).toHaveText(["Molecular weight (g/mol or Da):", "Molar concentration:", "Mass concentration:"]);
   await expect(unitMenu(page, "conversion", "Molar concentration")).toHaveValue("mM");
   await expect(calc(page, "conversion").getByLabel("Mass concentration: mass unit")).toHaveValue("mg");
@@ -270,6 +294,7 @@ test("3. molecular weight, then one line for molar and one for mass; the mass li
 });
 
 test("3. the two lines are linked, and the mass and volume units of the mass line are chosen separately", async ({ page }) => {
+  await open(page, "conversion");
   const massUnit = calc(page, "conversion").getByLabel("Mass concentration: mass unit");
   const volumeUnit = calc(page, "conversion").getByLabel("Mass concentration: volume unit");
   await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("180.16");
@@ -293,6 +318,7 @@ test("3. the two lines are linked, and the mass and volume units of the mass lin
 });
 
 test("3. % w/v and ppm are in the mass menu, with their fixed volume shown", async ({ page }) => {
+  await open(page, "conversion");
   const massUnit = calc(page, "conversion").getByLabel("Mass concentration: mass unit");
   const volumeUnit = calc(page, "conversion").getByLabel("Mass concentration: volume unit");
   await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("180.16");
@@ -314,25 +340,31 @@ test("3. % w/v and ppm are in the mass menu, with their fixed volume shown", asy
 });
 
 test("3. it asks for a molecular weight to cross between the two lines, and shares the one of the other calculators", async ({ page }) => {
+  await open(page, "conversion");
   await box(page, "conversion", "Molar concentration in millimolar").fill("100");
   await expect(box(page, "conversion", "Mass concentration in milligrams/milliliter")).toHaveValue("");
   await expect(box(page, "conversion", "Mass concentration in milligrams/milliliter")).toHaveAttribute("placeholder", "needs MW");
   await unitMenu(page, "conversion", "Molar concentration").selectOption("uM"); // within one kind: no weight needed
   await expect(box(page, "conversion", "Molar concentration in micromolar")).toHaveValue("100000");
 
+  await open(page, "solution");
   await box(page, "solution", "Molecular weight (g/mol or Da)").fill("180.16"); // typed in calculator 1
+  await open(page, "conversion");
   await expect(box(page, "conversion", "Molecular weight (g/mol or Da)")).toHaveValue("180.16");
   await expect(box(page, "conversion", "Mass concentration in milligrams/milliliter")).toHaveValue("18.016");
 });
 
 test("3. it is its own value: it does not change the concentration in calculator 1", async ({ page }) => {
   await glucose(page);
+  await open(page, "conversion");
   await box(page, "conversion", "Molar concentration in millimolar").fill("5");
+  await open(page, "solution");
   await expect(box(page, "solution", "Concentration in millimolar")).toHaveValue("100");
   await expect(answer(page, "solution")).toHaveText("180.16");
 });
 
 test("3. a negative concentration and a molecular weight of zero are explained", async ({ page }) => {
+  await open(page, "conversion");
   await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("180.16");
   await box(page, "conversion", "Molar concentration in millimolar").fill("-5");
   await expect(calc(page, "conversion").getByText("Concentration cannot be negative.")).toBeVisible();
@@ -348,6 +380,7 @@ test("each calculator has an i that opens a bubble with the formulas it uses", a
     ["conversion", "ρ = C × MW"],
   ];
   for (const [id, formula] of expected) {
+    await open(page, id);
     const button = calc(page, id).getByRole("button", { name: /Formulas used in/ });
     await expect(button).toHaveAttribute("aria-expanded", "false");
     await expect(calc(page, id).getByText(formula, { exact: true })).toHaveCount(0);
@@ -360,8 +393,10 @@ test("each calculator has an i that opens a bubble with the formulas it uses", a
 });
 
 test("every number box asks a phone for the numeric keypad", async ({ page }) => {
-  const boxes = page.locator('main input[type="text"]');
-  const count = await boxes.count();
-  expect(count).toBeGreaterThanOrEqual(9); // 3 in calculators 1 and 2 (the fourth tile is the answer), 3 in the converter
-  for (let i = 0; i < count; i++) await expect(boxes.nth(i)).toHaveAttribute("inputmode", "decimal");
+  for (const id of ["solution", "dilution", "conversion"] as Id[]) {
+    await open(page, id);
+    const boxes = calc(page, id).locator('input[type="text"]');
+    await expect(boxes).toHaveCount(3); // in calculators 1 and 2 the fourth tile is the answer
+    for (let i = 0; i < 3; i++) await expect(boxes.nth(i)).toHaveAttribute("inputmode", "decimal");
+  }
 });
