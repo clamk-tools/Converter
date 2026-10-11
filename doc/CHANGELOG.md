@@ -5,6 +5,18 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-11 · Every calculator's formula, with the numbers in it
+
+- **Seen:** under the formula of each calculator, a second line writes it out with the values as they are typed,
+  each in the unit of its box; a value not typed yet shows as ?. Solution: m = 100 mM × 10 mL × 180.16 g/mol =
+  180.16 mg (it follows the letter ticked). Dilution: V₁ = 10 mM × 100 mL / 1 M = 1 mL. Convert, which gains the same
+  bottom line: Cm = 100 mM × 180.16 g/mol = 18.016 mg/mL, or C = Cm / MW = … when typing on the mass line. A number
+  never parts from its unit at the end of a line on a phone.
+- **Fixed:** the words "constant" and "g/mol or Da" in the molecular weight tile had taken the mono font and lost their
+  grey (a style rule split in two in the previous change).
+- **Inside:** `ui/worked.ts` builds the lines from the stored values; the answer in them is the engine's, so they
+  cannot disagree with the page. 110 unit tests, 28 end-to-end tests.
+
 ### 2026-10-11 · Tiles and rows named by their letters: MW, C, V, m; Cm in Convert
 
 - **Seen:** the Solution tiles are named MW, C, V and m, the letters of m = C × V × MW, as the Dilution tiles are named

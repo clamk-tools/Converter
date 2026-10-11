@@ -18,6 +18,8 @@ interface Props {
   formula: string;
   /** a remark that is not a problem ("use the stock as it is") */
   note?: string | null;
+  /** the formula with the numbers in it, as they are typed (ui/worked.ts) */
+  worked?: string;
   /** the words of the add-to-report button: "mass" gives "Add mass to report" */
   reportWhat: string;
   state: State;
@@ -30,7 +32,7 @@ interface Props {
 // others: its tile turns blue and shows the answer, in the unit of its menu. The answer follows every keystroke;
 // ticking another tile keeps the answer in its box as a typed value (state/model.ts). A fixed tile (the molecular
 // weight) is grey and always typed. On a laptop a tile's number and unit menu sit side by side; on a phone, stacked.
-export function TileCard({ spec, find, result, formula, note, reportWhat, state, derived, dispatch, onAdd }: Props) {
+export function TileCard({ spec, find, result, formula, note, worked, reportWhat, state, derived, dispatch, onAdd }: Props) {
   const id = useId();
   const answer = resultNumber(state, derived, result);
 
@@ -114,7 +116,14 @@ export function TileCard({ spec, find, result, formula, note, reportWhat, state,
       </div>
 
       <div className="calc-foot">
-        <span className="calc-formula">{formula}</span>
+        <div className="calc-lines">
+          <span className="calc-formula">{formula}</span>
+          {worked && (
+            <span className="calc-worked" aria-live="polite">
+              {worked}
+            </span>
+          )}
+        </div>
         <AddToReport what={reportWhat} disabled={!answer} onAdd={onAdd} />
       </div>
       {note && <p className="calc-note">{note}</p>}
