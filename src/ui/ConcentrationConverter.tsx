@@ -7,6 +7,7 @@ import type { MassUnitId, UnitId, VolumeUnitId } from "../units/units";
 import { isPair, pair, splitPair, unit, unitsOf } from "../units/units";
 import { InfoBubble } from "./InfoBubble";
 import { CONVERTER_TITLE } from "./sections";
+import { converterFromMass, converterWorked } from "./worked";
 
 interface Props {
   state: State;
@@ -147,6 +148,15 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
       })}
 
       {valueIssue && <p className="row-issue conv-issue">{valueIssue}</p>}
+
+      <div className="calc-foot">
+        <div className="calc-lines">
+          <span className="calc-formula">{converterFromMass(state) ? "C = Cm / MW" : "Cm = C × MW"}</span>
+          <span className="calc-worked" aria-live="polite">
+            {converterWorked(state, derived)}
+          </span>
+        </div>
+      </div>
       {!mwIssue && derived.conversion.amount && derived.conversion.molarMass === null && (
         <p className="calc-note">Enter the molecular weight to convert between molar and mass per volume.</p>
       )}

@@ -9,7 +9,7 @@ import { Report } from "./ui/Report";
 import { DILUTED_BY, SOLVED_BY } from "./ui/formulas";
 import { DILUTION, SOLUTION } from "./ui/sections";
 import { TileCard } from "./ui/TileCard";
-import { dilutionWorked } from "./ui/worked";
+import { dilutionWorked, solutionWorked } from "./ui/worked";
 import { ThemeSwitch } from "./ui/ThemeSwitch";
 import { ViewNav } from "./ui/ViewNav";
 import type { View } from "./ui/ViewNav";
@@ -56,6 +56,7 @@ export function App() {
               find={state.find}
               result={RESULT_OF[state.find]}
               formula={SOLVED_BY[state.find]}
+              worked={solutionWorked(state, derived)}
               reportWhat={state.find}
               state={state}
               derived={derived}

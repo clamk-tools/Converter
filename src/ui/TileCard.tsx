@@ -18,7 +18,7 @@ interface Props {
   formula: string;
   /** a remark that is not a problem ("use the stock as it is") */
   note?: string | null;
-  /** the formula with the numbers in it, as they are typed (the dilution) */
+  /** the formula with the numbers in it, as they are typed (ui/worked.ts) */
   worked?: string;
   /** the words of the add-to-report button: "mass" gives "Add mass to report" */
   reportWhat: string;

@@ -22,7 +22,7 @@ dependent quantities recalculate on every keystroke with no update loops.
  state/report.ts       the calculation report: each entry a worked calculation (given → base units → formula → substitution → result → check), kept in the browser's storage
  ui/sections.ts        the three calculators as data: titles, boxes in order (calculator 1's four tiles), answers
  ui/formulas.ts       the formulas of each calculator, as text for its "i" bubble (documentation, not computation)
- ui/worked.ts         the dilution's formula with the numbers typed in it, live (display only; the answer is the engine's)
+ ui/worked.ts         each calculator's formula with the numbers typed in it, live (display only; the answer is the engine's)
  ui/*.tsx              components: ViewNav (the four views), TileCard (calculators 1 and 2), ConcentrationConverter (calculator 3),
                        AddToReport, InfoBubble, Report, UnitSelect, ThemeSwitch
  App.tsx               the frame (rail, header, footer) around four views, one at a time: the three calculators, the report

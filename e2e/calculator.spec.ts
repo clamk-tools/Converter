@@ -71,6 +71,7 @@ test("the sanity check: 100 mM, 180.16 g/mol, 10 mL give 180.16 mg, and follow e
   await glucose(page);
   await expect(answer(page, "solution")).toHaveText("180.16");
   await expect(unitMenu(page, "solution", "Mass")).toHaveValue("mg");
+  await expect(calc(page, "solution").locator(".calc-worked")).toHaveText("m = 100 mM × 10 mL × 180.16 g/mol = 180.16 mg");
   await box(page, "solution", "Concentration in millimolar").fill("200");
   await expect(answer(page, "solution")).toHaveText("360.32");
 });
@@ -313,6 +314,8 @@ test("3. the two lines are linked, and the mass and volume units of the mass lin
   await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("180.16");
   await box(page, "conversion", "Molar concentration in millimolar").fill("100");
   await expect(box(page, "conversion", "Mass concentration in milligrams/milliliter")).toHaveValue("18.016");
+  await expect(calc(page, "conversion").locator(".calc-formula")).toHaveText("Cm = C × MW");
+  await expect(calc(page, "conversion").locator(".calc-worked")).toHaveText("Cm = 100 mM × 180.16 g/mol = 18.016 mg/mL");
 
   await massUnit.selectOption("g"); // g/mL
   await expect(box(page, "conversion", "Mass concentration in grams/milliliter")).toHaveValue("0.018016");
@@ -390,7 +393,7 @@ test("each calculator has an i that opens a bubble with the formulas it uses", a
   const expected: [Id, string][] = [
     ["solution", "n = C × V = m / MW"],
     ["dilution", "C₁V₁ = C₂V₂"],
-    ["conversion", "Cm = C × MW"],
+    ["conversion", "C = Cm / MW"], // the bubble's second formula: the first is also under the rows
   ];
   for (const [id, formula] of expected) {
     await open(page, id);
