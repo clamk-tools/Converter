@@ -19,7 +19,8 @@ dependent quantities recalculate on every keystroke with no update loops.
  engine/equations.ts   the bare formulas, canonical units
  engine/solve.ts       solving m = C × V × MW for one quantity, and the dilution: validation, then equations
  state/model.ts        the scientific state, the reducer (user actions), derive() and boxText()
- state/report.ts       the calculation report: each entry a worked calculation (given → base units → formula → substitution → result → check), kept in the browser's storage
+ state/report.ts       the calculation report: each entry a worked calculation (given → base units → formula → substitution → result → check), kept in the browser's storage;
+                       readable() writes 9.98e11 as 9.98 × 10¹¹ when an entry is shown or copied
  ui/sections.ts        the three calculators as data: titles, boxes in order (calculator 1's four tiles), answers
  ui/formulas.ts       the formulas of each calculator, as text for its "i" bubble (documentation, not computation)
  ui/worked.ts         each calculator's formula with the numbers typed in it, live (display only; the answer is the engine's)
@@ -90,7 +91,7 @@ hides float noise), 6 for a calculated value. Plain notation from 1e-5 to 1e10, 
 | `src/units/units.test.ts` | every unit relation of the brief (1 g = 1000 mg…), no float noise through the canonical unit |
 | `src/numbers/numbers.test.ts` | parsing (decimals, `e`, comma, partial, invalid, overflow), formatting (noise, notation, round trip) |
 | `src/engine/solve.test.ts` | each equation, both sanity checks, every validation rule, tiny and huge values, overflow |
-| `src/state/report.test.ts` | each calculation worked by hand (given, conversions, substitution, result, check), base-unit and tiny values, a snapshot that later edits do not change, the plain-text form, renaming and collapsing |
+| `src/state/report.test.ts` | each calculation worked by hand (given, conversions, substitution, result, check), base-unit and tiny values, a snapshot that later edits do not change, the plain-text form, renaming and collapsing, the header's answer, scientific notation as 10 to a power, a check written with the result rounded as shown |
 | `src/engine/solve.test.ts` also | Cm = C × MW and back, the checks of calculator 3 |
 | `src/state/model.test.ts` | synchronisation (100 µM, 0.25 mM, 2 mL, 5 mg), linked boxes, unit changes, ticking the value to find in calculators 1 and 2 (the answer kept as a typed value, a round trip without drift, their rules), calculator 3 (two linked lines, each with its unit menu, across kinds through the molecular weight, "needs MW"), typing states, dilution |
 | `e2e/calculator.spec.ts` | the built page used through the keyboard and mouse, in four browser set-ups; also fails on any request to another host |
@@ -160,3 +161,18 @@ bar fixed along the bottom of a phone and, from 760px, a rail down the left of a
 for it). Arrow keys move between the tabs either way. The state lives in `App`, above the views, so what is typed in
 one calculator is kept when another is shown, and the molecular weight is the same in Solution and Convert. The card
 titles carry no number any more: only one shows at a time.
+
+## 10. The report view
+
+`ui/Report.tsx` draws each kept calculation as labelled rows (design S4, chosen from ten report designs and six
+variations of the numbered steps): **1 Given**, **2 Convert** (only when a value needed converting), **Apply** (the
+formula, then the numbers in it), **Result** (a blue band: the answer in the unit chosen, then in base units) and
+**✓ Check**. The stored entry (`ReportEntry`) did not change shape, so reports kept before still open.
+
+- The header holds the fold arrow, the name and the answer (`answerOf`), open or folded. The arrow's hit area covers
+  the whole header (`.sheet-fold::after`), so a tap anywhere on it folds the calculation; the rename box sits above
+  that area.
+- The foot of an open calculation holds the check's verdict and the Rename and Remove buttons, which keeps the header
+  short on a phone. A folded calculation is opened first to be renamed or removed.
+- Collapse all, Copy as text and Clear report sit in a bar above the calculations.
+- Styles: `calc.css`, "the calculation report". Below 560px the label column narrows to leave the numbers more room.

@@ -89,8 +89,9 @@ interface Spec {
   formula: string;
   /** the formula with values in it; `v` holds the base-unit values, `out` the result in base units */
   substitute: (v: Record<string, string>) => string;
-  /** works backwards from the result: the text, and the value it gives against the value it should give */
-  check: (v: Record<string, number>, out: number, f: (n: number) => string) => { text: string; got: number; want: number };
+  /** works backwards from the result: the text, and the value it gives against the value it should give. `f` writes an
+   *  entered value, `r` the result, rounded as the result is shown (50775.2, not 50775.174144) */
+  check: (v: Record<string, number>, out: number, f: (n: number) => string, r: (n: number) => string) => { text: string; got: number; want: number };
 }
 
 const SPECS: Record<SolveFor, Spec> = {
@@ -100,9 +101,9 @@ const SPECS: Record<SolveFor, Spec> = {
     output: "massResult",
     formula: "m = C × V × MW",
     substitute: (v) => `m = ${v.concentration} mol/L × ${v.volume} L × ${v.molarMass} g/mol`,
-    check: (v, m, f) => {
+    check: (v, m, f, r) => {
       const got = concentrationFrom(m, v.molarMass, v.volume);
-      return { text: `C = m / (MW × V) = ${f(m)} / (${f(v.molarMass)} × ${f(v.volume)}) = ${f(got)} mol/L`, got, want: v.concentration };
+      return { text: `C = m / (MW × V) = ${r(m)} / (${f(v.molarMass)} × ${f(v.volume)}) = ${f(got)} mol/L`, got, want: v.concentration };
     },
   },
   volume: {
@@ -111,9 +112,9 @@ const SPECS: Record<SolveFor, Spec> = {
     output: "volumeResult",
     formula: "V = m / (C × MW)",
     substitute: (v) => `V = ${v.mass} g / (${v.concentration} mol/L × ${v.molarMass} g/mol)`,
-    check: (v, volume, f) => {
+    check: (v, volume, f, r) => {
       const got = massFrom(v.concentration, volume, v.molarMass);
-      return { text: `m = C × V × MW = ${f(v.concentration)} × ${f(volume)} × ${f(v.molarMass)} = ${f(got)} g`, got, want: v.mass };
+      return { text: `m = C × V × MW = ${f(v.concentration)} × ${r(volume)} × ${f(v.molarMass)} = ${f(got)} g`, got, want: v.mass };
     },
   },
   concentration: {
@@ -122,19 +123,20 @@ const SPECS: Record<SolveFor, Spec> = {
     output: "concentrationResult",
     formula: "C = m / (MW × V)",
     substitute: (v) => `C = ${v.mass} g / (${v.molarMass} g/mol × ${v.volume} L)`,
-    check: (v, c, f) => {
+    check: (v, c, f, r) => {
       const got = massFrom(c, v.volume, v.molarMass);
-      return { text: `m = C × V × MW = ${f(c)} × ${f(v.volume)} × ${f(v.molarMass)} = ${f(got)} g`, got, want: v.mass };
+      return { text: `m = C × V × MW = ${r(c)} × ${f(v.volume)} × ${f(v.molarMass)} = ${f(got)} g`, got, want: v.mass };
     },
   },
 };
 
 // C₁V₁ = C₂V₂, solved for each of the four. The check is the same for all: both sides, in mol.
-const dilutionCheck = (v: Record<string, number>, out: number, find: DilutionFor, f: (n: number) => string) => {
+const dilutionCheck = (v: Record<string, number>, out: number, find: DilutionFor, f: (n: number) => string, r: (n: number) => string) => {
   const all = { ...v, [find]: out };
   const got = all.stock * all.stockVolume;
   const want = all.target * all.finalVolume;
-  return { text: `C₁ × V₁ = ${f(all.stock)} × ${f(all.stockVolume)} = ${f(got)} mol, and C₂ × V₂ = ${f(all.target)} × ${f(all.finalVolume)} = ${f(want)} mol`, got, want };
+  const w = (key: string) => (key === find ? r : f)(all[key]); // the value found, rounded as the result is shown
+  return { text: `C₁ × V₁ = ${w("stock")} × ${w("stockVolume")} = ${r(got)} mol, and C₂ × V₂ = ${w("target")} × ${w("finalVolume")} = ${r(want)} mol`, got, want };
 };
 
 const DILUTION_SPECS: Record<DilutionFor, Spec> = {
@@ -144,7 +146,7 @@ const DILUTION_SPECS: Record<DilutionFor, Spec> = {
     output: "stockVolumeResult",
     formula: "V₁ = C₂ × V₂ / C₁",
     substitute: (v) => `V₁ = ${v.target} mol/L × ${v.finalVolume} L / ${v.stock} mol/L`,
-    check: (v, out, f) => dilutionCheck(v, out, "stockVolume", f),
+    check: (v, out, f, r) => dilutionCheck(v, out, "stockVolume", f, r),
   },
   finalVolume: {
     title: "Dilution: final volume",
@@ -152,7 +154,7 @@ const DILUTION_SPECS: Record<DilutionFor, Spec> = {
     output: "finalVolumeResult",
     formula: "V₂ = C₁ × V₁ / C₂",
     substitute: (v) => `V₂ = ${v.stock} mol/L × ${v.stockVolume} L / ${v.target} mol/L`,
-    check: (v, out, f) => dilutionCheck(v, out, "finalVolume", f),
+    check: (v, out, f, r) => dilutionCheck(v, out, "finalVolume", f, r),
   },
   stock: {
     title: "Dilution: stock concentration",
@@ -160,7 +162,7 @@ const DILUTION_SPECS: Record<DilutionFor, Spec> = {
     output: "stockResult",
     formula: "C₁ = C₂ × V₂ / V₁",
     substitute: (v) => `C₁ = ${v.target} mol/L × ${v.finalVolume} L / ${v.stockVolume} L`,
-    check: (v, out, f) => dilutionCheck(v, out, "stock", f),
+    check: (v, out, f, r) => dilutionCheck(v, out, "stock", f, r),
   },
   target: {
     title: "Dilution: final concentration",
@@ -168,7 +170,7 @@ const DILUTION_SPECS: Record<DilutionFor, Spec> = {
     output: "targetResult",
     formula: "C₂ = C₁ × V₁ / V₂",
     substitute: (v) => `C₂ = ${v.stock} mol/L × ${v.stockVolume} L / ${v.finalVolume} L`,
-    check: (v, out, f) => dilutionCheck(v, out, "target", f),
+    check: (v, out, f, r) => dilutionCheck(v, out, "target", f, r),
   },
 };
 
@@ -201,7 +203,7 @@ export function entryFor(state: State, derived: Derived, section: Section, id: s
   const texts = Object.fromEntries(Object.entries(base).map(([k, v]) => [k, f(v)]));
   const baseOut = `${SYMBOL[spec.output]} = ${formatNumber(out, COMPUTED)} ${BASE_LABEL[DIMENSION[spec.output]]}`;
   const chosen = `${SYMBOL[spec.output]} = ${resultText(state, derived, spec.output)}`;
-  const check = spec.check(base, out, f);
+  const check = spec.check(base, out, f, (n: number) => formatNumber(n, COMPUTED));
 
   return {
     id,
@@ -234,13 +236,23 @@ export const toggleAll = (entries: ReportEntry[]): ReportEntry[] => {
   return entries.map((e) => ({ ...e, collapsed: fold }));
 };
 
+/** The answer alone, for the header of a calculation: "180.16 mg" from "m = 180.16 mg". */
+export const answerOf = (e: ReportEntry) => {
+  const last = e.result[e.result.length - 1];
+  return last.slice(last.indexOf("= ") + 2);
+};
+
+/** Scientific notation as a person writes it: "9.98e11 pM" → "9.98 × 10¹¹ pM". The boxes show "e" so a value can be
+ *  typed back; the report is only read. Applied when shown or copied, so entries kept earlier read the same way. */
+export const readable = (text: string) => text.replace(/(\d)e(-?\d+)/g, (_, digit: string, exponent: string) => `${digit} × ${power(Number(exponent))}`);
+
 /** The entry as plain text, for copying into a document. */
 export function entryText(e: ReportEntry, n: number): string {
   const lines = [`${n}. ${e.name ? `${e.name} (${e.title})` : e.title}`, "Given:", ...e.given.map((g) => `  ${g.text}  (${g.name.toLowerCase()})`)];
   if (e.convert.length) lines.push("In base units:", ...e.convert.map((c) => `  ${c}`));
   lines.push("Formula:", `  ${e.formula}`, "Substitution:", ...e.substitution.map((s) => `  ${s}`), "Result:", ...e.result.map((r) => `  ${r}`));
   lines.push("Check:", `  ${e.check.text} ${e.check.ok ? "✓" : "✗"}`);
-  return lines.join("\n");
+  return readable(lines.join("\n"));
 }
 
 // ---------- the viewer's browser ----------

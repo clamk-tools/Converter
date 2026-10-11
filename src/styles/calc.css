@@ -502,7 +502,7 @@ button.add-report.added {
   background: var(--accent-tint);
 }
 
-/* ---------- the calculation report: each calculation written out step by step ---------- */
+/* ---------- the calculation report: each calculation as numbered steps (design S4, labelled rows that fold) ---------- */
 
 .report-empty {
   margin: 8px 0 0;
@@ -516,68 +516,60 @@ button.add-report.added {
   gap: 10px;
 }
 
+/* the bar above the calculations: how many, and what applies to all of them */
+.report-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 8px;
+}
+
+.report-count {
+  font: 600 0.7rem/1 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
 .calc-sheet {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface);
+  overflow: hidden;
 }
 
+/* the fold arrow, the name and the answer; the whole header folds the calculation */
 .sheet-head {
+  position: relative;
   display: flex;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 6px 8px 6px 6px;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px 8px 6px;
 }
 
-.sheet-title {
-  flex: 1;
-  min-width: 0;
-  padding: 3px 6px 0;
-}
-
-.sheet-head h2 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1.5;
-  letter-spacing: -0.01em;
-  overflow-wrap: anywhere;
-}
-
-.sheet-n {
-  margin-right: 6px;
-  font: 600 0.75rem/1 var(--font-mono);
-  color: var(--muted);
-}
-
-/* the calculation's kind, after a name the user gave it */
-.sheet-kind {
-  margin-left: 8px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0;
-  color: var(--muted);
-}
-
-/* a folded calculation: its result stays visible */
-.sheet-summary {
-  margin: 0 0 2px;
-  font: 600 0.8rem/1.6 var(--font-mono);
-  color: var(--accent);
-}
-
-.sheet-rename {
-  width: 100%;
-  height: 28px !important;
-  font-size: 0.9rem !important;
-  font-weight: 600;
-}
-
-/* no padding: the shared compact button's 10px each side would squeeze a 14px icon in a 28px button */
-.sheet-head button {
-  width: 28px;
-  padding: 0;
+.sheet-head .sheet-fold {
+  position: static; /* its hit area below belongs to the header, not to the button */
+  width: 30px;
+  height: 30px;
   flex: none;
+}
+
+.sheet-head .sheet-fold::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.sheet-head:hover .sheet-fold {
+  background: var(--accent-tint);
+  color: var(--text);
 }
 
 .sheet-fold svg {
@@ -588,39 +580,97 @@ button.add-report.added {
   transform: rotate(-90deg);
 }
 
-.calc-sheet:has(.steps) .sheet-head {
-  border-bottom: 1px solid var(--border);
+.sheet-title {
+  flex: 1;
+  min-width: 0;
 }
 
-/* a label column (mono, uppercase, as the brief's section labels) and the lines of that step */
+.sheet-head h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.sheet-n {
+  margin-right: 4px;
+  font: 600 0.75rem/1 var(--font-mono);
+  color: var(--muted);
+}
+
+/* the calculation's kind, under a name the user gave it */
+.sheet-kind {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+/* above the header's hit area, so typing a name does not fold the calculation */
+.sheet-rename {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 30px !important;
+  font-size: 0.9rem !important;
+  font-weight: 600;
+}
+
+/* the answer, in view whether the calculation is open or folded */
+.sheet-answer {
+  margin: 0;
+  flex: none;
+  max-width: 45%;
+  font: 700 0.95rem/1.3 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* the steps: a label column (step number, then its name in mono capitals) and the lines of that step */
 .steps {
-  display: grid;
-  grid-template-columns: 7.5rem minmax(0, 1fr);
-  gap: 0;
   margin: 0;
-  padding: 4px 14px 8px;
-}
-
-.steps dt,
-.steps dd {
-  margin: 0;
-  padding: 5px 0;
+  padding: 0 14px;
   border-top: 1px solid var(--border);
 }
 
-.steps dt:first-of-type,
-.steps dt:first-of-type + dd {
-  border-top: 0;
+.step {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px 0;
 }
 
-.steps dt {
+.step + .step {
+  border-top: 1px solid var(--border);
+}
+
+.step dt {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
   font: 600 0.65rem/1.9 var(--font-mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
-.steps dd p {
+.step-no {
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  color: var(--accent);
+}
+
+.step dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.step dd p {
   margin: 0;
   font: 500 0.85rem/1.7 var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -633,50 +683,85 @@ button.add-report.added {
   color: var(--muted);
 }
 
-.step-result p {
-  font-weight: 600;
+/* the result: a blue band across the card, the answer large, the same in base units under it */
+.step.step-result {
+  margin: 0 -14px;
+  padding-inline: 14px;
+  background: var(--accent-tint);
 }
 
-.step-result p:last-child {
+.step.step-result,
+.step-result + .step {
+  border-top-color: transparent;
+}
+
+.step-result .step-answer {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
   color: var(--accent);
 }
 
-.step-ok .step-mark {
-  color: var(--green-text);
-  font-weight: 700;
+.step-result .step-base {
+  color: var(--muted-on-tint);
+  font-size: 0.8rem;
 }
 
-.step-bad {
+.step-ok .step-no {
+  color: var(--green-text);
+}
+
+.step-ok dd p {
+  color: var(--muted);
+}
+
+.step-bad .step-no,
+.step-bad dd p {
   color: var(--coral-text);
 }
 
-.report-actions {
+/* the foot of an open calculation: whether its check passed, then renaming and removing it */
+.sheet-foot {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 8px 6px 14px;
+  border-top: 1px solid var(--border);
 }
 
+.check-chip {
+  padding: 5px 7px;
+  border-radius: var(--radius-sm);
+  font: 600 0.68rem/1 var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+.check-chip.ok {
+  background: var(--green-tint);
+  color: var(--green-text);
+}
+
+.check-chip.bad {
+  background: var(--coral-tint);
+  color: var(--coral-text);
+}
+
+.sheet-actions {
+  display: flex;
+  gap: 2px;
+}
+
+button.quiet.sheet-remove:hover:not(:disabled) {
+  color: var(--coral-text);
+}
+
+/* a phone: a narrower label column leaves the calculation more room */
 @media (max-width: 560px) {
-  .sheet-kind {
-    display: block;
-    margin: 0;
-  }
-
-  .steps {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .steps dt {
-    border-top: 1px solid var(--border);
-    padding-bottom: 0;
-  }
-
-  .steps dd {
-    border-top: 0;
-    padding-top: 2px;
-  }
-
-  .steps dt:first-of-type {
-    border-top: 0;
+  .step {
+    grid-template-columns: 4.9rem minmax(0, 1fr);
+    gap: 8px;
   }
 }
 

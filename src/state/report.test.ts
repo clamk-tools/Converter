@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { UnitId } from "../units/units";
 import { derive, initialState, reducer } from "./model";
 import type { Action, FieldId, State } from "./model";
-import { displayName, entryFor, entryText, rename, toggleAll, toggleCollapsed } from "./report";
+import { answerOf, displayName, entryFor, entryText, readable, rename, toggleAll, toggleCollapsed } from "./report";
 
 const typed = (field: FieldId, unit: UnitId, text: string): Action[] => [{ type: "type", field, unit, text }, { type: "leave", field }];
 const run = (actions: Action[]): State => actions.reduce(reducer, initialState);
@@ -137,5 +137,34 @@ describe("renaming and collapsing", () => {
   it("the copied text carries the name and the kind of calculation", () => {
     const text = entryText(rename([a], "a", "Buffer A")[0], 1);
     expect(text.split("\n")[0]).toBe("1. Buffer A (Mass from volume & concentration)");
+  });
+});
+
+describe("as the report shows it", () => {
+  it("the answer alone, for the header: in the unit chosen", () => {
+    expect(answerOf(entry(glucose, "mass")!)).toBe("180.16 mg");
+  });
+
+  it("scientific notation written as a person writes it", () => {
+    expect(readable("C = 9.98e11 pM × 10⁻¹² = 0.998 mol/L")).toBe("C = 9.98 × 10¹¹ pM × 10⁻¹² = 0.998 mol/L");
+    expect(readable("V = 2.5e-7 L")).toBe("V = 2.5 × 10⁻⁷ L");
+    expect(readable("m = 0.18016 g, MW = 180.16 g/mol")).toBe("m = 0.18016 g, MW = 180.16 g/mol"); // nothing else changes
+  });
+
+  it("a huge concentration: worked in the report's notation, and copied the same way", () => {
+    // 9.98e11 pM = 0.998 mol/L; 8688 mL = 8.688 L; m = 0.998 × 8.688 × 5856 = 50775.174144 g
+    const s = run([{ type: "unit", quantity: "concentration", unit: "pM" }, ...typed("concentration", "pM", "9.98e11"), ...typed("molarMass", "g_mol", "5856"), ...typed("volume", "mL", "8688")]);
+    const e = entry(s, "mass")!;
+    expect(readable(e.convert[0])).toBe("C = 9.98 × 10¹¹ pM × 10⁻¹² = 0.998 mol/L");
+    expect(entryText(e, 1)).not.toMatch(/\de/);
+  });
+});
+
+describe("the check", () => {
+  it("writes the result rounded as it is shown, not to twelve digits", () => {
+    // m = 0.998 × 8.688 × 5856 = 50775.174144 g, shown as 50775.2 g
+    const s = run([{ type: "unit", quantity: "concentration", unit: "pM" }, ...typed("concentration", "pM", "9.98e11"), ...typed("molarMass", "g_mol", "5856"), ...typed("volume", "mL", "8688")]);
+    const e = entry(s, "mass")!;
+    expect(e.check).toEqual({ text: "C = m / (MW × V) = 50775.2 / (5856 × 8.688) = 0.998 mol/L", ok: true });
   });
 });
