@@ -5,6 +5,14 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-13 · Unit menus in notation: mM, mL, mg
+
+- **Seen:** every unit menu reads in notation (M, mM, µM… L, mL, µL… g, mg, µg…) instead of in words (millimolar,
+  milliliter, milligrams), in all three calculators, including the two menus of the mass concentration in Convert.
+- **Inside:** the menus show `symbol` instead of `name` (`ui/UnitSelect.tsx`, `ui/ConcentrationConverter.tsx`).
+  `name` is kept for the boxes' labels, so screen readers still hear "Concentration in millimolar".
+- **Decided:** notation is what is written on a tube or in a protocol, and it takes less room beside the number.
+
 ### 2026-10-11 · The report as numbered steps that fold
 
 - **Seen:** each calculation in the report is a card of labelled rows: 1 Given, 2 Convert, 3 Apply, 4 Result, ✓ Check.
