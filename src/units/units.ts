@@ -15,9 +15,9 @@ export type Dimension = "molar" | "massConc" | "volume" | "mass" | "molarMass";
 
 export interface Unit {
   id: UnitId;
-  /** written after a number: "µM" */
+  /** written after a number and in a unit menu: "µM" */
   symbol: string;
-  /** written in a unit menu, as on GraphPad: "micromolar" */
+  /** read aloud by screen readers, in a box's label: "micromolar" */
   name: string;
   dimension: Dimension;
   /** 1 unit = 10^exponent canonical units */

@@ -34,7 +34,7 @@ function MassUnits({ unitId, dispatch }: { unitId: UnitId; dispatch: Dispatch<Ac
       >
         {unitsOf("mass").map((u) => (
           <option key={u.id} value={u.id}>
-            {u.name}
+            {u.symbol}
           </option>
         ))}
         <option value="pct_wv">% w/v</option>
@@ -48,7 +48,7 @@ function MassUnits({ unitId, dispatch }: { unitId: UnitId; dispatch: Dispatch<Ac
           <select aria-label="Mass concentration: volume unit" value={volume} onChange={(e) => choose(pair(mass, e.target.value as VolumeUnitId))}>
             {unitsOf("volume").map((u) => (
               <option key={u.id} value={u.id}>
-                {u.name}
+                {u.symbol}
               </option>
             ))}
           </select>
@@ -138,7 +138,7 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
               <select aria-label={`${label}: unit`} value={unitId} onChange={(e) => dispatch({ type: "converterUnit", slot, unit: e.target.value as UnitId })}>
                 {unitsOf("molar").map((u) => (
                   <option key={u.id} value={u.id}>
-                    {u.name}
+                    {u.symbol}
                   </option>
                 ))}
               </select>
