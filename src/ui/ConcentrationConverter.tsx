@@ -126,7 +126,7 @@ export function ConcentrationConverter({ state, derived, dispatch }: Props) {
               autoComplete="off"
               autoCapitalize="off"
               spellCheck={false}
-              aria-label={`${label} in ${unit(unitId).name}`}
+              aria-label={`${label} in ${unit(unitId).symbol}`}
               aria-invalid={invalid ? true : undefined}
               aria-describedby={valueIssue ? `${id}-value-issue` : undefined}
               placeholder={converterNeedsMolarMass(derived, unitId) ? "needs MW" : ""}
