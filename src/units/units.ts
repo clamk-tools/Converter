@@ -15,37 +15,35 @@ export type Dimension = "molar" | "massConc" | "volume" | "mass" | "molarMass";
 
 export interface Unit {
   id: UnitId;
-  /** written after a number and in a unit menu: "µM" */
+  /** written after a number, in a unit menu and in a box's label for screen readers: "µM" */
   symbol: string;
-  /** read aloud by screen readers, in a box's label: "micromolar" */
-  name: string;
   dimension: Dimension;
   /** 1 unit = 10^exponent canonical units */
   exponent: number;
 }
 
 const UNITS = {
-  M: { symbol: "M", name: "molar", dimension: "molar", exponent: 0 },
-  mM: { symbol: "mM", name: "millimolar", dimension: "molar", exponent: -3 },
-  uM: { symbol: "µM", name: "micromolar", dimension: "molar", exponent: -6 },
-  nM: { symbol: "nM", name: "nanomolar", dimension: "molar", exponent: -9 },
-  pM: { symbol: "pM", name: "picomolar", dimension: "molar", exponent: -12 },
+  M: { symbol: "M", dimension: "molar", exponent: 0 },
+  mM: { symbol: "mM", dimension: "molar", exponent: -3 },
+  uM: { symbol: "µM", dimension: "molar", exponent: -6 },
+  nM: { symbol: "nM", dimension: "molar", exponent: -9 },
+  pM: { symbol: "pM", dimension: "molar", exponent: -12 },
 
   // mass concentration that is not a pair: 1 % w/v is 1 g in 100 mL = 10 g/L; 1 ppm is 1 mg/L (a dilute aqueous solution)
-  pct_wv: { symbol: "% w/v", name: "% w/v", dimension: "massConc", exponent: 1 },
-  ppm: { symbol: "ppm", name: "ppm (mg/L)", dimension: "massConc", exponent: -3 },
+  pct_wv: { symbol: "% w/v", dimension: "massConc", exponent: 1 },
+  ppm: { symbol: "ppm", dimension: "massConc", exponent: -3 },
 
-  L: { symbol: "L", name: "liter", dimension: "volume", exponent: 0 },
-  mL: { symbol: "mL", name: "milliliter", dimension: "volume", exponent: -3 },
-  uL: { symbol: "µL", name: "microliter", dimension: "volume", exponent: -6 },
-  nL: { symbol: "nL", name: "nanoliter", dimension: "volume", exponent: -9 },
+  L: { symbol: "L", dimension: "volume", exponent: 0 },
+  mL: { symbol: "mL", dimension: "volume", exponent: -3 },
+  uL: { symbol: "µL", dimension: "volume", exponent: -6 },
+  nL: { symbol: "nL", dimension: "volume", exponent: -9 },
 
-  g: { symbol: "g", name: "grams", dimension: "mass", exponent: 0 },
-  mg: { symbol: "mg", name: "milligrams", dimension: "mass", exponent: -3 },
-  ug: { symbol: "µg", name: "micrograms", dimension: "mass", exponent: -6 },
-  ng: { symbol: "ng", name: "nanograms", dimension: "mass", exponent: -9 },
+  g: { symbol: "g", dimension: "mass", exponent: 0 },
+  mg: { symbol: "mg", dimension: "mass", exponent: -3 },
+  ug: { symbol: "µg", dimension: "mass", exponent: -6 },
+  ng: { symbol: "ng", dimension: "mass", exponent: -9 },
 
-  g_mol: { symbol: "g/mol", name: "grams/mole", dimension: "molarMass", exponent: 0 },
+  g_mol: { symbol: "g/mol", dimension: "molarMass", exponent: 0 },
 } as const satisfies Record<string, Omit<Unit, "id">>;
 
 type FixedUnitId = keyof typeof UNITS;
@@ -72,7 +70,7 @@ export function unit(id: UnitId): Unit {
     const [m, v] = splitPair(id);
     const mass = UNITS[m];
     const volume = UNITS[v];
-    return { id, symbol: `${mass.symbol}/${volume.symbol}`, name: `${mass.name}/${volume.name}`, dimension: "massConc", exponent: mass.exponent - volume.exponent };
+    return { id, symbol: `${mass.symbol}/${volume.symbol}`, dimension: "massConc", exponent: mass.exponent - volume.exponent };
   }
   return { id, ...UNITS[id] };
 }

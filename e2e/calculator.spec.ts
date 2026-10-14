@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
 // The built page, used as a person would: typing in boxes, ticking the value to find, choosing units, reading the three
-// calculators. Each calculator is a section marked data-calculator; a box is named "<label> in <unit name>" ("Molecular
-// weight (g/mol or Da)" has no unit menu); an answer is an <output>.
+// calculators. Each calculator is a section marked data-calculator; a box is named "<label> in <unit symbol>"
+// ("Concentration in mM"; "Molecular weight (g/mol or Da)" has no unit menu); an answer is an <output>.
 
 type Id = "solution" | "dilution" | "conversion";
 const calc = (page: Page, id: Id) => page.locator(`[data-calculator="${id}"]`);
@@ -30,9 +30,9 @@ test.afterEach(async ({ page }) => {
 });
 
 const glucose = async (page: Page) => {
-  await box(page, "solution", "Concentration in millimolar").fill("100");
+  await box(page, "solution", "Concentration in mM").fill("100");
   await box(page, "solution", "Molecular weight (g/mol or Da)").fill("180.16");
-  await box(page, "solution", "Volume in milliliter").fill("10");
+  await box(page, "solution", "Volume in mL").fill("10");
 };
 const findButton = (page: Page, what: string) => calc(page, "solution").getByRole("button", { name: `Find ${what}` });
 const dilutionFind = (page: Page, what: string) => calc(page, "dilution").getByRole("button", { name: `Find ${what}` });
@@ -72,7 +72,7 @@ test("the sanity check: 100 mM, 180.16 g/mol, 10 mL give 180.16 mg, and follow e
   await expect(answer(page, "solution")).toHaveText("180.16");
   await expect(unitMenu(page, "solution", "Mass")).toHaveValue("mg");
   await expect(calc(page, "solution").locator(".calc-worked")).toHaveText("m = 100 mM × 10 mL × 180.16 g/mol = 180.16 mg");
-  await box(page, "solution", "Concentration in millimolar").fill("200");
+  await box(page, "solution", "Concentration in mM").fill("200");
   await expect(answer(page, "solution")).toHaveText("360.32");
 });
 
@@ -81,13 +81,13 @@ test("ticking another value finds it, and the answer shown so far stays as a typ
   await findButton(page, "volume").click();
   await expect(findButton(page, "volume")).toHaveAttribute("aria-pressed", "true");
   await expect(findButton(page, "mass")).toHaveAttribute("aria-pressed", "false");
-  await expect(box(page, "solution", "Mass in milligrams")).toHaveValue("180.16");
+  await expect(box(page, "solution", "Mass in mg")).toHaveValue("180.16");
   await expect(answer(page, "solution")).toHaveText("10");
 
-  await box(page, "solution", "Mass in milligrams").fill("90.08");
+  await box(page, "solution", "Mass in mg").fill("90.08");
   await expect(answer(page, "solution")).toHaveText("5");
   await findButton(page, "concentration").click();
-  await expect(box(page, "solution", "Volume in milliliter")).toHaveValue("5");
+  await expect(box(page, "solution", "Volume in mL")).toHaveValue("5");
   await expect(answer(page, "solution")).toHaveText("100");
   await expect(calc(page, "solution").locator(".calc-formula")).toHaveText("C = m / (MW × V)");
 });
@@ -97,23 +97,23 @@ test("a unit chosen for a quantity applies to its answer too, and keeps the valu
   await unitMenu(page, "solution", "Mass").selectOption("g");
   await expect(answer(page, "solution")).toHaveText("0.18016");
   await unitMenu(page, "solution", "Concentration").selectOption("M");
-  await expect(box(page, "solution", "Concentration in molar")).toHaveValue("0.1");
+  await expect(box(page, "solution", "Concentration in M")).toHaveValue("0.1");
   await unitMenu(page, "solution", "Volume").selectOption("uL");
-  await expect(box(page, "solution", "Volume in microliter")).toHaveValue("10000");
+  await expect(box(page, "solution", "Volume in µL")).toHaveValue("10000");
   await expect(answer(page, "solution")).toHaveText("0.18016");
 });
 
 test("the dilution keeps its own values", async ({ page }) => {
   await glucose(page);
   await open(page, "dilution");
-  await expect(box(page, "dilution", "C₁, stock concentration in millimolar")).toHaveValue("");
-  await expect(box(page, "dilution", "V₂, final volume in milliliter")).toHaveValue("");
+  await expect(box(page, "dilution", "C₁, stock concentration in mM")).toHaveValue("");
+  await expect(box(page, "dilution", "V₂, final volume in mL")).toHaveValue("");
 });
 
 test("typing is not fought: an incomplete number stays as typed, and is flagged only on leaving", async ({ page }) => {
-  await box(page, "solution", "Concentration in millimolar").fill("100");
+  await box(page, "solution", "Concentration in mM").fill("100");
   await box(page, "solution", "Molecular weight (g/mol or Da)").fill("180.16");
-  const input = box(page, "solution", "Volume in milliliter");
+  const input = box(page, "solution", "Volume in mL");
   await input.pressSequentially("1e-");
   await expect(input).toHaveValue("1e-");
   await expect(calc(page, "solution").getByText("This number is not complete.", { exact: true })).toHaveCount(0);
@@ -128,12 +128,12 @@ test("typing is not fought: an incomplete number stays as typed, and is flagged 
 
 test("scientific notation and a decimal comma are read", async ({ page }) => {
   await unitMenu(page, "solution", "Concentration").selectOption("M");
-  await box(page, "solution", "Concentration in molar").fill("2.5e-7");
+  await box(page, "solution", "Concentration in M").fill("2.5e-7");
   await unitMenu(page, "solution", "Concentration").selectOption("nM");
-  await expect(box(page, "solution", "Concentration in nanomolar")).toHaveValue("250");
-  await box(page, "solution", "Volume in milliliter").fill("0,5");
+  await expect(box(page, "solution", "Concentration in nM")).toHaveValue("250");
+  await box(page, "solution", "Volume in mL").fill("0,5");
   await unitMenu(page, "solution", "Volume").selectOption("uL");
-  await expect(box(page, "solution", "Volume in microliter")).toHaveValue("500");
+  await expect(box(page, "solution", "Volume in µL")).toHaveValue("500");
 });
 
 test("invalid values are explained at the box, in each calculator", async ({ page }) => {
@@ -142,24 +142,24 @@ test("invalid values are explained at the box, in each calculator", async ({ pag
   await open(page, "conversion"); // the molecular weight is the same in the converter
   await expect(calc(page, "conversion").getByText("Molecular weight cannot be negative.")).toBeVisible();
   await open(page, "solution");
-  await box(page, "solution", "Volume in milliliter").fill("abc");
-  await expect(box(page, "solution", "Volume in milliliter")).toHaveAttribute("aria-invalid", "true");
+  await box(page, "solution", "Volume in mL").fill("abc");
+  await expect(box(page, "solution", "Volume in mL")).toHaveAttribute("aria-invalid", "true");
 });
 
 test("an answer too large to calculate says so, instead of staying blank", async ({ page }) => {
   await box(page, "solution", "Molecular weight (g/mol or Da)").fill("1e300");
-  await box(page, "solution", "Concentration in millimolar").fill("1e300");
-  await box(page, "solution", "Volume in milliliter").fill("1");
+  await box(page, "solution", "Concentration in mM").fill("1e300");
+  await box(page, "solution", "Volume in mL").fill("1");
   await expect(calc(page, "solution").getByText("The answer is too large to calculate", { exact: false })).toBeVisible();
   await expect(answer(page, "solution")).toHaveText("");
-  await box(page, "solution", "Concentration in millimolar").fill("100"); // back in range: the message goes
+  await box(page, "solution", "Concentration in mM").fill("100"); // back in range: the message goes
   await expect(calc(page, "solution").getByText("too large", { exact: false })).toHaveCount(0);
 });
 
 test("a zero mass is fine to find a concentration, not to find a volume", async ({ page }) => {
   await glucose(page);
   await findButton(page, "concentration").click();
-  await box(page, "solution", "Mass in milligrams").fill("0");
+  await box(page, "solution", "Mass in mg").fill("0");
   await expect(answer(page, "solution")).toHaveText("0");
   await findButton(page, "volume").click();
   await expect(calc(page, "solution").getByText("Mass must be greater than zero to calculate a volume.")).toBeVisible();
@@ -169,9 +169,9 @@ test("a zero mass is fine to find a concentration, not to find a volume", async 
 const dilute = async (page: Page) => {
   await open(page, "dilution");
   await unitMenu(page, "dilution", "C₁, stock concentration").selectOption("M");
-  await box(page, "dilution", "C₁, stock concentration in molar").fill("1");
-  await box(page, "dilution", "C₂, final concentration in millimolar").fill("10");
-  await box(page, "dilution", "V₂, final volume in milliliter").fill("100");
+  await box(page, "dilution", "C₁, stock concentration in M").fill("1");
+  await box(page, "dilution", "C₂, final concentration in mM").fill("10");
+  await box(page, "dilution", "V₂, final volume in mL").fill("100");
 };
 
 test("the dilution sanity check: 1 M to 10 mM in 100 mL takes 1 mL of stock", async ({ page }) => {
@@ -188,7 +188,7 @@ test("the dilution's formula fills in with the numbers as they are typed", async
   await open(page, "dilution");
   const worked = calc(page, "dilution").locator(".calc-worked");
   await expect(worked).toHaveText("V₁ = ? × ? / ? = ?");
-  await box(page, "dilution", "C₂, final concentration in millimolar").fill("10");
+  await box(page, "dilution", "C₂, final concentration in mM").fill("10");
   await expect(worked).toHaveText("V₁ = 10 mM × ? / ? = ?");
   await dilute(page);
   await expect(worked).toHaveText("V₁ = 10 mM × 100 mL / 1 M = 1 mL");
@@ -199,9 +199,9 @@ test("the dilution's formula fills in with the numbers as they are typed", async
 test("any of the four can be ticked in the dilution: the answer so far stays as a typed value", async ({ page }) => {
   await dilute(page);
   await dilutionFind(page, "V₂, final volume").click();
-  await expect(box(page, "dilution", "V₁, volume of stock in milliliter")).toHaveValue("1");
+  await expect(box(page, "dilution", "V₁, volume of stock in mL")).toHaveValue("1");
   await expect(answer(page, "dilution")).toHaveText("100");
-  await box(page, "dilution", "V₁, volume of stock in milliliter").fill("2");
+  await box(page, "dilution", "V₁, volume of stock in mL").fill("2");
   await expect(answer(page, "dilution")).toHaveText("200");
 
   await dilutionFind(page, "C₂, final concentration").click();
@@ -214,18 +214,18 @@ test("any of the four can be ticked in the dilution: the answer so far stays as 
 test("a V₁ larger than V₂ is refused when finding a concentration, with the reason", async ({ page }) => {
   await open(page, "dilution");
   await dilutionFind(page, "C₂, final concentration").click();
-  await box(page, "dilution", "C₁, stock concentration in millimolar").fill("10");
-  await box(page, "dilution", "V₁, volume of stock in milliliter").fill("20");
-  await box(page, "dilution", "V₂, final volume in milliliter").fill("10");
+  await box(page, "dilution", "C₁, stock concentration in mM").fill("10");
+  await box(page, "dilution", "V₁, volume of stock in mL").fill("20");
+  await box(page, "dilution", "V₂, final volume in mL").fill("10");
   await expect(calc(page, "dilution").getByText(/V₁ is larger than V₂/)).toBeVisible();
   await expect(answer(page, "dilution")).toHaveText("");
 });
 
 test("a final concentration above the stock is refused, with the reason", async ({ page }) => {
   await open(page, "dilution");
-  await box(page, "dilution", "C₁, stock concentration in millimolar").fill("10");
-  await box(page, "dilution", "C₂, final concentration in millimolar").fill("100");
-  await box(page, "dilution", "V₂, final volume in milliliter").fill("10");
+  await box(page, "dilution", "C₁, stock concentration in mM").fill("10");
+  await box(page, "dilution", "C₂, final concentration in mM").fill("100");
+  await box(page, "dilution", "V₂, final volume in mL").fill("10");
   await expect(calc(page, "dilution").getByText(/C₂ is higher than C₁/)).toBeVisible();
   await expect(answer(page, "dilution")).toHaveText("");
 });
@@ -265,7 +265,7 @@ test("an answer can be added to the report, which writes the calculation out ste
 test("the report keeps what was calculated, and survives a reload", async ({ page }) => {
   await glucose(page);
   await calc(page, "solution").getByRole("button", { name: "Add mass to report" }).click();
-  await box(page, "solution", "Concentration in millimolar").fill("200"); // later edits do not change it
+  await box(page, "solution", "Concentration in mM").fill("200"); // later edits do not change it
   await page.reload();
   await page.getByRole("tab", { name: "Report (1)" }).click();
   await expect(page.locator(".calc-sheet").getByText("m = 180.16 mg")).toBeVisible();
@@ -341,25 +341,25 @@ test("3. the two lines are linked, and the mass and volume units of the mass lin
   const massUnit = calc(page, "conversion").getByLabel("Mass concentration: mass unit");
   const volumeUnit = calc(page, "conversion").getByLabel("Mass concentration: volume unit");
   await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("180.16");
-  await box(page, "conversion", "Molar concentration in millimolar").fill("100");
-  await expect(box(page, "conversion", "Mass concentration in milligrams/milliliter")).toHaveValue("18.016");
+  await box(page, "conversion", "Molar concentration in mM").fill("100");
+  await expect(box(page, "conversion", "Mass concentration in mg/mL")).toHaveValue("18.016");
   await expect(calc(page, "conversion").locator(".calc-formula")).toHaveText("Cm = C × MW");
   await expect(calc(page, "conversion").locator(".calc-worked")).toHaveText("Cm = 100 mM × 180.16 g/mol = 18.016 mg/mL");
 
   await massUnit.selectOption("g"); // g/mL
-  await expect(box(page, "conversion", "Mass concentration in grams/milliliter")).toHaveValue("0.018016");
+  await expect(box(page, "conversion", "Mass concentration in g/mL")).toHaveValue("0.018016");
   await volumeUnit.selectOption("L"); // g/L
-  await expect(box(page, "conversion", "Mass concentration in grams/liter")).toHaveValue("18.016");
+  await expect(box(page, "conversion", "Mass concentration in g/L")).toHaveValue("18.016");
   await massUnit.selectOption("ug"); // µg/L
-  await expect(box(page, "conversion", "Mass concentration in micrograms/liter")).toHaveValue("18016000");
+  await expect(box(page, "conversion", "Mass concentration in µg/L")).toHaveValue("18016000");
   await volumeUnit.selectOption("uL"); // µg/µL
-  await expect(box(page, "conversion", "Mass concentration in micrograms/microliter")).toHaveValue("18.016");
+  await expect(box(page, "conversion", "Mass concentration in µg/µL")).toHaveValue("18.016");
 
   await massUnit.selectOption("mg");
   await volumeUnit.selectOption("L"); // mg/L
-  await box(page, "conversion", "Mass concentration in milligrams/liter").fill("9008"); // half of it, typed on the mass line
+  await box(page, "conversion", "Mass concentration in mg/L").fill("9008"); // half of it, typed on the mass line
   await unitMenu(page, "conversion", "Molar concentration").selectOption("uM");
-  await expect(box(page, "conversion", "Molar concentration in micromolar")).toHaveValue("50000");
+  await expect(box(page, "conversion", "Molar concentration in µM")).toHaveValue("50000");
 });
 
 test("3. % w/v and ppm are in the mass menu, with their fixed volume shown", async ({ page }) => {
@@ -367,7 +367,7 @@ test("3. % w/v and ppm are in the mass menu, with their fixed volume shown", asy
   const massUnit = calc(page, "conversion").getByLabel("Mass concentration: mass unit");
   const volumeUnit = calc(page, "conversion").getByLabel("Mass concentration: volume unit");
   await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("180.16");
-  await box(page, "conversion", "Molar concentration in millimolar").fill("100");
+  await box(page, "conversion", "Molar concentration in mM").fill("100");
 
   await massUnit.selectOption("pct_wv");
   await expect(volumeUnit).toBeDisabled();
@@ -375,10 +375,10 @@ test("3. % w/v and ppm are in the mass menu, with their fixed volume shown", asy
   await expect(box(page, "conversion", "Mass concentration in % w/v")).toHaveValue("1.8016");
   await massUnit.selectOption("ppm");
   await expect(volumeUnit).toContainText("per L");
-  await expect(box(page, "conversion", "Mass concentration in ppm (mg/L)")).toHaveValue("18016");
+  await expect(box(page, "conversion", "Mass concentration in ppm")).toHaveValue("18016");
 
-  await box(page, "conversion", "Mass concentration in ppm (mg/L)").fill("9008");
-  await expect(box(page, "conversion", "Molar concentration in millimolar")).toHaveValue("50");
+  await box(page, "conversion", "Mass concentration in ppm").fill("9008");
+  await expect(box(page, "conversion", "Molar concentration in mM")).toHaveValue("50");
   await massUnit.selectOption("g"); // back to a pair: the volume menu is usable again, at its default
   await expect(volumeUnit).toBeEnabled();
   await expect(volumeUnit).toHaveValue("mL");
@@ -386,34 +386,34 @@ test("3. % w/v and ppm are in the mass menu, with their fixed volume shown", asy
 
 test("3. it asks for a molecular weight to cross between the two lines, and shares the one of the other calculators", async ({ page }) => {
   await open(page, "conversion");
-  await box(page, "conversion", "Molar concentration in millimolar").fill("100");
-  await expect(box(page, "conversion", "Mass concentration in milligrams/milliliter")).toHaveValue("");
-  await expect(box(page, "conversion", "Mass concentration in milligrams/milliliter")).toHaveAttribute("placeholder", "needs MW");
+  await box(page, "conversion", "Molar concentration in mM").fill("100");
+  await expect(box(page, "conversion", "Mass concentration in mg/mL")).toHaveValue("");
+  await expect(box(page, "conversion", "Mass concentration in mg/mL")).toHaveAttribute("placeholder", "needs MW");
   await unitMenu(page, "conversion", "Molar concentration").selectOption("uM"); // within one kind: no weight needed
-  await expect(box(page, "conversion", "Molar concentration in micromolar")).toHaveValue("100000");
+  await expect(box(page, "conversion", "Molar concentration in µM")).toHaveValue("100000");
 
   await open(page, "solution");
   await box(page, "solution", "Molecular weight (g/mol or Da)").fill("180.16"); // typed in calculator 1
   await open(page, "conversion");
   await expect(box(page, "conversion", "Molecular weight (g/mol or Da)")).toHaveValue("180.16");
-  await expect(box(page, "conversion", "Mass concentration in milligrams/milliliter")).toHaveValue("18.016");
+  await expect(box(page, "conversion", "Mass concentration in mg/mL")).toHaveValue("18.016");
 });
 
 test("3. it is its own value: it does not change the concentration in calculator 1", async ({ page }) => {
   await glucose(page);
   await open(page, "conversion");
-  await box(page, "conversion", "Molar concentration in millimolar").fill("5");
+  await box(page, "conversion", "Molar concentration in mM").fill("5");
   await open(page, "solution");
-  await expect(box(page, "solution", "Concentration in millimolar")).toHaveValue("100");
+  await expect(box(page, "solution", "Concentration in mM")).toHaveValue("100");
   await expect(answer(page, "solution")).toHaveText("180.16");
 });
 
 test("3. a negative concentration and a molecular weight of zero are explained", async ({ page }) => {
   await open(page, "conversion");
   await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("180.16");
-  await box(page, "conversion", "Molar concentration in millimolar").fill("-5");
+  await box(page, "conversion", "Molar concentration in mM").fill("-5");
   await expect(calc(page, "conversion").getByText("Concentration cannot be negative.")).toBeVisible();
-  await box(page, "conversion", "Molar concentration in millimolar").fill("5");
+  await box(page, "conversion", "Molar concentration in mM").fill("5");
   await box(page, "conversion", "Molecular weight (g/mol or Da)").fill("0");
   await expect(calc(page, "conversion").getByText("Molecular weight must be greater than zero.")).toBeVisible();
 });

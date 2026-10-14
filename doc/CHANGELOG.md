@@ -5,6 +5,13 @@ decision taken (with its reason). Work not yet on `main` goes under **Unreleased
 
 ## Unreleased
 
+### 2026-10-14 · Screen readers hear units in notation too
+
+- **Seen:** nothing changes on screen. A screen reader now says a box's unit as it is written, "Concentration in mM",
+  instead of "Concentration in millimolar".
+- **Inside:** the boxes' labels use `symbol` (`ui/TileCard.tsx`, `ui/ConcentrationConverter.tsx`). The unit names in
+  words (`name` in `units/units.ts`) had no other use and are removed. End-to-end tests find boxes by the new labels.
+
 ### 2026-10-13 · Unit menus in notation: mM, mL, mg
 
 - **Seen:** every unit menu reads in notation (M, mM, µM… L, mL, µL… g, mg, µg…) instead of in words (millimolar,

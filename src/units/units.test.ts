@@ -37,7 +37,7 @@ describe("unit conversion", () => {
   });
 
   it("names a pair from its two units, and lists every pair, then % w/v and ppm", () => {
-    expect(unit("ug/mL")).toMatchObject({ symbol: "µg/mL", name: "micrograms/milliliter", dimension: "massConc", exponent: -3 });
+    expect(unit("ug/mL")).toMatchObject({ symbol: "µg/mL", dimension: "massConc", exponent: -3 });
     expect(unit("mg/L").exponent).toBe(-3);
     const all = unitsOf("massConc").map((u) => u.symbol);
     expect(all).toHaveLength(18);
@@ -56,10 +56,10 @@ describe("unit conversion", () => {
     expect(convert(1, "ppm", "ug/mL")).toBe(1);
   });
 
-  it("names the units as GraphPad does", () => {
-    expect(unitsOf("molar").map((u) => u.name)).toEqual(["molar", "millimolar", "micromolar", "nanomolar", "picomolar"]);
-    expect(unitsOf("volume").map((u) => u.name)).toEqual(["liter", "milliliter", "microliter", "nanoliter"]);
-    expect(unitsOf("mass").map((u) => u.name)).toEqual(["grams", "milligrams", "micrograms", "nanograms"]);
+  it("writes the units in notation", () => {
+    expect(unitsOf("molar").map((u) => u.symbol)).toEqual(["M", "mM", "µM", "nM", "pM"]);
+    expect(unitsOf("volume").map((u) => u.symbol)).toEqual(["L", "mL", "µL", "nL"]);
+    expect(unitsOf("mass").map((u) => u.symbol)).toEqual(["g", "mg", "µg", "ng"]);
   });
 
   it("goes through the canonical unit without float noise", () => {

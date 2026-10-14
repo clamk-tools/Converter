@@ -97,7 +97,7 @@ export function TileCard({ spec, find, result, formula, note, problem, worked, r
                     autoComplete="off"
                     autoCapitalize="off"
                     spellCheck={false}
-                    aria-label={fixed ? spoken : `${spoken} in ${unit(shown).name}`}
+                    aria-label={fixed ? spoken : `${spoken} in ${unit(shown).symbol}`}
                     aria-invalid={issue ? true : undefined}
                     aria-describedby={issue ? `${boxId}-issue` : undefined}
                     value={boxText(state, derived, field, shown, spec.id)}

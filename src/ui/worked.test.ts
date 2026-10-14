@@ -27,7 +27,7 @@ describe("the dilution's formula with its numbers", () => {
     const v2 = run([{ type: "find", target: "finalVolume" }, ...base, ...typed("stockVolume", "mL", "1")]);
     expect(worked(v2)).toBe("V₂ = 1 M × 1 mL / 10 mM = 100 mL");
     const c2 = run([{ type: "find", target: "target" }, ...typed("stock", "M", "1"), ...typed("stockVolume", "mL", "1"), ...typed("finalVolume", "mL", "100")]);
-    expect(worked(c2)).toBe("C₂ = 1000 mM × 1 mL / 100 mL = 10 mM"); // C₁ typed as 1 M, shown in its box's unit, millimolar
+    expect(worked(c2)).toBe("C₂ = 1000 mM × 1 mL / 100 mL = 10 mM"); // C₁ typed as 1 M, shown in its box's unit, mM
   });
 });
 
